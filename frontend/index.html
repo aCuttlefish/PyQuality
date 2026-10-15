@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PyQuality — Python 代码质量助手</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">⚡</span>
+    <div><h1>PyQuality</h1><p>Python 代码质量助手</p></div>
+  </div>
+  <div class="top-right">
+    <select id="projectSelect"><option value="">选择项目...</option></select>
+    <button class="btn ghost sm" id="uploadBtn">📁 上传</button>
+    <div class="ai-status" id="aiStatus"><span class="dot"></span>检测中...</div>
+    <button class="btn ghost sm icon-btn" id="themeBtn" title="切换主题">🌙</button>
+  </div>
+</header>
+
+<div id="uploadModal" class="modal" hidden>
+  <div class="modal-overlay" id="modalOverlay"></div>
+  <div class="modal-content">
+    <div class="modal-head"><h2>上传 Python 项目</h2><button class="btn ghost sm" id="closeModalBtn">✕</button></div>
+    <p class="hint">支持 .zip 压缩包或多个 .py 文件</p>
+    <div class="dropzone" id="dropzone">
+      <input type="file" id="fileInput" multiple accept=".zip,.py,.txt,.md,.json,.cfg,.toml" hidden>
+      <div class="dz-icon">📦</div>
+      <p><strong>拖拽文件到此处</strong> 或 <span class="link">点击选择</span></p>
+      <p class="dz-files" id="dzFiles"></p>
+    </div>
+    <div class="form-row"><label>项目名称（可选）</label><input type="text" id="projName" placeholder="例如：学生成绩管理系统"></div>
+    <button class="btn primary full" id="doUploadBtn">上传项目</button>
+  </div>
+</div>
+
+<main>
+  <div id="chat" class="chat-stream"></div>
+  <div class="composer">
+    <div class="quick-cmds" id="quickCmds">
+      <button class="chip" data-cmd="/help">/help</button>
+      <button class="chip" data-cmd="/sample">/sample</button>
+      <button class="chip" data-cmd="/analyze">/analyze</button>
+      <button class="chip" data-cmd="/smells">/smells</button>
+      <button class="chip" data-cmd="/score">/score</button>
+      <button class="chip" data-cmd="/funcs">/funcs</button>
+      <button class="chip" data-cmd="/tests">/tests</button>
+      <button class="chip" data-cmd="/fix">/fix</button>
+      <button class="chip" data-cmd="/advice">/advice</button>
+      <button class="chip" data-cmd="/dashboard">/dashboard</button>
+      <button class="chip" data-cmd="/history">/history</button>
+      <button class="chip" data-cmd="/export">/export</button>
+    </div>
+    <div class="input-row">
+      <input type="text" id="msgInput" placeholder="输入命令或消息…（/help 查看帮助）" autocomplete="off">
+      <button class="btn primary" id="sendBtn">发送 ➤</button>
+    </div>
+  </div>
+</main>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
