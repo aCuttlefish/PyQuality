@@ -54,8 +54,27 @@ def init_db(conn: sqlite3.Connection) -> None:
             created_at REAL NOT NULL,
             FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE
         );
+        CREATE TABLE IF NOT EXISTS chat_sessions (
+            id TEXT PRIMARY KEY,
+            project_id TEXT,
+            title TEXT NOT NULL DEFAULT '新会话',
+            created_at REAL NOT NULL,
+            updated_at REAL NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS chat_messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            role TEXT NOT NULL,
+            content TEXT NOT NULL,
+            created_at REAL NOT NULL,
+            FOREIGN KEY(session_id) REFERENCES chat_sessions(id) ON DELETE CASCADE
+        );
         """
     )
+    try:
+        conn.execute("ALTER TABLE analysis_history ADD COLUMN result_text TEXT")
+    except sqlite3.OperationalError:
+        pass
     conn.commit()
 
 
@@ -108,6 +127,12 @@ def delete_project(pid: str) -> bool:
         conn.execute("DELETE FROM project_files WHERE project_id=?", (pid,))
         conn.execute("DELETE FROM analysis_cache WHERE project_id=?", (pid,))
         conn.execute("DELETE FROM analysis_history WHERE project_id=?", (pid,))
+        session_ids = [r["id"] for r in conn.execute(
+            "SELECT id FROM chat_sessions WHERE project_id=?", (pid,)
+        ).fetchall()]
+        for sid in session_ids:
+            conn.execute("DELETE FROM chat_messages WHERE session_id=?", (sid,))
+        conn.execute("DELETE FROM chat_sessions WHERE project_id=?", (pid,))
         conn.commit()
         return cur.rowcount > 0
 
@@ -179,3 +204,115 @@ def list_analysis_history(pid: str, limit: int = 50) -> list[dict]:
         (pid, limit),
     ).fetchall()
     return [{"id": r["id"], "summary": json.loads(r["summary"]), "created_at": r["created_at"]} for r in rows]
+
+def save_analysis_snapshot(pid: str, summary: dict, result: dict) -> None:
+    with _lock:
+        conn = get_conn()
+        conn.execute(
+            "INSERT INTO analysis_history (project_id, summary, created_at, result_text) VALUES (?,?,?,?)",
+            (pid, json.dumps(summary, ensure_ascii=False), time.time(),
+             json.dumps(result, ensure_ascii=False)),
+        )
+        conn.commit()
+
+
+def get_analysis_snapshot(snapshot_id: int) -> dict | None:
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT id, project_id, summary, result_text, created_at FROM analysis_history WHERE id=?",
+        (snapshot_id,),
+    ).fetchone()
+    if row is None:
+        return None
+    return {
+        "id": row["id"],
+        "project_id": row["project_id"],
+        "summary": json.loads(row["summary"]),
+        "result": json.loads(row["result_text"]) if row["result_text"] else None,
+        "created_at": row["created_at"],
+    }
+
+
+def create_session(project_id: str = "", title: str = "") -> dict:
+    with _lock:
+        conn = get_conn()
+        sid = uuid.uuid4().hex[:12]
+        now = time.time()
+        conn.execute(
+            "INSERT INTO chat_sessions (id, project_id, title, created_at, updated_at) VALUES (?,?,?,?,?)",
+            (sid, project_id or None, title or "新会话", now, now),
+        )
+        conn.commit()
+        return {"id": sid, "project_id": project_id, "title": title or "新会话",
+                "created_at": now, "updated_at": now}
+
+
+def list_sessions(project_id: str = "", limit: int = 50) -> list[dict]:
+    conn = get_conn()
+    if project_id:
+        rows = conn.execute(
+            "SELECT * FROM chat_sessions WHERE project_id=? ORDER BY updated_at DESC LIMIT ?",
+            (project_id, limit),
+        ).fetchall()
+    else:
+        rows = conn.execute(
+            "SELECT * FROM chat_sessions ORDER BY updated_at DESC LIMIT ?",
+            (limit,),
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def get_session(sid: str) -> dict | None:
+    conn = get_conn()
+    row = conn.execute("SELECT * FROM chat_sessions WHERE id=?", (sid,)).fetchone()
+    return dict(row) if row else None
+
+
+def delete_session(sid: str) -> bool:
+    with _lock:
+        conn = get_conn()
+        cur = conn.execute("DELETE FROM chat_sessions WHERE id=?", (sid,))
+        conn.execute("DELETE FROM chat_messages WHERE session_id=?", (sid,))
+        conn.commit()
+        return cur.rowcount > 0
+
+
+def update_session(sid: str, title: str) -> bool:
+    with _lock:
+        conn = get_conn()
+        cur = conn.execute(
+            "UPDATE chat_sessions SET title=?, updated_at=? WHERE id=?",
+            (title, time.time(), sid),
+        )
+        conn.commit()
+        return cur.rowcount > 0
+
+
+def touch_session(sid: str) -> None:
+    with _lock:
+        conn = get_conn()
+        conn.execute("UPDATE chat_sessions SET updated_at=? WHERE id=?", (time.time(), sid))
+        conn.commit()
+
+
+def add_message(sid: str, role: str, content: str) -> dict:
+    with _lock:
+        conn = get_conn()
+        now = time.time()
+        cur = conn.execute(
+            "INSERT INTO chat_messages (session_id, role, content, created_at) VALUES (?,?,?,?)",
+            (sid, role, content, now),
+        )
+        conn.execute("UPDATE chat_sessions SET updated_at=? WHERE id=?", (now, sid))
+        conn.commit()
+        return {"id": cur.lastrowid, "session_id": sid, "role": role,
+                "content": content, "created_at": now}
+
+
+def list_messages(sid: str, limit: int = 200) -> list[dict]:
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT * FROM chat_messages WHERE session_id=? ORDER BY created_at ASC LIMIT ?",
+        (sid, limit),
+    ).fetchall()
+    return [dict(r) for r in rows]

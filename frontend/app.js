@@ -4,11 +4,12 @@ const HISTORY_KEY = "pyquality_chat_history";
 const MAX_HISTORY = 100;
 
 let currentPid = "";
+let currentSid = "";
 let pickedFiles = [];
 let cmdHistory = [];
 let cmdHistoryIdx = -1;
 
-const ALL_COMMANDS = ["/help", "/projects", "/use", "/files", "/sample", "/analyze", "/summary", "/smells", "/score", "/security", "/deps", "/deadcode", "/funcs", "/tests", "/fix", "/advice", "/config", "/history", "/export", "/compare", "/snippet", "/dashboard", "/rename", "/delete", "/cicd", "/tree", "/ignore", "/search", "/doc", "/type", "/dup", "/perf", "/refactor"];
+const ALL_COMMANDS = ["/help", "/projects", "/use", "/files", "/sample", "/analyze", "/summary", "/smells", "/score", "/security", "/deps", "/deadcode", "/funcs", "/tests", "/fix", "/advice", "/config", "/history", "/export", "/compare", "/snippet", "/dashboard", "/rename", "/delete", "/cicd", "/tree", "/ignore", "/search", "/doc", "/type", "/dup", "/perf", "/refactor", "/sessions", "/session"];
 const CMD_PARAMS = {
   "/analyze": ["all"],
   "/config": ["set", "reset"],
@@ -38,12 +39,13 @@ document.addEventListener("keydown", (e) => {
   if (e.ctrlKey && e.key === "l") { e.preventDefault(); clearHistory(); addMsg("ai", "对话已清空。输入 `/help` 查看命令。"); }
   else if (e.ctrlKey && e.key === "k") { e.preventDefault(); $("msgInput").focus(); }
 });
-$("projectSelect").addEventListener("change", () => { currentPid = $("projectSelect").value; });
+$("projectSelect").addEventListener("change", async () => { currentPid = $("projectSelect").value; await loadSessions(); });
 $("uploadBtn").addEventListener("click", () => { $("uploadModal").hidden = false; });
 $("closeModalBtn").addEventListener("click", closeModal);
 $("modalOverlay").addEventListener("click", closeModal);
 $("doUploadBtn").addEventListener("click", uploadProject);
 $("themeBtn").addEventListener("click", toggleTheme);
+$("newSessionBtn").addEventListener("click", () => newSession());
 
 const dz = $("dropzone");
 dz.addEventListener("click", () => $("fileInput").click());
@@ -61,9 +63,61 @@ init();
 async function init() {
   loadProjects();
   checkAiStatus();
-  if (!loadHistory()) {
-    addMsg("ai", "👋 欢迎使用 **PyQuality**！\n\n我是一个 Python 代码质量助手，可以帮你：\n- 🔍 分析代码坏味、安全、依赖、可读性\n- 🤖 生成 pytest 测试用例\n- 🔧 AI 修复代码\n- 💡 提出改进建议\n\n输入 `/help` 查看所有命令，或选择/上传项目后输入 `/analyze` 开始。");
+  await loadSessions();
+  if (!currentSid) {
+    await newSession();
+  } else {
+    await switchSession(currentSid, false);
   }
+}
+
+async function loadSessions() {
+  try {
+    const r = await api("/sessions?project_id=" + encodeURIComponent(currentPid));
+    renderSessions(r.sessions || []);
+  } catch (e) { console.error("loadSessions", e); }
+}
+
+function renderSessions(sessions) {
+  const list = $("sessionList");
+  list.innerHTML = "";
+  for (const s of sessions) {
+    const div = document.createElement("div");
+    div.className = "session-item" + (s.id === currentSid ? " active" : "");
+    const ts = new Date(s.updated_at * 1000).toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+    div.innerHTML = `<div class="s-title">${esc(s.title)}</div><div class="s-meta">${s.message_count || 0} 条 · ${ts}</div>`;
+    div.addEventListener("click", () => switchSession(s.id));
+    list.appendChild(div);
+  }
+}
+
+async function newSession() {
+  try {
+    const r = await api("/sessions", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ project_id: currentPid, title: "" }) });
+    currentSid = r.session.id;
+    $("chat").innerHTML = "";
+    addMsg("ai", "👋 新会话已创建。输入 `/help` 查看命令，或选择/上传项目后输入 `/analyze` 开始。");
+    await loadSessions();
+  } catch (e) { toast(e.message, "err"); }
+}
+
+async function switchSession(sid, reload = true) {
+  try {
+    const r = await api(`/sessions/${sid}/messages`);
+    currentSid = sid;
+    if (reload) {
+      $("chat").innerHTML = "";
+      const msgs = r.messages || [];
+      if (!msgs.length) {
+        addMsg("ai", "👋 此会话暂无消息。输入 `/help` 查看命令。");
+      } else {
+        for (const m of msgs) {
+          addMsg(m.role, m.content);
+        }
+      }
+    }
+    await loadSessions();
+  } catch (e) { toast(e.message, "err"); }
 }
 
 function saveHistory() {
@@ -93,10 +147,7 @@ function loadHistory() {
   } catch { return false; }
 }
 
-function clearHistory() {
-  localStorage.removeItem(HISTORY_KEY);
-  $("chat").innerHTML = "";
-}
+function clearHistory() { newSession(); }
 
 function closeModal() { $("uploadModal").hidden = true; }
 
@@ -121,6 +172,7 @@ async function uploadProject() {
     await loadProjects();
     currentPid = r.project.id;
     $("projectSelect").value = currentPid;
+    await loadSessions();
     addMsg("ai", `✅ 项目「**${r.project.name}**」已加载（${r.files.length} 个文件）。\n\n输入 \`/analyze\` 开始分析。`);
   });
 }
@@ -157,10 +209,12 @@ async function sendMessage() {
   const thinking = addMsg("ai", '<span class="loading"></span> 处理中...', true);
   await withLoading($("sendBtn"), "发送中", async () => {
     try {
-      const r = await api("/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: msg, project_id: currentPid }) });
+      const r = await api("/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: msg, project_id: currentPid, session_id: currentSid }) });
       thinking.remove();
       addMsg("ai", r.reply);
-      if (r.project_id && r.project_id !== currentPid) { currentPid = r.project_id; $("projectSelect").value = currentPid; }
+      if (r.project_id && r.project_id !== currentPid) { currentPid = r.project_id; $("projectSelect").value = currentPid; await loadSessions(); }
+      if (r.session_id && r.session_id !== currentSid) { currentSid = r.session_id; await loadSessions(); }
+      else { await loadSessions(); }
     } catch (e) { thinking.remove(); addMsg("ai", `⚠ ${e.message}`); }
   });
 }
@@ -174,7 +228,7 @@ function addMsg(role, content, isHtml = false) {
   div.innerHTML = `<div class="msg-avatar">${avatar}</div><div class="msg-body"><div class="msg-bubble">${body}</div></div>`;
   chat.appendChild(div);
   chat.scrollTop = chat.scrollHeight;
-  if (!isHtml) saveHistory();
+
   return div;
 }
 

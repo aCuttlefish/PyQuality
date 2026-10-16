@@ -38,6 +38,17 @@ select:focus, input:focus { border-color: var(--primary); }
 
 main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
+.layout { flex: 1; display: flex; overflow: hidden; }
+.sidebar { width: 220px; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
+.sidebar-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+.sidebar-head h3 { font-size: 13px; color: var(--muted); }
+.session-list { flex: 1; overflow-y: auto; padding: 8px; }
+.session-item { padding: 10px 12px; border-radius: 8px; cursor: pointer; margin-bottom: 4px; transition: all .12s; }
+.session-item:hover { background: var(--panel2); }
+.session-item.active { background: var(--panel2); border: 1px solid var(--primary); }
+.session-item .s-title { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.session-item .s-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
 .chat-stream { flex: 1; overflow-y: auto; padding: 24px; max-width: 900px; margin: 0 auto; width: 100%; }
 .msg { display: flex; gap: 12px; margin-bottom: 20px; animation: fade .2s; }
 .msg.user { flex-direction: row-reverse; }

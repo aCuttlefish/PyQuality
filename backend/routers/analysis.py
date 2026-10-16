@@ -50,7 +50,7 @@ def analyze_project(pid: str):
         raise HTTPException(500, "无法读取项目文件，可能存储已损坏")
     result = _build_analysis(pid, project["name"], sources)
     database.save_analysis(pid, json.dumps(result, ensure_ascii=False))
-    database.save_analysis_history(pid, _analysis_summary(result))
+    database.save_analysis_snapshot(pid, _analysis_summary(result), result)
     logger.info("分析完成 pid=%s 文件=%d 坏味=%d", pid, len(sources), len(result["smells"]))
     return {"ok": True, "result": result}
 

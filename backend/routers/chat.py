@@ -54,6 +54,7 @@ COMMANDS = {
     "fix": "fix", "repair": "fix",
     "advice": "advice", "suggest": "advice",
     "summary": "summary", "overview": "summary",
+    "sessions": "sessions", "session": "session",
 }
 
 KEYWORD_MAP = [
@@ -77,94 +78,109 @@ KEYWORD_MAP = [
 class ChatBody(BaseModel):
     message: str
     project_id: str = ""
+    session_id: str = ""
 
 
 @router.post("/chat")
 def chat(body: ChatBody):
     msg = body.message.strip()
     pid = body.project_id
+    sid = body.session_id
     cmd, arg = _parse_intent(msg)
-    logger.info("chat cmd=%s arg=%s pid=%s", cmd, arg, pid)
+    logger.info("chat cmd=%s arg=%s pid=%s sid=%s", cmd, arg, pid, sid)
+
+    if sid:
+        database.add_message(sid, "user", msg)
+
+    def _reply(text: str, new_pid: str = "") -> dict:
+        result_pid = new_pid or pid
+        if sid:
+            database.add_message(sid, "ai", text)
+        return {"reply": text, "project_id": result_pid, "session_id": sid}
 
     if cmd == "help":
-        return {"reply": _help_text(), "project_id": pid}
+        return _reply(_help_text())
     if cmd == "projects":
-        return {"reply": _format_projects(arg), "project_id": pid}
+        return _reply(_format_projects(arg))
     if cmd == "use":
-        return _use_project(pid, arg)
+        return _use_project(pid, arg, sid)
     if cmd == "sample":
-        return _do_sample()
+        return _do_sample(sid)
     if cmd == "analyze" and arg.lower() == "all":
-        return {"reply": _do_analyze_all(), "project_id": pid}
+        return _reply(_do_analyze_all())
     if cmd == "snippet":
-        return _do_snippet(arg)
+        return _do_snippet(arg, sid)
     if cmd == "dashboard":
-        return {"reply": _do_dashboard(), "project_id": pid}
+        return _reply(_do_dashboard())
     if cmd == "config":
-        return {"reply": _format_config(arg), "project_id": pid}
+        return _reply(_format_config(arg))
     if cmd == "cicd":
-        return {"reply": _do_cicd(arg), "project_id": pid}
+        return _reply(_do_cicd(arg))
+    if cmd == "sessions":
+        return _reply(_format_sessions(pid))
+    if cmd == "session":
+        return _do_session(pid, arg, sid)
 
     if not pid:
-        return {"reply": "⚠ 请先选择项目。输入 `/projects` 查看列表，`/use <id>` 选择项目。\n\n或点击右上角上传项目。", "project_id": pid}
+        return _reply("⚠ 请先选择项目。输入 `/projects` 查看列表，`/use <id>` 选择项目。\n\n或点击右上角上传项目。")
     project = database.get_project(pid)
     if not project:
-        return {"reply": "⚠ 项目不存在，可能已删除。输入 `/projects` 查看列表。", "project_id": ""}
+        return _reply("⚠ 项目不存在，可能已删除。输入 `/projects` 查看列表。", "")
 
     if cmd == "files":
-        return {"reply": _format_files(pid), "project_id": pid}
+        return _reply(_format_files(pid))
     if cmd == "tree":
-        return {"reply": _format_tree(pid), "project_id": pid}
+        return _reply(_format_tree(pid))
     if cmd == "ignore":
-        return {"reply": _do_ignore(pid, arg), "project_id": pid}
+        return _reply(_do_ignore(pid, arg))
     if cmd == "search":
-        return {"reply": _do_search(pid, arg), "project_id": pid}
+        return _reply(_do_search(pid, arg))
     if cmd == "doc":
-        return {"reply": _format_doc(pid), "project_id": pid}
+        return _reply(_format_doc(pid))
     if cmd == "refactor":
-        return {"reply": _do_refactor(pid), "project_id": pid}
+        return _reply(_do_refactor(pid))
     if cmd == "type":
-        return {"reply": _format_type_hints(pid), "project_id": pid}
+        return _reply(_format_type_hints(pid))
     if cmd == "dup":
-        return {"reply": _format_dup(pid), "project_id": pid}
+        return _reply(_format_dup(pid))
     if cmd == "perf":
-        return {"reply": _format_perf(pid), "project_id": pid}
+        return _reply(_format_perf(pid))
     if cmd == "summary":
-        return {"reply": _do_analyze(pid, project["name"], summary_only=True), "project_id": pid}
+        return _reply(_do_analyze(pid, project["name"], summary_only=True))
     if cmd == "analyze":
 
-        return {"reply": _do_analyze(pid, project["name"]), "project_id": pid}
+        return _reply(_do_analyze(pid, project["name"]))
     if cmd == "smells":
-        return {"reply": _format_smells(pid), "project_id": pid}
+        return _reply(_format_smells(pid))
     if cmd == "score":
-        return {"reply": _format_score(pid), "project_id": pid}
+        return _reply(_format_score(pid))
     if cmd == "security":
-        return {"reply": _format_security(pid), "project_id": pid}
+        return _reply(_format_security(pid))
     if cmd == "deps":
-        return {"reply": _format_deps(pid), "project_id": pid}
+        return _reply(_format_deps(pid))
     if cmd == "tests":
-        return {"reply": _do_tests(pid, arg), "project_id": pid}
+        return _reply(_do_tests(pid, arg))
     if cmd == "fix":
-        return {"reply": _do_fix(pid, arg), "project_id": pid}
+        return _reply(_do_fix(pid, arg))
     if cmd == "advice":
-        return {"reply": _do_advice(pid, arg), "project_id": pid}
+        return _reply(_do_advice(pid, arg))
     if cmd == "deadcode":
-        return {"reply": _format_deadcode(pid), "project_id": pid}
+        return _reply(_format_deadcode(pid))
     if cmd == "funcs":
-        return {"reply": _format_funcs(pid), "project_id": pid}
+        return _reply(_format_funcs(pid))
 
     if cmd == "history":
-        return {"reply": _format_history(pid), "project_id": pid}
+        return _reply(_format_history(pid, arg))
     if cmd == "export":
-        return {"reply": _do_export(pid, arg), "project_id": pid}
+        return _reply(_do_export(pid, arg))
     if cmd == "compare":
-        return {"reply": _do_compare(pid, arg), "project_id": pid}
+        return _reply(_do_compare(pid, arg))
     if cmd == "rename":
-        return _do_rename(pid, arg)
+        return _do_rename(pid, arg, sid)
     if cmd == "delete":
-        return _do_delete(pid, arg)
+        return _do_delete(pid, arg, sid)
 
-    return {"reply": f"未识别的指令：`{msg}`\n\n输入 `/help` 查看可用命令。", "project_id": pid}
+    return _reply(f"未识别的指令：`{msg}`\n\n输入 `/help` 查看可用命令。")
 
 
 def _parse_intent(msg: str) -> tuple[str, str]:
@@ -226,7 +242,13 @@ def _help_text() -> str:
 - `/config` — 查看分析阈值
 - `/config set <key> <value>` — 修改阈值（持久化）
 - `/config reset` — 恢复默认阈值
-- `/history` — 查看分析历史趋势
+- `/history` — 查看分析历史趋势 + 快照列表
+- `/history <ID>` — 查看某次分析的完整快照结果
+- `/sessions` — 查看会话列表
+- `/session new [标题]` — 新建会话
+- `/session <id>` — 切换到指定会话
+- `/session delete <id>` — 删除会话
+- `/session rename <id> <标题>` — 重命名会话
 - `/export <markdown|json|sarif|html>` — 导出报告
 - `/cicd <github|gitlab>` — 生成 CI/CD 配置
 - `/projects <关键词>` — 搜索项目
@@ -259,14 +281,23 @@ def _format_projects(keyword: str = "") -> str:
     return "\n".join(lines)
 
 
-def _use_project(cur_pid: str, arg: str) -> dict:
+def _use_project(cur_pid: str, arg: str, sid: str = "") -> dict:
     if not arg:
-        return {"reply": "⚠ 用法: `/use <项目ID>`\n\n输入 `/projects` 查看项目列表。", "project_id": cur_pid}
+        reply = "⚠ 用法: `/use <项目ID>`\n\n输入 `/projects` 查看项目列表。"
+        if sid:
+            database.add_message(sid, "ai", reply)
+        return {"reply": reply, "project_id": cur_pid, "session_id": sid}
     project = database.get_project(arg)
     if not project:
-        return {"reply": f"⚠ 项目 `{arg}` 不存在。输入 `/projects` 查看列表。", "project_id": cur_pid}
+        reply = f"⚠ 项目 `{arg}` 不存在。输入 `/projects` 查看列表。"
+        if sid:
+            database.add_message(sid, "ai", reply)
+        return {"reply": reply, "project_id": cur_pid, "session_id": sid}
     badge = f"，评分 {project.get('score')}·{project.get('grade')}" if project.get("grade") else ""
-    return {"reply": f"✅ 已切换到项目「**{project['name']}**」\n\n- ID: `{project['id']}`\n- 文件数: {project['file_count']}{badge}\n\n输入 `/analyze` 开始分析。", "project_id": arg}
+    reply = f"✅ 已切换到项目「**{project['name']}**」\n\n- ID: `{project['id']}`\n- 文件数: {project['file_count']}{badge}\n\n输入 `/analyze` 开始分析。"
+    if sid:
+        database.add_message(sid, "ai", reply)
+    return {"reply": reply, "project_id": arg, "session_id": sid}
 
 
 def _format_files(pid: str) -> str:
@@ -568,7 +599,7 @@ def _run_analysis(pid: str, name: str) -> dict | str:
     result = _build_analysis(pid, name, sources)
     database.save_analysis(pid, json.dumps(result, ensure_ascii=False))
     from backend.routers.analysis import _analysis_summary
-    database.save_analysis_history(pid, _analysis_summary(result))
+    database.save_analysis_snapshot(pid, _analysis_summary(result), result)
     return result
 
 
@@ -1145,7 +1176,20 @@ def _trend_line(values: list[int], label: str, color: str = "") -> str:
     return f"{label} {color}{''.join(bars)}{color}  范围 {min(values)}–{max(values)}  趋势 {trend_arrow}"
 
 
-def _format_history(pid: str) -> str:
+def _format_history(pid: str, arg: str = "") -> str:
+    if arg:
+        try:
+            snapshot_id = int(arg)
+        except ValueError:
+            return f"⚠ 用法: `/history <快照ID>`\n\n快照ID 是数字，输入 `/history` 查看列表。"
+        snapshot = database.get_analysis_snapshot(snapshot_id)
+        if not snapshot or snapshot["project_id"] != pid:
+            return f"⚠ 快照 `{snapshot_id}` 不存在或不属于当前项目。"
+        result = snapshot["result"]
+        if not result:
+            return f"⚠ 快照 `{snapshot_id}` 没有完整分析数据（可能是旧版本生成的）。"
+        ts = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(snapshot["created_at"]))
+        return _format_snapshot_result(result, ts, snapshot_id)
     history = database.list_analysis_history(pid, limit=20)
     if not history:
         return "暂无历史数据，先输入 `/analyze`。"
@@ -1160,11 +1204,12 @@ def _format_history(pid: str) -> str:
     lines.append(_trend_line(dead, "死代码", "🔵") + "\n")
     lines.append(_trend_line(readability, "可读性", "🟢") + "\n```")
     lines.append(f"\n共 {len(history)} 次分析（从旧 → 新）\n")
-    lines.append("| 时间 | 可读性 | 等级 | 坏味 | 安全 | 死代码 |")
-    lines.append("|------|--------|------|------|------|--------|")
+    lines.append("| ID | 时间 | 可读性 | 等级 | 坏味 | 安全 | 死代码 |")
+    lines.append("|----|------|--------|------|------|------|--------|")
     for h in history:
         s = h["summary"]
-        lines.append(f"| {s.get('analyzed_at', '')[-8:]} | {s.get('readability_total', 0)} | {s.get('readability_grade', '')} | {s.get('smell_count', 0)} | {s.get('security_count', 0)} | {s.get('dead_code_count', 0)} |")
+        lines.append(f"| `{h['id']}` | {s.get('analyzed_at', '')[-8:]} | {s.get('readability_total', 0)} | {s.get('readability_grade', '')} | {s.get('smell_count', 0)} | {s.get('security_count', 0)} | {s.get('dead_code_count', 0)} |")
+    lines.append("\n💡 输入 `/history <ID>` 查看某次分析的完整结果。")
     if len(chrono) >= 2:
         alerts = []
         if smells[-1] > smells[0]:
@@ -1180,9 +1225,12 @@ def _format_history(pid: str) -> str:
     return "\n".join(lines)
 
 
-def _do_snippet(code: str) -> dict:
+def _do_snippet(code: str, sid: str = "") -> dict:
     if not code:
-        return {"reply": "⚠ 用法: `/snippet <Python代码>`\n\n示例: `/snippet def foo(): return 42`", "project_id": ""}
+        reply = "⚠ 用法: `/snippet <Python代码>`\n\n示例: `/snippet def foo(): return 42`"
+        if sid:
+            database.add_message(sid, "ai", reply)
+        return {"reply": reply, "project_id": "", "session_id": sid}
     if not code.strip().startswith(("def ", "class ", "import ", "from ", "#", "@")):
         if "\n" not in code and len(code) > 3:
             pass
@@ -1194,7 +1242,158 @@ def _do_snippet(code: str) -> dict:
     records = [{"rel_path": "snippet.py", "size": len(code.encode("utf-8"))}]
     project = database.create_project("代码片段", f"snippet {new_pid}", records, pid=new_pid)
     reply = _do_analyze(new_pid, "代码片段")
-    return {"reply": reply, "project_id": new_pid}
+    if sid:
+        database.add_message(sid, "ai", reply)
+    return {"reply": reply, "project_id": new_pid, "session_id": sid}
+
+
+def _format_snapshot_result(result: dict, ts: str, snapshot_id: int) -> str:
+    s = result["stats"]
+    rd = result["readability"]
+    sec = result.get("security", [])
+    smells = result.get("smells", [])
+    lines = [
+        f"## 📸 历史快照 #{snapshot_id}\n",
+        f"**分析时间:** {ts}\n",
+        f"**可读性评分: {rd['total']}/100 (等级 {rd['grade']})**",
+        f"`{_bar(rd['total'])}` {rd['total']:.1f}/100\n",
+        "### 概览",
+        f"- 文件: **{s['total_files']}**  行数: **{s['total_lines']}**  函数: **{s['total_functions']}**  类: **{s['total_classes']}**",
+        f"- 平均圈复杂度: **{s['avg_complexity']}**  注释率: **{s['comment_ratio']:.1%}**",
+        f"- 坏味: **{len(smells)}**  安全: **{len(sec)}**",
+    ]
+    lines.append(f"\n### 代码坏味（{len(smells)}）")
+    for sm in smells[:20]:
+        lines.append(f"- [{sm['severity']}] `{sm['file']}:{sm['line']}` **{sm['type']}** — {sm['message']}")
+    if len(smells) > 20:
+        lines.append(f"- ...还有 {len(smells) - 20} 条")
+    if sec:
+        lines.append(f"\n### 安全问题（{len(sec)}）")
+        for issue in sec[:10]:
+            lines.append(f"- [{issue['severity']}] `{issue['file']}:{issue['line']}` **{issue['type']}** — {issue['message']}")
+    lines.append(f"\n> 这是快照 #{snapshot_id} 的完整分析结果。输入 `/history` 查看所有快照。")
+    return "\n".join(lines)
+
+
+def _format_sessions(pid: str) -> str:
+    sessions = database.list_sessions(pid, limit=50)
+    if not sessions:
+        return "📋 暂无会话记录。\n\n> 会话会在你发送消息时自动创建并保存到后端。"
+    lines = [f"## 📋 会话列表（{len(sessions)} 个）\n"]
+    for s in sessions:
+        ts = time.strftime("%m-%d %H:%M", time.localtime(s["updated_at"]))
+        msg_count = len(database.list_messages(s["id"]))
+        lines.append(f"- `{s['id']}` **{s['title']}** — {msg_count} 条消息 — {ts}")
+    lines.append("\n💡 输入 `/session <id>` 切换会话，`/session new` 新建会话，`/session delete <id>` 删除会话。")
+    return "\n".join(lines)
+
+
+def _do_session(pid: str, arg: str, cur_sid: str) -> dict:
+    parts = arg.split(maxsplit=1)
+    action = parts[0].lower() if parts else ""
+    if not action or action == "list":
+        reply = _format_sessions(pid)
+        if cur_sid:
+            database.add_message(cur_sid, "ai", reply)
+        return {"reply": reply, "project_id": pid, "session_id": cur_sid}
+    if action == "new":
+        title = parts[1].strip() if len(parts) > 1 else ""
+        session = database.create_session(pid, title or "新会话")
+        reply = f"✅ 已创建新会话「**{session['title']}**」（`{session['id']}`）"
+        database.add_message(session["id"], "ai", reply)
+        return {"reply": reply, "project_id": pid, "session_id": session["id"]}
+    if action == "delete" and len(parts) > 1:
+        sid = parts[1].strip()
+        if database.delete_session(sid):
+            reply = f"✅ 会话 `{sid}` 已删除。"
+            if cur_sid and cur_sid != sid:
+                database.add_message(cur_sid, "ai", reply)
+            new_sid = "" if cur_sid == sid else cur_sid
+            return {"reply": reply, "project_id": pid, "session_id": new_sid}
+        reply = f"⚠ 会话 `{sid}` 不存在。"
+        if cur_sid:
+            database.add_message(cur_sid, "ai", reply)
+        return {"reply": reply, "project_id": pid, "session_id": cur_sid}
+    if action == "rename" and len(parts) > 1:
+        rename_parts = parts[1].split(maxsplit=1)
+        if len(rename_parts) < 2:
+            reply = "⚠ 用法: `/session rename <会话ID> <新标题>`"
+            if cur_sid:
+                database.add_message(cur_sid, "ai", reply)
+            return {"reply": reply, "project_id": pid, "session_id": cur_sid}
+        target_sid, new_title = rename_parts
+        if database.update_session(target_sid, new_title):
+            reply = f"✅ 会话 `{target_sid}` 已重命名为「**{new_title}**」"
+        else:
+            reply = f"⚠ 会话 `{target_sid}` 不存在。"
+        if cur_sid:
+            database.add_message(cur_sid, "ai", reply)
+        return {"reply": reply, "project_id": pid, "session_id": cur_sid}
+    target_sid = action
+    session = database.get_session(target_sid)
+    if not session:
+        reply = f"⚠ 会话 `{target_sid}` 不存在。输入 `/sessions` 查看列表。"
+        if cur_sid:
+            database.add_message(cur_sid, "ai", reply)
+        return {"reply": reply, "project_id": pid, "session_id": cur_sid}
+    messages = database.list_messages(target_sid)
+    lines = [f"## 📂 已切换到会话「**{session['title']}**」\n"]
+    lines.append(f"- ID: `{target_sid}`")
+    lines.append(f"- 消息数: {len(messages)}\n")
+    lines.append("### 历史消息\n")
+    for m in messages[-30:]:
+        role_label = "🧑 你" if m["role"] == "user" else "⚡ AI"
+        lines.append(f"**{role_label}:** {m['content'][:200]}")
+        if len(m["content"]) > 200:
+            lines.append("...")
+        lines.append("")
+    reply = "\n".join(lines)
+    return {"reply": reply, "project_id": pid, "session_id": target_sid}
+
+
+class SessionBody(BaseModel):
+    project_id: str = ""
+    title: str = ""
+
+
+@router.get("/sessions")
+def api_list_sessions(project_id: str = ""):
+    sessions = database.list_sessions(project_id, limit=50)
+    for s in sessions:
+        s["message_count"] = len(database.list_messages(s["id"]))
+    return {"ok": True, "sessions": sessions}
+
+
+@router.post("/sessions")
+def api_create_session(body: SessionBody):
+    session = database.create_session(body.project_id, body.title)
+    return {"ok": True, "session": session}
+
+
+@router.get("/sessions/{sid}/messages")
+def api_get_messages(sid: str):
+    session = database.get_session(sid)
+    if not session:
+        from fastapi import HTTPException
+        raise HTTPException(404, "会话不存在")
+    messages = database.list_messages(sid)
+    return {"ok": True, "session": session, "messages": messages}
+
+
+@router.delete("/sessions/{sid}")
+def api_delete_session(sid: str):
+    if database.delete_session(sid):
+        return {"ok": True}
+    from fastapi import HTTPException
+    raise HTTPException(404, "会话不存在")
+
+
+@router.put("/sessions/{sid}")
+def api_update_session(sid: str, body: SessionBody):
+    if database.update_session(sid, body.title):
+        return {"ok": True}
+    from fastapi import HTTPException
+    raise HTTPException(404, "会话不存在")
 
 
 def _do_dashboard() -> str:
@@ -1394,27 +1593,48 @@ code_quality:
     return f"## 🔧 GitLab CI 配置\n\n将以下内容保存为 `.gitlab-ci.yml`：\n\n```yaml\n{gitlab_ci}\n```\n\n**说明:**\n- 每次 push 自动触发\n- 运行 PyQuality 分析并生成 JSON 报告\n- 报告作为 artifact 保存 7 天"
 
 
-def _do_rename(pid: str, arg: str) -> dict:
+def _do_rename(pid: str, arg: str, sid: str = "") -> dict:
     if not arg:
-        return {"reply": "⚠ 用法: `/rename <新名称>`", "project_id": pid}
+        reply = "⚠ 用法: `/rename <新名称>`"
+        if sid:
+            database.add_message(sid, "ai", reply)
+        return {"reply": reply, "project_id": pid, "session_id": sid}
     if len(arg) > 60:
-        return {"reply": "⚠ 项目名称不能超过 60 字符。", "project_id": pid}
+        reply = "⚠ 项目名称不能超过 60 字符。"
+        if sid:
+            database.add_message(sid, "ai", reply)
+        return {"reply": reply, "project_id": pid, "session_id": sid}
     if database.rename_project(pid, arg):
-        return {"reply": f"✅ 项目已重命名为「**{arg}**」", "project_id": pid}
-    return {"reply": "⚠ 重命名失败，项目可能不存在。", "project_id": pid}
+        reply = f"✅ 项目已重命名为「**{arg}**」"
+        if sid:
+            database.add_message(sid, "ai", reply)
+        return {"reply": reply, "project_id": pid, "session_id": sid}
+    reply = "⚠ 重命名失败，项目可能不存在。"
+    if sid:
+        database.add_message(sid, "ai", reply)
+    return {"reply": reply, "project_id": pid, "session_id": sid}
 
 
-def _do_delete(pid: str, arg: str) -> dict:
+def _do_delete(pid: str, arg: str, sid: str = "") -> dict:
     confirm = arg.lower() in ("yes", "confirm", "确认", "y")
     if not confirm:
         project = database.get_project(pid)
         name = project["name"] if project else pid
-        return {"reply": f"⚠ 确认删除项目「**{name}**」？此操作不可撤销。\n\n输入 `/delete confirm` 确认删除。", "project_id": pid}
+        reply = f"⚠ 确认删除项目「**{name}**」？此操作不可撤销。\n\n输入 `/delete confirm` 确认删除。"
+        if sid:
+            database.add_message(sid, "ai", reply)
+        return {"reply": reply, "project_id": pid, "session_id": sid}
     project = database.get_project(pid)
     name = project["name"] if project else pid
     if database.delete_project(pid):
-        return {"reply": f"✅ 项目「**{name}**」已删除。", "project_id": ""}
-    return {"reply": "⚠ 删除失败，项目可能不存在。", "project_id": ""}
+        reply = f"✅ 项目「**{name}**」已删除。"
+        if sid:
+            database.add_message(sid, "ai", reply)
+        return {"reply": reply, "project_id": "", "session_id": sid}
+    reply = "⚠ 删除失败，项目可能不存在。"
+    if sid:
+        database.add_message(sid, "ai", reply)
+    return {"reply": reply, "project_id": "", "session_id": sid}
 
 
 def _do_export(pid: str, arg: str) -> str:
@@ -1424,13 +1644,16 @@ def _do_export(pid: str, arg: str) -> str:
     return f"## 导出报告\n\n在浏览器打开以下链接下载 `{fmt}` 报告：\n\n[/api/projects/{pid}/report?format={fmt}](/api/projects/{pid}/report?format={fmt})"
 
 
-def _do_sample() -> dict:
+def _do_sample(sid: str = "") -> dict:
     import shutil
     import uuid
     from backend.config import BASE_DIR
     sample_dir = BASE_DIR / "samples" / "demo_project"
     if not sample_dir.exists():
-        return {"reply": "⚠ 示例项目不存在", "project_id": ""}
+        reply = "⚠ 示例项目不存在"
+        if sid:
+            database.add_message(sid, "ai", reply)
+        return {"reply": reply, "project_id": "", "session_id": sid}
     new_pid = uuid.uuid4().hex[:12]
     target = UPLOAD_DIR / new_pid
     target.mkdir(parents=True, exist_ok=True)
@@ -1442,4 +1665,7 @@ def _do_sample() -> dict:
         shutil.copy2(src, dest)
         records.append({"rel_path": str(rel).replace("\\", "/"), "size": src.stat().st_size})
     project = database.create_project("示例项目-学生成绩管理", "内置示例", records, pid=new_pid)
-    return {"reply": f"✅ 已加载示例项目「**{project['name']}**」（{len(records)} 个文件）。\n\n输入 `/analyze` 开始分析。", "project_id": new_pid}
+    reply = f"✅ 已加载示例项目「**{project['name']}**」（{len(records)} 个文件）。\n\n输入 `/analyze` 开始分析。"
+    if sid:
+        database.add_message(sid, "ai", reply)
+    return {"reply": reply, "project_id": new_pid, "session_id": sid}
