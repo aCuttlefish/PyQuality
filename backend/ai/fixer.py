@@ -1,10 +1,49 @@
 import ast
 import difflib
+import hashlib
+import uuid
 
 from backend.ai import deepseek_client
 from backend.logger import get_logger
 
 logger = get_logger("fixer")
+
+_candidate_cache: dict[str, dict] = {}
+
+
+def save_candidate(source: str, fixed_code: str, validation: dict, result: dict) -> str:
+    candidate_id = uuid.uuid4().hex[:12]
+    source_hash = hashlib.sha256(source.encode()).hexdigest()
+    _candidate_cache[candidate_id] = {
+        "source_hash": source_hash,
+        "fixed_code": fixed_code,
+        "validation": validation,
+        "result": result,
+    }
+    if len(_candidate_cache) > 200:
+        oldest = next(iter(_candidate_cache))
+        del _candidate_cache[oldest]
+    return candidate_id
+
+
+def get_candidate(candidate_id: str, source: str) -> dict | None:
+    cached = _candidate_cache.get(candidate_id)
+    if not cached:
+        return None
+    current_hash = hashlib.sha256(source.encode()).hexdigest()
+    if cached["source_hash"] != current_hash:
+        return None
+    return cached
+
+
+def save_candidate_by_key(key: str, source: str, fixed_code: str, validation: dict, result: dict) -> None:
+    source_hash = hashlib.sha256(source.encode()).hexdigest()
+    _candidate_cache[key] = {
+        "source_hash": source_hash,
+        "fixed_code": fixed_code,
+        "validation": validation,
+        "result": result,
+    }
 
 
 def fix_code(rel_path: str, source: str, smells: list[dict]) -> dict:
@@ -173,16 +212,16 @@ def validate_fixed(source: str, fixed: str) -> dict:
     fixed_imports = _extract_imports(fixed)
     missing_imports = src_imports - fixed_imports
     if missing_imports:
-        return {"valid": True, "warning": f"修复后缺少导入: {', '.join(sorted(missing_imports)[:3])}"}
+        return {"valid": False, "error": f"修复后缺少导入: {', '.join(sorted(missing_imports)[:3])}"}
 
     if _has_main_guard(source) and not _has_main_guard(fixed):
-        return {"valid": True, "warning": "修复后缺少 if __name__ == '__main__' 入口代码"}
+        return {"valid": False, "error": "修复后缺少 if __name__ == '__main__' 入口代码"}
 
     src_sigs = _public_signatures(source)
     fixed_sigs = _public_signatures(fixed)
     changed = [n for n in sorted(src_sigs) if n in fixed_sigs and src_sigs[n] != fixed_sigs[n]]
     if changed:
-        return {"valid": True, "warning": f"签名变更: {', '.join(changed)}（请确认调用方兼容）"}
+        return {"valid": False, "error": f"公开函数签名变更: {', '.join(changed)}"}
 
     return {"valid": True}
 

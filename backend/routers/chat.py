@@ -11,7 +11,7 @@ from pydantic import BaseModel
 
 from backend import database
 from backend.ai import advisor, deepseek_client, fixer, test_generator
-from backend.config import UPLOAD_DIR
+from backend.config import UPLOAD_DIR, build_sandbox_env
 from backend.logger import get_logger
 from backend.routers.analysis import _build_analysis, _read_sources
 
@@ -821,11 +821,21 @@ def _do_fix(pid: str, file_arg: str) -> str:
     source = abs_path.read_text(encoding="utf-8", errors="replace")
     analysis = _get_cached_analysis(pid)
     smells = analysis.get("smells", []) if analysis else []
-    result = fixer.fix_code(file, source, smells)
-    if not result.get("ok"):
-        return f"⚠ AI 修复失败: {result.get('error', '未知错误')}"
-    fixed_code = result["fixed_code"]
-    validation = fixer.validate_fixed(source, fixed_code)
+    cache_key = f"{pid}:{file}"
+    if apply:
+        cached = fixer.get_candidate(cache_key, source)
+        if not cached:
+            return "⚠ 没有已预览的修复候选，或源文件已变化。请先输入 `/fix <文件>` 预览修复。"
+        result = cached["result"]
+        fixed_code = cached["fixed_code"]
+        validation = cached["validation"]
+    else:
+        result = fixer.fix_code(file, source, smells)
+        if not result.get("ok"):
+            return f"⚠ AI 修复失败: {result.get('error', '未知错误')}"
+        fixed_code = result["fixed_code"]
+        validation = fixer.validate_fixed(source, fixed_code)
+        fixer.save_candidate_by_key(cache_key, source, fixed_code, validation, result)
     lines = [f"## AI 修复完成\n", f"- 文件: `{file}`", f"- 校验: {'✅ 通过' if validation.get('valid') else '⚠ 失败'}"]
     if validation.get("warning"):
         lines.append(f"- 提示: {validation['warning']}")
@@ -848,14 +858,18 @@ def _do_fix(pid: str, file_arg: str) -> str:
     if behavior:
         lines.append(f"\n### 行为等价性验证\n{behavior}")
 
-    if apply and validation.get("valid"):
+    behavior_fail = bool(behavior) and "⚠" in behavior
+    if apply and validation.get("valid") and not behavior_fail:
         backup_path = abs_path.with_suffix(abs_path.suffix + f".bak.{int(time.time())}")
         shutil.copy2(abs_path, backup_path)
         abs_path.write_text(fixed_code, encoding="utf-8")
         lines.append(f"\n✅ **已写入文件** `{file}`（原文件备份: `{backup_path.name}`）")
         lines.append(f"\n> 输入 `/analyze` 重新分析，或 `/tests` 生成测试验证。")
     elif apply:
-        lines.append(f"\n⚠ 修复校验未通过，未写入文件。请检查 diff 后手动应用。")
+        if not validation.get("valid"):
+            lines.append(f"\n⚠ 修复校验未通过（{validation.get('error', '')}），未写入文件。")
+        elif behavior_fail:
+            lines.append(f"\n⚠ 行为验证发现失败测试，未写入文件。请检查 diff 后手动应用。")
     else:
         lines.append(f"\n> 输入 `/fix apply {file}` 可将修复写入文件（自动备份原文件）。")
 
@@ -925,20 +939,32 @@ def _verify_behavior(pid: str, file: str, abs_path, fixed_code: str) -> str:
             r = subprocess.run(
                 [sys.executable, "-m", "pytest", str(tf), "--tb=no", "-q"],
                 capture_output=True, text=True, timeout=20, cwd=str(UPLOAD_DIR / pid),
+                env=build_sandbox_env(UPLOAD_DIR / pid),
             )
             out = r.stdout + r.stderr
             passed = re.search(r"(\d+)\s+passed", out)
             failed = re.search(r"(\d+)\s+failed", out)
+            errors = re.search(r"(\d+)\s+error", out)
             p = int(passed.group(1)) if passed else 0
             f = int(failed.group(1)) if failed else 0
-            results.append((tf.name, p, f))
+            e = int(errors.group(1)) if errors else 0
+            results.append((tf.name, p, f, e))
     finally:
         abs_path.write_text(original, encoding="utf-8")
-    total_passed = sum(p for _, p, _ in results)
-    total_failed = sum(f for _, _, f in results)
-    if total_failed == 0:
+    total_passed = sum(r[1] for r in results)
+    total_failed = sum(r[2] for r in results)
+    total_errors = sum(r[3] for r in results)
+    total = total_passed + total_failed + total_errors
+    if total == 0:
+        return "⚠ 无有效测试执行，无法验证行为等价性。"
+    if total_failed == 0 and total_errors == 0:
         return f"✅ 修复后 {total_passed} 个测试全部通过，行为等价。"
-    return f"⚠ 修复后 {total_passed} passed, {total_failed} failed，可能改变了函数行为。"
+    parts = [f"{total_passed} passed"]
+    if total_failed:
+        parts.append(f"{total_failed} failed")
+    if total_errors:
+        parts.append(f"{total_errors} errors")
+    return f"⚠ 修复后 {', '.join(parts)}，可能改变了函数行为。"
 
 
 def _do_advice(pid: str, file_arg: str) -> str:
@@ -1085,6 +1111,10 @@ def _config_set(key: str, value: str) -> str:
         val = cast(float(value)) if cast is int else cast(value)
     except ValueError:
         return f"⚠ 值 `{value}` 无法转为 {cast.__name__}。"
+    if group == "SMELL_THRESHOLDS" and val <= 0:
+        return f"⚠ 阈值 `{key}` 必须为正数。"
+    if key == "duplication_min_lines" and val < 1:
+        return f"⚠ `{key}` 必须 >= 1。"
     if group == "SMELL_THRESHOLDS":
         config.SMELL_THRESHOLDS[key] = val
     elif group == "NUMERIC":

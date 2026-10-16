@@ -212,9 +212,18 @@ function renderMarkdown(md) {
   html = html.replace(/^# (.+)$/gm, "<h1>$1</h1>");
   html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
   html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
   html = html.replace(/^- (.+)$/gm, "<li>$1</li>");
   html = html.replace(/(<li>[\s\S]*?<\/li>)(?!\s*<li>)/g, "<ul>$1</ul>");
   html = html.replace(/^&gt; (.+)$/gm, "<blockquote>$1</blockquote>");
+  html = html.replace(/^(\|.+\|)\n(\|[-| :]+\|)\n((?:\|.+\|\n?)+)/gm, (match, header, sep, body) => {
+    const headers = header.split("|").filter(h => h.trim()).map(h => `<th>${h.trim()}</th>`);
+    const rows = body.trim().split("\n").map(row => {
+      const cells = row.split("|").filter(c => c.trim()).map(c => `<td>${c.trim()}</td>`);
+      return `<tr>${cells.join("")}</tr>`;
+    });
+    return `<table><tr>${headers.join("")}</tr>${rows.join("")}</table>`;
+  });
   html = html.replace(/\n{2,}/g, "<br>");
   html = html.replace(/\x00CB(\d+)\x00/g, (m, idx) => {
     const { lang, code } = codeBlocks[parseInt(idx)];

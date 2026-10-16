@@ -71,6 +71,20 @@ TEST_SANDBOX = {
     "extra_args": ["-p", "no:cacheprovider", "--tb=short", "-q"],
 }
 
+
+def build_sandbox_env(cwd: "Path | None" = None) -> dict:
+    """构建受限执行环境：屏蔽 API Key，将临时目录限制到 cwd 内。
+
+    注意：这不是操作系统级安全沙箱，仅做环境变量隔离和临时目录限制。
+    完整的文件系统隔离需要容器或受限账户支持。
+    """
+    env = {k: v for k, v in os.environ.items() if k not in TEST_SANDBOX["env_block"]}
+    if cwd is not None:
+        env["TMPDIR"] = str(cwd)
+        env["TEMP"] = str(cwd)
+        env["TMP"] = str(cwd)
+    return env
+
 COMPLEXITY_BUCKETS = {"low": (0, 5), "medium": (6, 10), "high": (11, 20), "critical": (21, 9999)}
 TYPE_HINTS_MIN_COVERAGE = 70.0
 DOCSTRING_MIN_COVERAGE = 60.0

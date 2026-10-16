@@ -8,10 +8,15 @@ from pathlib import Path
 
 from backend.ai import deepseek_client
 from backend.analyzers.parser import FunctionInfo, analyze_source
+from backend.config import build_sandbox_env
 
 
 def generate_tests(project_dir: Path, rel_path: str, functions: list[str]) -> dict:
-    abs_path = project_dir / rel_path
+    abs_path = (project_dir / rel_path).resolve()
+    try:
+        abs_path.relative_to(project_dir.resolve())
+    except ValueError:
+        return {"ok": False, "error": f"不安全的文件路径: {rel_path}"}
     if not abs_path.exists():
         return {"ok": False, "error": f"文件不存在: {rel_path}"}
     source = abs_path.read_text(encoding="utf-8", errors="replace")
@@ -60,15 +65,7 @@ def generate_tests(project_dir: Path, rel_path: str, functions: list[str]) -> di
     valid, syntax_err = _validate(test_file)
     filtered = 0
     if valid and mode == "ai":
-        original_code = test_file.read_text(encoding="utf-8")
         filtered = _run_and_filter_tests(test_file, project_dir)
-        if filtered > 0:
-            remaining = test_file.read_text(encoding="utf-8")
-            if "def test_" not in remaining:
-                test_file.write_text(original_code, encoding="utf-8")
-                filtered = 0
-            else:
-                valid, syntax_err = _validate(test_file)
     return {
         "ok": True,
         "test_file": str(test_file.relative_to(project_dir)),
@@ -82,8 +79,8 @@ def generate_tests(project_dir: Path, rel_path: str, functions: list[str]) -> di
 
 
 def _generate_by_ai(fi: FunctionInfo, rel_path: str, source: str) -> tuple[str, str]:
-    module_name = rel_path.replace("\\", "/").split("/")[-1].removesuffix(".py")
-    import_path = rel_path.replace("\\", "/").removesuffix(".py").replace("/", ".")
+    module_name = rel_path.replace("\\", "/").removesuffix(".py").replace("/", ".")
+    import_path = module_name
     min_cases = max(2, fi.complexity)
 
     prompt = f"""你是资深 Python 测试工程师。为以下函数生成 pytest 单元测试。
@@ -129,7 +126,7 @@ def _generate_by_ai(fi: FunctionInfo, rel_path: str, source: str) -> tuple[str, 
 
 
 def _generate_by_rule(fi: FunctionInfo, rel_path: str) -> str:
-    module = rel_path.replace("\\", "/").split("/")[-1].removesuffix(".py")
+    module = rel_path.replace("\\", "/").removesuffix(".py").replace("/", ".")
     safe = re.sub(r"\W", "_", fi.name)
     params = [p.strip() for p in fi.args_source.split(",") if p.strip() and p.strip() not in ("self", "cls")]
     placeholders = ", ".join(_placeholder(p) for p in params)
@@ -195,10 +192,12 @@ def _validate(path: Path) -> tuple[bool, str]:
         return False, str(e)
 
 def _run_and_filter_tests(test_file: Path, project_dir: Path) -> int:
+    """运行测试并返回失败数量。不删除失败测试以避免掩盖真实缺陷。"""
     try:
         result = subprocess.run(
             [sys.executable, "-m", "pytest", str(test_file), "-v", "--tb=no", "--no-header", "-q"],
             capture_output=True, text=True, timeout=30, cwd=str(project_dir),
+            env=build_sandbox_env(project_dir),
         )
     except (subprocess.TimeoutExpired, Exception):
         return 0
@@ -207,34 +206,4 @@ def _run_and_filter_tests(test_file: Path, project_dir: Path) -> int:
     failed_tests = set()
     for match in re.finditer(r"FAILED\s+(?:.*?::)?(test_\w+)", output):
         failed_tests.add(match.group(1))
-    if not failed_tests:
-        return 0
-
-    code = test_file.read_text(encoding="utf-8")
-    lines = code.split("\n")
-    remove_ranges = []
-    i = 0
-    while i < len(lines):
-        match = re.match(r"def (test_\w+)\(", lines[i])
-        if match and match.group(1) in failed_tests:
-            start = i
-            while start > 0 and lines[start - 1].strip() == "":
-                start -= 1
-            end = i + 1
-            while end < len(lines):
-                if re.match(r"(def |class |import |from )", lines[end]) and not lines[end].startswith((" ", "\t")):
-                    break
-                end += 1
-            while end > start and lines[end - 1].strip() == "":
-                end -= 1
-            remove_ranges.append((start, end))
-            i = end
-        else:
-            i += 1
-
-    remove_ranges.sort(reverse=True)
-    for start, end in remove_ranges:
-        del lines[start:end]
-
-    test_file.write_text("\n".join(lines), encoding="utf-8")
-    return len(remove_ranges)
+    return len(failed_tests)

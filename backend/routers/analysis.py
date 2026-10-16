@@ -381,7 +381,7 @@ def _sarif_result(category: str, item: dict, default_level: str = "warning") -> 
         "locations": [{
             "physicalLocation": {
                 "artifactLocation": {"uri": item.get("file", "")},
-                "region": {"startLine": int(item.get("line", 1))},
+                "region": {"startLine": max(1, int(item.get("line", 1)))},
             }
         }],
     }

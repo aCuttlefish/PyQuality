@@ -31,9 +31,20 @@ def analyze_dependencies(files: dict[str, str]) -> dict:
             elif isinstance(node, ast.ImportFrom):
                 module = node.module or ""
                 level = node.level or 0
-                target = _resolve_relative(module, level, rel_path, internal_modules) if level else _resolve(module, internal_modules, rel_path)
-                if target:
-                    edges.append({"from": rel_path, "to": target, "kind": "from", "line": node.lineno})
+                if level:
+                    if module:
+                        target = _resolve_relative(module, level, rel_path, internal_modules)
+                        if target:
+                            edges.append({"from": rel_path, "to": target, "kind": "from", "line": node.lineno})
+                    else:
+                        for alias in node.names:
+                            target = _resolve_relative(alias.name, level, rel_path, internal_modules)
+                            if target:
+                                edges.append({"from": rel_path, "to": target, "kind": "from", "line": node.lineno})
+                else:
+                    target = _resolve(module, internal_modules, rel_path)
+                    if target:
+                        edges.append({"from": rel_path, "to": target, "kind": "from", "line": node.lineno})
 
     graph = defaultdict(list)
     for e in edges:
@@ -77,8 +88,10 @@ def _resolve_relative(module: str, level: int, rel_path: str, internal: set[str]
     if level > 1 and len(base) >= level - 1:
         base = base[: -(level - 1)]
     candidate = "/".join(base + ([module] if module else []))
-    if candidate in internal or candidate + "/__init__" in internal:
+    if candidate in internal:
         return f"{candidate}.py"
+    if candidate + "/__init__" in internal:
+        return f"{candidate}/__init__.py"
     return None
 
 

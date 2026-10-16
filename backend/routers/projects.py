@@ -173,14 +173,23 @@ def read_file(pid: str, path: str):
 
 def _safe_extract(archive_path: Path, target_dir: Path) -> None:
     try:
+        base = target_dir.resolve()
+        file_count = 0
         with zipfile.ZipFile(archive_path) as zf:
-            for member in zf.namelist():
-                dest = (target_dir / member).resolve()
-                if not str(dest).startswith(str(target_dir.resolve())):
-                    raise HTTPException(400, f"压缩包含不安全路径: {member}")
-                if member.endswith("/"):
+            for info in zf.infolist():
+                if info.is_dir():
                     continue
-                zf.extract(member, target_dir)
+                file_count += 1
+                if file_count > MAX_UPLOAD_FILES:
+                    raise HTTPException(400, f"文件过多（超过 {MAX_UPLOAD_FILES} 个）")
+                if info.file_size > MAX_SINGLE_FILE_SIZE:
+                    raise HTTPException(400, f"文件 {info.filename} 过大（超过 {MAX_SINGLE_FILE_SIZE // 1024 // 1024}MB）")
+                dest = (target_dir / info.filename).resolve()
+                try:
+                    dest.relative_to(base)
+                except ValueError:
+                    raise HTTPException(400, f"压缩包含不安全路径: {info.filename}")
+                zf.extract(info, target_dir)
     except zipfile.BadZipFile:
         raise HTTPException(400, "无效的 zip 文件")
 
@@ -190,7 +199,9 @@ def _safe_join(base: Path, filename: str) -> Path:
     if ".." in rel.split("/"):
         raise HTTPException(400, f"不安全的文件路径: {filename}")
     dest = (base / rel).resolve()
-    if not str(dest).startswith(str(base.resolve())):
+    try:
+        dest.relative_to(base.resolve())
+    except ValueError:
         raise HTTPException(400, f"不安全的文件路径: {filename}")
     dest.parent.mkdir(parents=True, exist_ok=True)
     return dest

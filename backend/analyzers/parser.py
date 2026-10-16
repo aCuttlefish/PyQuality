@@ -14,6 +14,8 @@ class FunctionInfo:
     source: str
     args_source: str
     is_method: bool = False
+    local_assigns: list[tuple[str, int]] = field(default_factory=list)
+    local_used: set[str] = field(default_factory=set)
 
 
 @dataclass
@@ -40,6 +42,7 @@ class FileAnalysis:
     classes: list[ClassInfo] = field(default_factory=list)
     global_assigns: list[tuple[str, int]] = field(default_factory=list)
     parse_error: str = ""
+    parse_error_line: int = 0
     names_used: set[str] = field(default_factory=set)
     names_assigned: dict[str, int] = field(default_factory=dict)
     numeric_consts: list[tuple[int | float, int]] = field(default_factory=list)
@@ -71,13 +74,16 @@ def analyze_source(path: str, source: str) -> FileAnalysis:
             fa.long_lines += 1
         for d in doc_delims:
             if stripped.startswith(d):
-                in_docstring = True
+                rest = stripped[len(d):]
+                if d not in rest:
+                    in_docstring = True
                 fa.comment_lines += 1
                 break
     try:
         tree = ast.parse(source)
     except SyntaxError as e:
         fa.parse_error = f"line {e.lineno}: {e.msg}"
+        fa.parse_error_line = e.lineno or 1
         return fa
 
     module_src = source
@@ -148,6 +154,18 @@ def _parse_function(node, module_src: str, is_method: bool) -> FunctionInfo:
     if node.args.kwarg:
         args.append(node.args.kwarg)
     args_source = ", ".join(a.arg for a in args)
+
+    local_assigns: list[tuple[str, int]] = []
+    local_used: set[str] = set()
+    for child in ast.walk(node):
+        if isinstance(child, ast.Name):
+            if isinstance(child.ctx, (ast.Store, ast.AugStore)):
+                local_assigns.append((child.id, child.lineno))
+            if isinstance(child.ctx, (ast.Load, ast.Del)):
+                local_used.add(child.id)
+        elif isinstance(child, ast.Attribute):
+            local_used.add(child.attr)
+
     return FunctionInfo(
         name=node.name,
         line=node.lineno,
@@ -159,6 +177,8 @@ def _parse_function(node, module_src: str, is_method: bool) -> FunctionInfo:
         source=ast.get_source_segment(module_src, node) or "",
         args_source=args_source,
         is_method=is_method,
+        local_assigns=local_assigns,
+        local_used=local_used,
     )
 
 

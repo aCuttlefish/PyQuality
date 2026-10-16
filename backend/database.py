@@ -147,7 +147,9 @@ def get_file_abs_path(pid: str, rel_path: str) -> Path | None:
 
     base = (UPLOAD_DIR / pid).resolve()
     target = (base / rel_path).resolve()
-    if not str(target).startswith(str(base)):
+    try:
+        target.relative_to(base)
+    except ValueError:
         return None
     return target if target.exists() else None
 

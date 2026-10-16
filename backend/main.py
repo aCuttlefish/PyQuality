@@ -73,7 +73,11 @@ if FRONTEND_DIR.exists():
     def spa_fallback(path: str):
         if path.startswith("api/"):
             return JSONResponse({"ok": False, "error": "not found"}, status_code=404)
-        candidate = FRONTEND_DIR / path
+        candidate = (FRONTEND_DIR / path).resolve()
+        try:
+            candidate.relative_to(FRONTEND_DIR.resolve())
+        except ValueError:
+            return FileResponse(FRONTEND_DIR / "index.html")
         if candidate.exists() and candidate.is_file():
             return FileResponse(candidate)
         return FileResponse(FRONTEND_DIR / "index.html")

@@ -38,7 +38,7 @@ def detect_smells(analyses: list[FileAnalysis], sources: dict[str, str]) -> list
     t = SMELL_THRESHOLDS
     for fa in analyses:
         if fa.parse_error:
-            _add(smells, "syntax_error", "high", fa.path, 0,
+            _add(smells, "syntax_error", "high", fa.path, fa.parse_error_line,
                  f"语法错误: {fa.parse_error}")
             continue
         for fi in fa.functions:
@@ -58,6 +58,10 @@ def detect_smells(analyses: list[FileAnalysis], sources: dict[str, str]) -> list
             if _is_bad_function_name(fi.name):
                 _add(smells, "bad_naming", "low", fa.path, fi.line,
                      f"函数名 {fi.name} 不符合 snake_case 规范")
+            for name, lineno in fi.local_assigns:
+                if _is_unused_local(name, fi.local_used):
+                    _add(smells, "unused_variable", "low", fa.path, lineno,
+                         f"变量 {name} 可能未使用")
         for ci in fa.classes:
             length = ci.end_line - ci.line + 1
             if ci.num_methods > t["god_class_methods"] or length > t["god_class_lines"]:
@@ -78,7 +82,8 @@ def detect_smells(analyses: list[FileAnalysis], sources: dict[str, str]) -> list
             if value in (0, 1, 2, 100, 1000):
                 continue
             if count >= t["magic_number_repeat"]:
-                _add(smells, "magic_number", "low", fa.path, 0,
+                first_line = next(ln for v, ln in fa.numeric_consts if abs(v) == value)
+                _add(smells, "magic_number", "low", fa.path, first_line,
                      f"魔法数字 {value} 出现 {count} 次")
         for lineno, etype in fa.except_handlers:
             if etype == "bare":
@@ -88,7 +93,7 @@ def detect_smells(analyses: list[FileAnalysis], sources: dict[str, str]) -> list
                 _add(smells, "broad_except", "medium", fa.path, lineno,
                      f"过宽异常捕获: except {etype}")
         for name, lineno in fa.names_assigned.items():
-            if _is_unused_local(name, fa):
+            if _is_unused_local(name, fa.names_used):
                 _add(smells, "unused_variable", "low", fa.path, lineno,
                      f"变量 {name} 可能未使用")
         used_imports = _filter_used_imports(fa)
@@ -113,12 +118,12 @@ def _is_bad_function_name(name: str) -> bool:
     return name != name.lower() and "_" not in name and not name.startswith("test")
 
 
-def _is_unused_local(name: str, fa: FileAnalysis) -> bool:
+def _is_unused_local(name: str, used_names: set[str]) -> bool:
     if name.startswith("_") or len(name) <= 1:
         return False
     if name in ("self", "cls", "i", "j", "k"):
         return False
-    return name not in fa.names_used
+    return name not in used_names
 
 
 def _filter_used_imports(fa: FileAnalysis) -> set[str]:

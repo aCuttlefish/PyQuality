@@ -319,21 +319,21 @@ class TestSignatureValidation:
     def test_removed_parameter_flagged(self):
         fixed = self.SRC.replace("def public_fn(a, b, c=1):", "def public_fn(a, b):")
         v = fixer.validate_fixed(self.SRC, fixed)
-        assert v["valid"] is True
-        assert "签名变更" in v["warning"]
-        assert "public_fn" in v["warning"]
+        assert v["valid"] is False
+        assert "签名变更" in v["error"]
+        assert "public_fn" in v["error"]
 
     def test_renamed_parameter_flagged(self):
         fixed = self.SRC.replace("def public_fn(a, b, c=1):", "def public_fn(a, x, c=1):")
         v = fixer.validate_fixed(self.SRC, fixed)
-        assert v["valid"] is True
-        assert "签名变更" in v["warning"]
+        assert v["valid"] is False
+        assert "签名变更" in v["error"]
 
     def test_added_required_parameter_flagged(self):
         fixed = self.SRC.replace("def public_fn(a, b, c=1):", "def public_fn(a, b, c, d):")
         v = fixer.validate_fixed(self.SRC, fixed)
-        assert v["valid"] is True
-        assert "签名变更" in v["warning"]
+        assert v["valid"] is False
+        assert "签名变更" in v["error"]
 
     def test_missing_public_function_flagged(self):
         fixed = "def _private(x):\n    return x\n"

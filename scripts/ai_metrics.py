@@ -60,7 +60,17 @@ def run_pytest(test_file: Path, cwd: Path) -> dict:
     passed = int(summary.group(1)) if summary else 0
     failed = int(fail.group(1)) if fail else 0
     errors = int(err.group(1)) if err else 0
-    return {"passed": passed, "failed": failed, "errors": errors, "output": output, "returncode": result.returncode}
+    passed_names = set()
+    failed_names = set()
+    for line in output.splitlines():
+        m = re.match(r"(PASSED|FAILED|ERROR)\s+(?:.*?::)?(test_\w+)", line)
+        if m:
+            if m.group(1) == "PASSED":
+                passed_names.add(m.group(2))
+            else:
+                failed_names.add(m.group(2))
+    return {"passed": passed, "failed": failed, "errors": errors, "output": output,
+            "returncode": result.returncode, "passed_names": passed_names, "failed_names": failed_names}
 
 
 def collect_pytest(test_file: Path, cwd: Path) -> bool:
@@ -132,7 +142,7 @@ def measure_test_generation(tmp_base: Path) -> dict:
     metrics["errors"] = exec_result["errors"]
     metrics["execute_pass_rate"] = round(exec_result["passed"] / total * 100, 1) if total else 0.0
 
-    covered = [fn for fn in target_functions if fn in test_code]
+    covered = [fn for fn in target_functions if f"{fn}(" in test_code]
     metrics["covered_functions"] = covered
     metrics["function_coverage"] = round(len(covered) / len(target_functions) * 100, 1) if target_functions else 0.0
 
@@ -142,6 +152,9 @@ def measure_test_generation(tmp_base: Path) -> dict:
     metrics["n_tests"] = n_tests
     metrics["assertion_density"] = round(n_assertions / n_tests, 2) if n_tests else 0.0
 
+    baseline_result = run_pytest(test_file, project_dir)
+    baseline_passed = baseline_result["passed_names"]
+
     detected_bugs = []
     for bug_name, bug_code in BUG_VARIANTS.items():
         bug_dir = tmp_base / f"bug_{bug_name}"
@@ -149,7 +162,8 @@ def measure_test_generation(tmp_base: Path) -> dict:
         (bug_dir / "grades.py").write_text(bug_code, encoding="utf-8")
         shutil.copy2(test_file, bug_dir / test_file.name)
         bug_result = run_pytest(bug_dir / test_file.name, bug_dir)
-        if bug_result["failed"] > 0:
+        new_failures = baseline_passed & bug_result["failed_names"]
+        if new_failures:
             detected_bugs.append(bug_name)
     metrics["injected_bugs"] = list(BUG_VARIANTS.keys())
     metrics["detected_bugs"] = detected_bugs

@@ -29,28 +29,46 @@ def get_config():
 
 @router.put("")
 def update_config(body: ConfigUpdate):
+    new_thresholds = dict(config.SMELL_THRESHOLDS)
     if body.smell_thresholds is not None:
         for k, v in body.smell_thresholds.items():
             if k not in config.SMELL_THRESHOLDS:
                 raise HTTPException(400, f"未知坏味阈值: {k}")
             if not isinstance(v, (int, float)) or v <= 0:
                 raise HTTPException(400, f"阈值 {k} 必须为正数")
-            config.SMELL_THRESHOLDS[k] = v
+            new_thresholds[k] = v
+
+    new_weights = dict(config.READABILITY_WEIGHTS)
     if body.readability_weights is not None:
         for k, v in body.readability_weights.items():
             if k not in config.READABILITY_WEIGHTS:
                 raise HTTPException(400, f"未知可读性权重: {k}")
             if not isinstance(v, (int, float)) or v < 0:
                 raise HTTPException(400, f"权重 {k} 必须为非负数")
-            config.READABILITY_WEIGHTS[k] = v
+            new_weights[k] = v
+    if sum(new_weights.values()) == 0:
+        raise HTTPException(400, "可读性权重总和必须大于 0")
+
+    new_th = config.TYPE_HINTS_MIN_COVERAGE
     if body.type_hints_min_coverage is not None:
-        config.TYPE_HINTS_MIN_COVERAGE = body.type_hints_min_coverage
+        new_th = body.type_hints_min_coverage
+    new_ds = config.DOCSTRING_MIN_COVERAGE
     if body.docstring_min_coverage is not None:
-        config.DOCSTRING_MIN_COVERAGE = body.docstring_min_coverage
+        new_ds = body.docstring_min_coverage
+    new_dup = config.DUPLICATION_MIN_LINES
     if body.duplication_min_lines is not None:
         if body.duplication_min_lines < 1:
             raise HTTPException(400, "duplication_min_lines 必须 >= 1")
-        config.DUPLICATION_MIN_LINES = body.duplication_min_lines
+        new_dup = body.duplication_min_lines
+
+    config.SMELL_THRESHOLDS.clear()
+    config.SMELL_THRESHOLDS.update(new_thresholds)
+    config.READABILITY_WEIGHTS.clear()
+    config.READABILITY_WEIGHTS.update(new_weights)
+    config.TYPE_HINTS_MIN_COVERAGE = new_th
+    config.DOCSTRING_MIN_COVERAGE = new_ds
+    config.DUPLICATION_MIN_LINES = new_dup
+
     try:
         config.save_user_config()
     except Exception as e:

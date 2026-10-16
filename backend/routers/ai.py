@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -28,6 +29,7 @@ class AdviceBody(BaseModel):
 class FixBody(BaseModel):
     file: str
     apply: bool = False
+    candidate_id: str = ""
 
 
 class RunBody(BaseModel):
@@ -81,7 +83,11 @@ def run_tests(pid: str, body: RunBody):
     out_dir = project_dir / "_generated_tests"
     if body.test_file:
         target = (project_dir / body.test_file).resolve()
-        if not str(target).startswith(str(project_dir)) or not target.exists():
+        try:
+            target.relative_to(project_dir)
+        except ValueError:
+            raise HTTPException(404, "测试文件不存在")
+        if not target.exists():
             raise HTTPException(404, "测试文件不存在")
     else:
         if not out_dir.exists() or not list(out_dir.glob("test_*.py")):
@@ -143,6 +149,25 @@ def fix_file(pid: str, body: FixBody):
     if abs_path is None:
         raise HTTPException(404, "文件不存在")
     source = abs_path.read_text(encoding="utf-8", errors="replace")
+
+    if body.apply:
+        if not body.candidate_id:
+            raise HTTPException(400, "请先预览修复再应用，需要提供 candidate_id")
+        cached = fixer.get_candidate(body.candidate_id, source)
+        if not cached:
+            raise HTTPException(400, "候选已过期或源文件已变化，请重新预览修复")
+        result = dict(cached["result"])
+        validation = cached["validation"]
+        result["validation"] = validation
+        if validation.get("valid"):
+            backup = abs_path.with_suffix(abs_path.suffix + ".bak")
+            backup.write_text(source, encoding="utf-8")
+            abs_path.write_text(cached["fixed_code"], encoding="utf-8")
+            result["applied"] = True
+            result["backup"] = str(backup.relative_to(UPLOAD_DIR / pid))
+            logger.info("已应用修复 pid=%s file=%s", pid, body.file)
+        return result
+
     analysis = database.get_analysis(pid)
     smells = []
     if analysis:
@@ -157,24 +182,17 @@ def fix_file(pid: str, body: FixBody):
     if result.get("ok") and result.get("fixed_code"):
         validation = fixer.validate_fixed(source, result["fixed_code"])
         result["validation"] = validation
-        if body.apply and validation.get("valid"):
-            backup = abs_path.with_suffix(abs_path.suffix + ".bak")
-            backup.write_text(source, encoding="utf-8")
-            abs_path.write_text(result["fixed_code"], encoding="utf-8")
-            result["applied"] = True
-            result["backup"] = str(backup.relative_to(UPLOAD_DIR / pid))
-            logger.info("已应用修复 pid=%s file=%s", pid, body.file)
+        result["candidate_id"] = fixer.save_candidate(source, result["fixed_code"], validation, result)
     return result
 
 
 def _parse_summary(stdout: str) -> tuple[int, int]:
     passed = failed = 0
     for line in stdout.splitlines():
-        if " passed" in line or " failed" in line:
-            for token in line.split():
-                if token.isdigit():
-                    if "passed" in line[line.find(token):]:
-                        passed = int(token)
-                    elif "failed" in line[line.find(token):]:
-                        failed = int(token)
+        m_passed = re.search(r"(\d+)\s+passed", line)
+        m_failed = re.search(r"(\d+)\s+failed", line)
+        if m_passed:
+            passed = int(m_passed.group(1))
+        if m_failed:
+            failed = int(m_failed.group(1))
     return passed, failed
