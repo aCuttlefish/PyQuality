@@ -266,7 +266,10 @@ function renderMarkdown(md) {
   html = html.replace(/^# (.+)$/gm, "<h1>$1</h1>");
   html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
   html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, text, url) => {
+    const isExternal = /^https?:\/\//.test(url);
+    return `<a href="${url}"${isExternal ? ' target="_blank"' : ''}>${text}</a>`;
+  });
   html = html.replace(/^- (.+)$/gm, "<li>$1</li>");
   html = html.replace(/(<li>[\s\S]*?<\/li>)(?!\s*<li>)/g, "<ul>$1</ul>");
   html = html.replace(/^&gt; (.+)$/gm, "<blockquote>$1</blockquote>");
