@@ -10,7 +10,7 @@ from backend import database
 from backend.config import FRONTEND_DIR
 from backend.errors import AppError, app_error_handler, unhandled_handler
 from backend.logger import get_logger, log_request
-from backend.routers import ai, analysis, chat, config as config_router, projects
+from backend.routers import acceptance, ai, analysis, chat, config as config_router, projects
 
 logger = get_logger("main")
 
@@ -55,6 +55,7 @@ app.include_router(analysis.router)
 app.include_router(ai.router)
 app.include_router(chat.router)
 app.include_router(config_router.router)
+app.include_router(acceptance.router)
 
 
 @app.get("/api/health")

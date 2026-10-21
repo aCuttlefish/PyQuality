@@ -1,0 +1,150 @@
+{
+  "schema_version": "1.0",
+  "evaluation_id": "EVAL-9a51b53af15c",
+  "created_at": 1792572389.0999506,
+  "job_status": "PARTIAL",
+  "code_verdict": "INCONCLUSIVE",
+  "assurance_level": "NONE",
+  "spec_interpretation": "UNRESOLVED",
+  "summary": "按当前需求解读，本轮无法判定（未形成有效验收规格或计划）。",
+  "requirement_results": [],
+  "prompt_report": {
+    "mappings": [
+      {
+        "requirement_id": "R1",
+        "status": "COVERED",
+        "requirement_quote": "系统应提供一个可调用的计算优惠金额的功能（模块 solution 中的 discount 可调用对象）。",
+        "prompt_quote": "实现 discount 函数",
+        "explanation": "提示词明确要求实现 discount 函数，与 R1 要求的可调用对象 discount 一致；但提示词未明确模块名 solution，该信息可能来自原生成上下文（technical_requirements），当前可见提示词中未体现。"
+      },
+      {
+        "requirement_id": "R2",
+        "status": "MISSING_FROM_VISIBLE_PROMPT",
+        "requirement_quote": "discount 的返回值应表示计算得到的优惠金额。",
+        "prompt_quote": "",
+        "explanation": "当前可见提示词仅要求“实现 discount 函数”，未提及返回值应表示优惠金额；是否为真实遗漏取决于原生成上下文是否已包含该要求。"
+      },
+      {
+        "requirement_id": "R3",
+        "status": "MISSING_FROM_VISIBLE_PROMPT",
+        "requirement_quote": "优惠金额的计算规则（如折扣率、满减、上限等）需依据业务规则确定。",
+        "prompt_quote": "",
+        "explanation": "当前可见提示词未体现任何计算规则或业务字段；需求本身也未给出具体规则，属于需求歧义，提示词无法覆盖。"
+      }
+    ],
+    "extra_requirements": [],
+    "optimized_prompt": "在 solution 模块中实现可调用对象 discount，用于计算优惠金额。discount 的返回值应表示计算得到的优惠金额。具体计算规则（如折扣率、满减、上限等）需依据业务规则确定；当前需求未给出计算规则、输入字段及返回值类型/精度，请勿自行假设业务规则，如无法确定请保留待确认。",
+    "changes": [
+      {
+        "before": "实现 discount 函数",
+        "after": "在 solution 模块中实现可调用对象 discount，用于计算优惠金额。",
+        "requirement_id": "R1",
+        "reason": "补充 R1 中明确的模块名 solution 及职责“计算优惠金额”，使接口要求更完整。"
+      },
+      {
+        "before": "",
+        "after": "discount 的返回值应表示计算得到的优惠金额。",
+        "requirement_id": "R2",
+        "reason": "补充 R2 的返回值语义要求，避免生成结果偏离功能意图。"
+      },
+      {
+        "before": "",
+        "after": "具体计算规则（如折扣率、满减、上限等）需依据业务规则确定；当前需求未给出计算规则、输入字段及返回值类型/精度，请勿自行假设业务规则，如无法确定请保留待确认。",
+        "requirement_id": "R3",
+        "reason": "明确 R3 中计算规则缺失的现状，提示生成方不要臆造业务规则，并保留待确认项。"
+      }
+    ],
+    "unresolved_questions": [
+      "discount 的入参类型与数量未在需求中说明",
+      "返回值类型与含义（金额数值、货币单位、精度）未说明",
+      "优惠金额的数值类型（int/float/Decimal）未规定",
+      "是否允许负值、零值未规定",
+      "精度与舍入规则未规定",
+      "需求未给出任何计算规则或公式",
+      "未说明输入包含哪些业务字段（原价、折扣率、用户等级等）",
+      "未说明是否存在优惠上限或下限"
+    ],
+    "optimization_validation": "NOT_EVALUATED",
+    "mode": "LLM",
+    "prompt_code_relation": [
+      {
+        "requirement_id": "R1",
+        "prompt_status": "COVERED",
+        "code_status": "UNKNOWN",
+        "relation": "UNKNOWN"
+      },
+      {
+        "requirement_id": "R2",
+        "prompt_status": "MISSING_FROM_VISIBLE_PROMPT",
+        "code_status": "UNKNOWN",
+        "relation": "UNKNOWN"
+      },
+      {
+        "requirement_id": "R3",
+        "prompt_status": "MISSING_FROM_VISIBLE_PROMPT",
+        "code_status": "UNKNOWN",
+        "relation": "UNKNOWN"
+      }
+    ]
+  },
+  "code_suggestions": [],
+  "repair_candidate": null,
+  "evidence": [],
+  "coverage": {
+    "mandatory_requirements": 3,
+    "requirements_checked": 0,
+    "cases_planned": 0,
+    "cases_executed": 0,
+    "cases_passed": 0,
+    "cases_failed": 0
+  },
+  "blockers": [
+    "测试计划生成失败: 模型未返回案例列表",
+    "无可用测试计划，动态验收未执行"
+  ],
+  "limitations": [
+    "MVP 未对任意 Python 与任意自然语言需求提供普遍正确性证明",
+    "进程级隔离：无 Docker 网络隔离与 CPU/内存限额，非完备安全边界",
+    "输入不变检查不检测『先修改再恢复』的瞬时写入"
+  ],
+  "stage_results": [
+    {
+      "stage": "A_input_and_compile",
+      "status": "COMPLETED",
+      "detail": "编译检查通过",
+      "duration_ms": 0.0
+    },
+    {
+      "stage": "B_spec",
+      "status": "COMPLETED",
+      "detail": "规格模式 LLM_CANDIDATE，interpretation=UNRESOLVED",
+      "duration_ms": null
+    },
+    {
+      "stage": "E_execute",
+      "status": "BLOCKED",
+      "detail": "无可用测试计划",
+      "duration_ms": null
+    },
+    {
+      "stage": "F_prompt_audit",
+      "status": "COMPLETED",
+      "detail": "mode=LLM",
+      "duration_ms": null
+    },
+    {
+      "stage": "F_suggestions",
+      "status": "COMPLETED",
+      "detail": "0 条建议",
+      "duration_ms": null
+    }
+  ],
+  "reproducibility": {
+    "code_hash": "6c1181dc85e632648a225d997ff7f1cf092bb95b020061d0471d60b8ad096af9",
+    "spec_hash": "a0fb9cf3ebe2f1262c1895fea7acd18ffd6146df32e0a0511bf023a8ecdc55ae",
+    "plan_hash": "",
+    "runtime_fingerprint": "acceptance-runner/1.0 python=3.10.11 platform=Windows-10-10.0.26200-SP0 isolation=SUBPROCESS_SANDBOX",
+    "request_hash": "9a5d73165866e28fa6b8c2b1e975a2c8c7a97644b9ba8b28568dc2842e927964"
+  },
+  "isolation_level": "SUBPROCESS_SANDBOX"
+}

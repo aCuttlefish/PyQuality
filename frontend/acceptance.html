@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PyQuality · 代码验收</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+.acc-wrap { max-width: 960px; margin: 0 auto; padding: 24px; }
+.acc-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+.acc-input { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+.acc-input label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 4px; }
+.acc-input textarea { width: 100%; min-height: 90px; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel2); color: var(--text); font-family: Consolas, monospace; font-size: 12.5px; resize: vertical; }
+.verdict-badge { display: inline-block; padding: 6px 18px; border-radius: 20px; font-weight: 700; font-size: 15px; }
+.verdict-FAIL { background: rgba(255,92,108,.15); color: var(--red); border: 1px solid var(--red); }
+.verdict-PASS_WITHIN_SCOPE { background: rgba(46,204,143,.15); color: var(--green); border: 1px solid var(--green); }
+.verdict-INCONCLUSIVE { background: rgba(245,185,66,.15); color: var(--yellow); border: 1px solid var(--yellow); }
+.acc-section { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-top: 16px; }
+.acc-section h3 { margin-bottom: 10px; color: var(--primary2); }
+.req-row { display: flex; gap: 8px; align-items: baseline; padding: 6px 0; border-bottom: 1px dashed var(--border); font-size: 13.5px; }
+.req-status { font-weight: 700; min-width: 130px; }
+.st-FAIL { color: var(--red); } .st-PASS_WITHIN_SCOPE { color: var(--green); } .st-UNKNOWN { color: var(--yellow); }
+.map-tag { font-size: 11px; padding: 2px 8px; border-radius: 10px; border: 1px solid var(--border); color: var(--muted); }
+.map-CONFLICT { color: var(--red); border-color: var(--red); }
+.map-COVERED, .map-COVERED_BY_CONTEXT { color: var(--green); border-color: var(--green); }
+.map-MISSING_FROM_VISIBLE_PROMPT { color: var(--yellow); border-color: var(--yellow); }
+.sug-card { background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; font-size: 13px; }
+.sug-card .cat { font-size: 11px; font-weight: 700; }
+.cat-CORRECTNESS_FIX { color: var(--red); } .cat-POTENTIAL_RISK { color: var(--yellow); }
+.cat-PERFORMANCE, .cat-READABILITY { color: var(--primary2); }
+.evi-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.evi-table td, .evi-table th { border: 1px solid var(--border); padding: 5px 8px; text-align: left; }
+.muted { color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">⚡</div>
+    <div><h1>PyQuality · 代码验收</h1><p>需求驱动的 R/P/C 三元组验收</p></div>
+  </div>
+  <div class="top-right">
+    <a href="/" class="btn ghost sm">← 返回聊天</a>
+  </div>
+</header>
+<main class="acc-wrap">
+  <div class="acc-input">
+    <h3>🧾 评估输入</h3>
+    <label>需求 R（自然语言）</label>
+    <textarea id="reqText" placeholder="实现 max_even(nums)。输入整数列表，返回其中最大的偶数；不存在偶数时返回 None；不得修改输入列表。"></textarea>
+    <label>生成提示词 P（可选）</label>
+    <textarea id="promptText" placeholder="使用 Python 实现 max_even(nums)，返回最大的偶数，找不到时返回 0。"></textarea>
+    <label>代码 C</label>
+    <textarea id="codeText" placeholder="def max_even(nums):&#10;    ..."></textarea>
+    <div style="display:flex; gap:10px; margin-top:14px; align-items:center;">
+      <button class="btn primary" id="evalBtn">开始验收</button>
+      <button class="btn ghost" id="demoBtn">填入 max_even 示例（错误实现）</button>
+      <span class="muted" id="evalStatus"></span>
+    </div>
+  </div>
+  <div id="reportArea"></div>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+$("demoBtn").addEventListener("click", () => {
+  $("reqText").value = "实现 max_even(nums)。输入整数列表，返回其中最大的偶数；不存在偶数时返回 None；不得修改输入列表。";
+  $("promptText").value = "使用 Python 实现 max_even(nums)，返回最大的偶数，找不到时返回 0。";
+  $("codeText").value = "def max_even(nums):\n    return max((x for x in nums if x % 2 == 0), default=0)\n";
+});
+$("evalBtn").addEventListener("click", async () => {
+  const btn = $("evalBtn");
+  btn.disabled = true;
+  $("evalStatus").textContent = "评估中（含真实隔离执行，最长约 60 秒）...";
+  $("reportArea").innerHTML = "";
+  try {
+    const resp = await fetch("/api/acceptance/evaluate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        requirement: $("reqText").value.trim(),
+        generation_prompt: $("promptText").value.trim(),
+        code: $("codeText").value,
+      }),
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.detail || "评估失败");
+    renderReport(data.report);
+  } catch (e) {
+    $("reportArea").innerHTML = `<div class="acc-section"><p style="color:var(--red)">⚠ ${e.message}</p></div>`;
+  } finally {
+    btn.disabled = false;
+    $("evalStatus").textContent = "";
+  }
+});
+function esc(s) { return String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function renderReport(r) {
+  const area = $("reportArea");
+  const stLabel = { FAIL: "未通过", PASS_WITHIN_SCOPE: "本轮检查通过（范围内）", INCONCLUSIVE: "暂无法判定" };
+  let html = `<div class="acc-section">
+    <h3>① 代码验收结论</h3>
+    <span class="verdict-badge verdict-${r.code_verdict}">${stLabel[r.code_verdict] || r.code_verdict}</span>
+    <span class="muted"> 保证等级: ${r.assurance_level} · 规格解释: ${r.spec_interpretation} · 隔离: ${r.isolation_level}</span>
+    <p style="margin:10px 0 4px">${esc(r.summary)}</p>
+    <p class="muted">案例: ${r.coverage.cases_passed} 通过 / ${r.coverage.cases_failed} 失败 / ${r.coverage.cases_executed} 执行（计划 ${r.coverage.cases_planned}）</p>`;
+  for (const rr of r.requirement_results) {
+    html += `<div class="req-row"><span class="req-status st-${rr.status}">${rr.status}</span>
+      <span><b>${esc(rr.requirement_id)}</b> ${esc(rr.statement)}
+      ${rr.failed_case_ids.length ? `<span class="muted">（反例: ${esc(rr.failed_case_ids.join(", "))}）</span>` : ""}</span></div>`;
+  }
+  if (r.blockers.length) html += `<p class="muted" style="margin-top:8px">⚠ 阻塞: ${esc(r.blockers.join("；"))}</p>`;
+  html += `</div>`;
+
+  const pr = r.prompt_report || { mappings: [] };
+  html += `<div class="acc-section"><h3>② 提示词诊断（${pr.mode === "LLM" ? "模型分析" : "离线规则模式"}）</h3>`;
+  if (pr.mappings && pr.mappings.length) {
+    html += `<table class="evi-table"><tr><th>需求</th><th>映射状态</th><th>说明</th></tr>`;
+    for (const m of pr.mappings) {
+      html += `<tr><td>${esc(m.requirement_id)}</td>
+        <td><span class="map-tag map-${m.status}">${m.status}</span></td>
+        <td>${esc(m.explanation || "")}</td></tr>`;
+    }
+    html += `</table>`;
+    if (pr.unresolved_questions && pr.unresolved_questions.length) {
+      html += `<p class="muted" style="margin-top:8px">待确认: ${esc(pr.unresolved_questions.join("；"))}</p>`;
+    }
+    if (pr.optimized_prompt) {
+      html += `<p class="muted" style="margin-top:8px">改进提示词:</p><pre style="white-space:pre-wrap;font-size:12.5px;background:var(--panel2);padding:10px;border-radius:8px;">${esc(pr.optimized_prompt)}</pre>`;
+    }
+  } else {
+    html += `<p class="muted">未生成提示词映射（无规格或模型不可用）</p>`;
+  }
+  html += `</div>`;
+
+  html += `<div class="acc-section"><h3>③ 代码改进建议</h3>`;
+  if (r.code_suggestions && r.code_suggestions.length) {
+    for (const s of r.code_suggestions) {
+      html += `<div class="sug-card"><span class="cat cat-${s.category}">${s.category}</span>
+        <div>${esc(s.explanation)}</div>
+        ${s.trigger_condition ? `<div class="muted">触发: ${esc(s.trigger_condition)}</div>` : ""}
+        ${s.expected ? `<div class="muted">期望: ${esc(s.expected)} / 实际: ${esc(s.actual)}</div>` : ""}
+        ${s.fix ? `<div>建议改法: ${esc(s.fix)}</div>` : ""}
+        ${s.regression_check ? `<div class="muted">回归: ${esc(s.regression_check)}</div>` : ""}</div>`;
+    }
+  } else {
+    html += `<p class="muted">无已确认缺陷或建议（${r.code_verdict === "PASS_WITHIN_SCOPE" ? "代码本轮通过" : "证据不足"}）</p>`;
+  }
+  html += `</div>`;
+
+  if (r.evidence && r.evidence.length) {
+    html += `<details class="acc-section"><summary><h3 style="display:inline;cursor:pointer">执行证据（${r.evidence.length} 条）</h3></summary><table class="evi-table">
+      <tr><th>案例</th><th>阶段</th><th>状态</th><th>观察</th></tr>`;
+    for (const e of r.evidence.slice(0, 50)) {
+      const obs = e.observation && (e.observation.check_detail || e.observation.exception_message || e.observation.error || JSON.stringify(e.observation.return_value ?? ""));
+      html += `<tr><td>${esc(e.case_id || "—")}</td><td>${e.phase}</td><td>${e.status}</td><td class="muted">${esc(String(obs || "").slice(0, 120))}</td></tr>`;
+    }
+    html += `</table></details>`;
+  }
+  area.innerHTML = html;
+}
+</script>
+</body>
+</html>
