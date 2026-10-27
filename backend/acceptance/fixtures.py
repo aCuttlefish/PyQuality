@@ -48,7 +48,7 @@ def max_even_spec() -> CanonicalSpec:
     return CanonicalSpec(
         spec_id="SPEC-MAX-EVEN",
         interpretation_status="USER_CONFIRMED",
-        requirement_text_digest="max_even 人工确认夹具（15.1）",
+        requirement_text_digest=MAX_EVEN_REQUIREMENT,
         requirements=[
             RequirementItem(
                 id="R1", statement="返回输入列表中最大的偶数",
@@ -101,8 +101,11 @@ def max_even_plan() -> TestPlan:
             contract_id="K_R3", requirement_ids=["R3"],
             description="输入不变", input_domain_ref="整数列表",
             representation="INPUT_UNCHANGED",
-            relation_to_requirement="NECESSARY",
-            relation_basis="R3 直接要求的副作用约束",
+            relation_to_requirement="EQUIVALENT",
+            relation_basis=(
+                "R3 直接要求的副作用约束；在调用前后快照可观测范围内等价，"
+                "瞬时写入不可检测（见 limitations）"
+            ),
             oracle_origin="USER_CONFIRMED_RULE", oracle_review="ACCEPTED_FOR_TESTING",
             interpretation_status="USER_CONFIRMED",
         ),
@@ -178,7 +181,7 @@ def payable_spec() -> CanonicalSpec:
     return CanonicalSpec(
         spec_id="SPEC-PAYABLE",
         interpretation_status="USER_CONFIRMED",
-        requirement_text_digest="payable 人工确认夹具（15.2）",
+        requirement_text_digest=PAYABLE_REQUIREMENT,
         requirements=[
             RequirementItem(
                 id="R1", statement="金额达到 10000 分（含）时固定优惠 2000 分一次",

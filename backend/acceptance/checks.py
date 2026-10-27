@@ -79,6 +79,23 @@ def _predicate_ok(predicate: dict[str, Any], value: Any) -> tuple[bool, str]:
     return True, ""
 
 
+def _return_value_or_error(observation: dict[str, Any]) -> tuple[str, Any]:
+    """取返回值；区分合法 None、序列化失败与字段缺失（P0-6）。
+
+    返回 ("ok", value) / ("serialize_error", msg) / ("missing", "")。
+    字段缺失是协议损坏，不能当作合法 None 参与判定。
+    """
+    if observation.get("return_serialization_error"):
+        return "serialize_error", str(observation["return_serialization_error"])
+    if "return_value" not in observation:
+        return "missing", ""
+    return "ok", observation["return_value"]
+
+
+def _exception_or_none(observation: dict[str, Any]) -> str:
+    return observation.get("exception_type") or ""
+
+
 def evaluate_assertion(
     assertion: Assertion,
     observation: dict[str, Any],
@@ -87,34 +104,39 @@ def evaluate_assertion(
     kind = assertion.kind
 
     if kind == "RETURN_EQUALS":
-        if observation.get("exception_type"):
+        if _exception_or_none(observation):
             return CheckResult(
                 "TARGET_EXCEPTION",
                 f"目标抛出 {observation['exception_type']}: {observation.get('exception_message', '')[:120]}",
             )
-        ret = observation.get("return_serialization_error") or observation.get("return_value")
-        if observation.get("return_serialization_error"):
-            return CheckResult("HARNESS_ERROR", "返回值无法按受限协议序列化")
-        if not _json_equal(ret, assertion.expected):
+        state, value = _return_value_or_error(observation)
+        if state == "serialize_error":
+            return CheckResult("HARNESS_ERROR", f"返回值无法按受限协议序列化: {value}")
+        if state == "missing":
+            return CheckResult("HARNESS_ERROR", "观察数据缺少 return_value 字段（协议损坏）")
+        if not _json_equal(value, assertion.expected):
             return CheckResult(
                 "ASSERTION_FAILED",
-                f"返回值 {ret!r} 不等于期望 {assertion.expected!r}",
+                f"返回值 {value!r} 不等于期望 {assertion.expected!r}",
             )
         return CheckResult("PASSED")
 
     if kind == "RETURN_IS_NONE":
-        if observation.get("exception_type"):
+        if _exception_or_none(observation):
             return CheckResult(
                 "TARGET_EXCEPTION",
                 f"目标抛出 {observation['exception_type']}: {observation.get('exception_message', '')[:120]}",
             )
-        if observation.get("return_serialization_error"):
-            return CheckResult("HARNESS_ERROR", "返回值无法按受限协议序列化")
+        state, value = _return_value_or_error(observation)
+        if state == "serialize_error":
+            return CheckResult("HARNESS_ERROR", f"返回值无法按受限协议序列化: {value}")
+        if state == "missing":
+            return CheckResult("HARNESS_ERROR", "观察数据缺少 return_value 字段（协议损坏）")
         # 使用 is None 语义（JSON null），不通过真假值判断
-        if observation.get("return_value") is not None:
+        if value is not None:
             return CheckResult(
                 "ASSERTION_FAILED",
-                f"期望返回 None，实际 {observation.get('return_value')!r}",
+                f"期望返回 None，实际 {value!r}",
             )
         return CheckResult("PASSED")
 
@@ -157,12 +179,16 @@ def evaluate_assertion(
         return CheckResult("PASSED")
 
     if kind == "ALL_ITEMS_MATCH":
-        if observation.get("exception_type"):
+        if _exception_or_none(observation):
             return CheckResult(
                 "TARGET_EXCEPTION",
                 f"目标抛出 {observation['exception_type']}: {observation.get('exception_message', '')[:120]}",
             )
-        ret = observation.get("return_value")
+        state, ret = _return_value_or_error(observation)
+        if state == "serialize_error":
+            return CheckResult("HARNESS_ERROR", f"返回值无法按受限协议序列化: {ret}")
+        if state == "missing":
+            return CheckResult("HARNESS_ERROR", "观察数据缺少 return_value 字段（协议损坏）")
         if not isinstance(ret, list):
             return CheckResult("ASSERTION_FAILED", f"返回值不是列表: {ret!r}")
         for i, item in enumerate(ret):
@@ -172,12 +198,16 @@ def evaluate_assertion(
         return CheckResult("PASSED")
 
     if kind == "ORDERED":
-        if observation.get("exception_type"):
+        if _exception_or_none(observation):
             return CheckResult(
                 "TARGET_EXCEPTION",
                 f"目标抛出 {observation['exception_type']}: {observation.get('exception_message', '')[:120]}",
             )
-        ret = observation.get("return_value")
+        state, ret = _return_value_or_error(observation)
+        if state == "serialize_error":
+            return CheckResult("HARNESS_ERROR", f"返回值无法按受限协议序列化: {ret}")
+        if state == "missing":
+            return CheckResult("HARNESS_ERROR", "观察数据缺少 return_value 字段（协议损坏）")
         if not isinstance(ret, list):
             return CheckResult("ASSERTION_FAILED", f"返回值不是列表: {ret!r}")
         if any(not isinstance(x, (int, float, str)) or isinstance(x, bool) for x in ret):
@@ -192,12 +222,16 @@ def evaluate_assertion(
         return CheckResult("PASSED")
 
     if kind == "SAME_MULTISET":
-        if observation.get("exception_type"):
+        if _exception_or_none(observation):
             return CheckResult(
                 "TARGET_EXCEPTION",
                 f"目标抛出 {observation['exception_type']}: {observation.get('exception_message', '')[:120]}",
             )
-        ret = observation.get("return_value")
+        state, ret = _return_value_or_error(observation)
+        if state == "serialize_error":
+            return CheckResult("HARNESS_ERROR", f"返回值无法按受限协议序列化: {ret}")
+        if state == "missing":
+            return CheckResult("HARNESS_ERROR", "观察数据缺少 return_value 字段（协议损坏）")
         before, _ = _get_target_snapshots(assertion.against, observation)
         if before is None:
             return CheckResult("HARNESS_ERROR", "缺少调用前快照")

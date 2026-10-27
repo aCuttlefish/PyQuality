@@ -109,6 +109,8 @@ def extract_spec(requirement: str, entrypoint: Optional[Entrypoint]) -> SpecExtr
         spec_id="SPEC-AUTO",
         interpretation_status="UNRESOLVED",
         requirements=requirements[:20],
+        # 保存完整原始需求 R，供审查阶段与报告追溯（P0-1/P0-3）
+        requirement_text_digest=requirement[:20000],
         input_domain=_clauses(data.get("input_domain"), requirement),
         technical_constraints=[str(c) for c in (data.get("technical_constraints") or [])][:10],
         unresolved_questions=(

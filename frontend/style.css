@@ -13,7 +13,8 @@
   --green: #1ba87a; --yellow: #d99e2e; --red: #e5484d; --purple: #8b4de8;
 }
 
-body { font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+html, body { height: 100%; }
+body { font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; overflow: hidden; }
 
 .topbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; background: var(--panel); border-bottom: 1px solid var(--border); gap: 16px; flex-shrink: 0; }
 .brand { display: flex; align-items: center; gap: 10px; }

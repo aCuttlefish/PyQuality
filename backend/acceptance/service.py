@@ -2,10 +2,17 @@
 
 evaluate(request, configuration) -> EvaluationReport
 核心服务独立于 HTTP、CLI 和 UI。判定、规格冻结、版本更新按依赖顺序执行。
+
+P0 修复（v4.1）：
+- 夹具确认记录绑定完整原始需求；请求 R 与登记需求不一致时阻断确认路径。
+- 语义审查收到完整原始需求 R（不再使用摘要）。
+- 无合格隔离执行环境时动态阶段 BLOCKED，整体按规则 INCONCLUSIVE。
+- 证据工件保存到稳定任务目录（不引用已清理的临时路径）。
 """
 from __future__ import annotations
 
 import time
+from pathlib import Path
 
 from backend.acceptance import (
     hashing,
@@ -18,7 +25,6 @@ from backend.acceptance import (
     verdict as verdict_mod,
 )
 from backend.acceptance.fixtures import (
-
     max_even_plan,
     max_even_spec,
     payable_plan,
@@ -32,7 +38,6 @@ from backend.acceptance.models import (
     EvaluationReport,
     EvaluationRequest,
     Evidence,
-    EvidenceStatus,
     PromptReport,
     ReproducibilityInfo,
     RequirementResult,
@@ -43,8 +48,14 @@ from backend.logger import get_logger
 
 logger = get_logger("acceptance_service")
 
-TECH_RULE_VERSION = "tech-rules/1.0"
+TECH_RULE_VERSION = "tech-rules/1.1"
 
+# 稳定证据工件目录（P1：报告引用的文件必须真实存在）
+ARTIFACTS_ROOT = Path("data") / "acceptance_artifacts"
+
+
+def _norm_text(s: str) -> str:
+    return "".join(s.split())
 
 
 def _locate_entrypoint(request: EvaluationRequest) -> tuple[Entrypoint | None, str]:
@@ -74,11 +85,33 @@ def evaluate(request: EvaluationRequest) -> EvaluationReport:
     report = EvaluationReport()
     stages: list[StageResult] = []
     blockers: list[str] = []
-    limitations: list[str] = [
-        "MVP 未对任意 Python 与任意自然语言需求提供普遍正确性证明",
-        "进程级隔离：无 Docker 网络隔离与 CPU/内存限额，非完备安全边界",
-        "输入不变检查不检测『先修改再恢复』的瞬时写入",
-    ]
+
+    # 执行后端与隔离级别如实报告（P0-7）
+    backend = runner.detect_execution_backend()
+    if backend.name == "DOCKER":
+        limitations = [
+            "MVP 未对任意 Python 与任意自然语言需求提供普遍正确性证明",
+            "容器隔离（非特权/无网络/只读根/资源限额）：不等于抵御所有恶意代码的完备安全边界",
+            "输入不变检查不检测『先修改再恢复』的瞬时写入",
+        ]
+    elif backend.name == "HOST_SUBPROCESS_DEV":
+        limitations = [
+            "MVP 未对任意 Python 与任意自然语言需求提供普遍正确性证明",
+            "宿主子进程开发豁免（PYQ_ACCEPTANCE_ALLOW_HOST=1）：非安全隔离边界，仅限本地可信代码调试",
+            "输入不变检查不检测『先修改再恢复』的瞬时写入",
+        ]
+    else:
+        limitations = [
+            "MVP 未对任意 Python 与任意自然语言需求提供普遍正确性证明",
+            f"动态执行被阻断（{backend.detail}），动态验收未完成",
+            "输入不变检查不检测『先修改再恢复』的瞬时写入",
+        ]
+
+    artifact_dir = ARTIFACTS_ROOT / report.evaluation_id
+    try:
+        artifact_dir.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        artifact_dir = None
 
     # ---- 阶段 A：输入与基础事实 ----
     ch = hashing.code_hash(
@@ -91,13 +124,13 @@ def evaluate(request: EvaluationRequest) -> EvaluationReport:
     if not ok:
         compile_evidence.append(Evidence(
             kind="STATIC_FACT", producer="compile_check",
-            code_hash=ch, runtime_fingerprint=runner.runtime_fingerprint(),
+            code_hash=ch, runtime_fingerprint=runner.runtime_fingerprint(backend.name),
             phase="COMPILE", observation={"error": compile_msg},
             status="ASSERTION_FAILED", technical_rule_version=TECH_RULE_VERSION,
         ))
     stages.append(StageResult(
         stage="A_input_and_compile",
-        status="COMPLETED" if ok else "COMPLETED",
+        status="COMPLETED",
         detail=compile_msg or "编译检查通过",
         duration_ms=(time.monotonic() - t0) * 1000,
     ))
@@ -115,15 +148,23 @@ def evaluate(request: EvaluationRequest) -> EvaluationReport:
         elif key == "SPEC-PAYABLE":
             spec, plan = payable_spec(), payable_plan()
         else:
-            blockers.append(f"未知 confirmed_spec_id: {key}")
+            blockers.append(f"未知 confirmed_spec_id: {key}，确认记录不存在")
         if spec is not None:
-            if materials.confirmed_spec_hash and materials.confirmed_spec_hash != hashing.spec_hash(spec):
+            spec_mode = "FIXTURE"
+            # 确认记录绑定原始需求：请求 R 与登记需求不一致 → 阻断确认路径（P0-3）
+            if _norm_text(request.requirement) != _norm_text(spec.requirement_text_digest):
+                blockers.append(
+                    "请求需求 R 与确认规格登记的需求不一致，旧确认状态不得复用"
+                )
+                spec.interpretation_status = "UNRESOLVED"
+                for contract in plan.contracts:
+                    contract.oracle_review = "PENDING"
+            elif materials.confirmed_spec_hash and materials.confirmed_spec_hash != hashing.spec_hash(spec):
                 blockers.append("confirmed_spec_hash 与登记规格不匹配，按未确认处理")
                 spec.interpretation_status = "UNRESOLVED"
                 for contract in plan.contracts:
                     contract.oracle_review = "PENDING"
-            spec_mode = "FIXTURE"
-    elif not spec:
+    if spec is None:
         extraction = spec_extractor.extract_spec(request.requirement, entrypoint)
         if extraction.spec is not None:
             spec = extraction.spec
@@ -140,10 +181,25 @@ def evaluate(request: EvaluationRequest) -> EvaluationReport:
         )
         if plan_result.plan is not None:
             plan = plan_result.plan
-            review_result = review_mod.review_spec_and_plan(spec, plan)
+            # 审查器必须收到完整原始需求 R（P0-1）
+            review_result = review_mod.review_spec_and_plan(
+                spec, plan, requirement_text=request.requirement
+            )
             review_mod.apply_review(spec, plan, review_result)
             if review_result.mode != "LLM":
                 blockers.append("规约语义审查未执行（模型不可用），候选规格保持未确认")
+            elif review_result.mode == "LLM":
+                unfaithful = [
+                    rid for rid, f in review_result.requirement_faithful.items()
+                    if f is not True
+                ]
+                if unfaithful:
+                    blockers.append(
+                        f"必要需求审查未通过（faithful=false 或缺失）: {sorted(unfaithful)}"
+                    )
+                rejected = sorted(review_result.rejected_contracts)
+                if rejected:
+                    blockers.append(f"必要契约被审查拒绝: {rejected}")
         else:
             blockers.append(f"测试计划生成失败: {plan_result.error}")
 
@@ -158,21 +214,49 @@ def evaluate(request: EvaluationRequest) -> EvaluationReport:
     else:
         stages.append(StageResult(stage="B_spec", status="BLOCKED", detail="规格不可用"))
 
-    # ---- 阶段 E：隔离执行（与提示词审查并行数据准备） ----
+    # ---- 阶段 E：隔离执行 ----
     evidence: list[Evidence] = list(compile_evidence)
     executed = False
     if plan is not None and entrypoint is not None and not compile_evidence:
-        evidence_exec, logs = runner.run_cases(
-            request.code,
-            [(f.path, f.content) for f in request.supporting_files],
-            entrypoint, plan.cases, ch, plan.plan_hash, spec.spec_hash,
-        )
-        evidence.extend(evidence_exec)
-        executed = True
-        stages.append(StageResult(
-            stage="E_execute", status="COMPLETED",
-            detail=f"{len(evidence_exec)} 条案例证据",
-        ))
+        if not backend.available:
+            # 无合格隔离环境：动态执行阻断，不回退宿主（P0-7）
+            stages.append(StageResult(
+                stage="E_execute", status="BLOCKED",
+                detail=f"执行后端不可用: {backend.detail}",
+            ))
+            blockers.append(f"动态执行被阻断（无合格隔离执行环境）: {backend.detail}")
+        else:
+            try:
+                evidence_exec, logs = runner.run_cases(
+                    request.code,
+                    [(f.path, f.content) for f in request.supporting_files],
+                    entrypoint, plan.cases, ch, plan.plan_hash, spec.spec_hash,
+                    artifact_dir=artifact_dir,
+                )
+                evidence.extend(evidence_exec)
+                executed = True
+                env_errors = sum(
+                    1 for e in evidence_exec if e.status == "ENV_ERROR"
+                )
+                stages.append(StageResult(
+                    stage="E_execute", status="COMPLETED",
+                    detail=(
+                        f"{len(evidence_exec)} 条案例证据"
+                        + (f"（含 {env_errors} 条环境/协议错误）" if env_errors else "")
+                    ),
+                ))
+                if logs and artifact_dir:
+                    try:
+                        (artifact_dir / "runner.log").write_text(
+                            "\n".join(logs), encoding="utf-8"
+                        )
+                    except OSError:
+                        pass
+            except runner.ExecutionBlocked as e:
+                stages.append(StageResult(
+                    stage="E_execute", status="BLOCKED", detail=str(e),
+                ))
+                blockers.append(f"动态执行被阻断: {e}")
     elif compile_evidence:
         stages.append(StageResult(
             stage="E_execute", status="SKIPPED",
@@ -259,7 +343,11 @@ def evaluate(request: EvaluationRequest) -> EvaluationReport:
         ) if spec else 0,
         requirements_checked=len(requirement_results),
         cases_planned=len(plan.cases) if plan else 0,
-        cases_executed=sum(1 for e in evidence if e.kind == "EXECUTED_CASE"),
+        # 只统计真实执行的案例（排除 NOT_RUN/SKIPPED；P1）
+        cases_executed=sum(
+            1 for e in evidence
+            if e.kind == "EXECUTED_CASE" and e.status not in ("NOT_RUN", "SKIPPED")
+        ),
         cases_passed=sum(
             1 for e in evidence
             if e.kind == "EXECUTED_CASE" and e.status == "PASSED"
@@ -273,6 +361,18 @@ def evaluate(request: EvaluationRequest) -> EvaluationReport:
     llm_blocked = not llm_provider.is_available()
     if llm_blocked:
         blockers.append("模型服务不可用：需求提取/语义审查/LLM 建议走确定降级路径")
+
+    # 请求了尚未实现的可选功能时明确报告不支持（P1，不静默跳过）
+    if request.options.generate_repair_candidate:
+        stages.append(StageResult(
+            stage="G_repair_candidate", status="SKIPPED",
+            detail="修复候选生成未实现（M5 可选功能），本次未生成",
+        ))
+        limitations.append("已请求 generate_repair_candidate=true，但修复候选生成未实现，未产生候选")
+    if request.options.enable_property_testing:
+        limitations.append("已请求 enable_property_testing=true，但 Hypothesis 属性测试未实现，未执行")
+    if request.options.enable_crosshair:
+        limitations.append("已请求 enable_crosshair=true，但 CrossHair 符号执行未实现，未执行")
 
     has_partial_work = (
         verdict != "INCONCLUSIVE"
@@ -293,7 +393,7 @@ def evaluate(request: EvaluationRequest) -> EvaluationReport:
     )
     report.spec_interpretation = spec.interpretation_status if spec else "UNRESOLVED"
     report.summary = _build_summary(
-        verdict, requirement_results, compile_msg, spec_mode, entry_note
+        verdict, requirement_results, compile_msg, spec_mode, entry_note, backend
     )
     report.requirement_results = requirement_results
     report.prompt_report = prompt_report
@@ -307,10 +407,10 @@ def evaluate(request: EvaluationRequest) -> EvaluationReport:
         code_hash=ch,
         spec_hash=spec.spec_hash if spec else "",
         plan_hash=plan.plan_hash if plan else "",
-        runtime_fingerprint=runner.runtime_fingerprint(),
+        runtime_fingerprint=runner.runtime_fingerprint(backend.name),
         request_hash=hashing.request_hash(request),
     )
-    report.isolation_level = "SUBPROCESS_SANDBOX"
+    report.isolation_level = backend.name
     return report
 
 
@@ -320,6 +420,7 @@ def _build_summary(
     compile_msg: str,
     spec_mode: str,
     entry_note: str,
+    backend: "runner.ExecutionBackend",
 ) -> str:
     if compile_msg:
         return f"代码存在确定的语法/编译错误（{compile_msg}），按当前需求解读判定 FAIL。"
@@ -333,6 +434,8 @@ def _build_summary(
     reasons = []
     if entry_note:
         reasons.append(f"入口定位失败: {entry_note}")
+    if not backend.available:
+        reasons.append("动态执行被阻断（无合格隔离执行环境）")
     if unknown:
         reasons.append(f"{len(unknown)} 项需求未能形成确定结论")
     if not requirement_results:

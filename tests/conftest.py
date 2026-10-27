@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 
@@ -18,6 +19,23 @@ def _disable_real_ai(monkeypatch):
 
     monkeypatch.setattr(deepseek_client, "chat", _no_network)
     monkeypatch.setattr(deepseek_client, "chat_json", _no_network)
+
+
+@pytest.fixture(autouse=True)
+def _acceptance_host_dev(monkeypatch):
+    """验收测试的执行后端：显式宿主开发豁免。
+
+    pytest 中的被测代码是仓库内可信夹具代码，非用户上传的不可信代码，
+    因此允许宿主子进程执行（isolation_level=HOST_SUBPROCESS_DEV 如实记录）。
+    默认阻断路径（无豁免、无 Docker → BLOCKED）由
+    test_acceptance_security.py 专门验证。
+    """
+    monkeypatch.setenv("PYQ_ACCEPTANCE_ALLOW_HOST", "1")
+    from backend.acceptance import runner as acc_runner
+
+    acc_runner.reset_backend_cache()
+    yield
+    acc_runner.reset_backend_cache()
 
 
 @pytest.fixture(autouse=True)

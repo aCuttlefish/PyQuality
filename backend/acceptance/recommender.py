@@ -101,6 +101,11 @@ def _suggest_by_llm(
         category = s.get("category")
         if category not in ("CORRECTNESS_FIX", "POTENTIAL_RISK", "PERFORMANCE", "READABILITY"):
             category = "POTENTIAL_RISK"
+        # 无执行证据的建议不得作为已确认缺陷：降级为待验证风险（P1）
+        pending_note = ""
+        if category == "CORRECTNESS_FIX" and not evids:
+            category = "POTENTIAL_RISK"
+            pending_note = "（待验证：无执行证据支持）"
         out.append(CodeSuggestion(
             suggestion_id=f"SUG-{uuid.uuid4().hex[:8]}",
             finding_id="",
@@ -111,7 +116,7 @@ def _suggest_by_llm(
             trigger_condition=str(s.get("trigger_condition") or "")[:300],
             expected=str(s.get("expected") or "")[:300],
             actual=str(s.get("actual") or "")[:300],
-            explanation=str(s.get("explanation") or "")[:800],
+            explanation=str(s.get("explanation") or "")[:800] + pending_note,
             fix=str(s.get("fix") or "")[:1000],
             regression_check=str(s.get("regression_check") or "")[:500],
             mode="LLM",

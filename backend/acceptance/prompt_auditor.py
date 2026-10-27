@@ -86,6 +86,11 @@ def _audit_by_llm(request: EvaluationRequest, spec: CanonicalSpec) -> PromptRepo
 
     data = llm_provider.strip_forbidden_fields(data)
     known_ids = {r.id for r in spec.requirements}
+
+    def _norm(s: str) -> str:
+        return "".join(s.split())
+
+    p_norm = _norm(request.generation_prompt)
     mappings: list[PromptMapping] = []
     for m in (data.get("mappings") or []):
         if not isinstance(m, dict):
@@ -99,10 +104,16 @@ def _audit_by_llm(request: EvaluationRequest, spec: CanonicalSpec) -> PromptRepo
             "CONFLICT", "AMBIGUOUS", "UNKNOWN",
         ):
             continue
+        prompt_quote = str(m.get("prompt_quote") or "")[:300]
+        # prompt_quote 程序校验：声明的 P 原文证据必须真的出现在 P 中（防伪造）
+        if prompt_quote and _norm(prompt_quote) not in p_norm:
+            prompt_quote = ""
+            if status in ("COVERED", "CONFLICT", "AMBIGUOUS"):
+                status = "UNKNOWN"
         mappings.append(PromptMapping(
             requirement_id=rid, status=status,
             requirement_quote=str(m.get("requirement_quote") or "")[:300],
-            prompt_quote=str(m.get("prompt_quote") or "")[:300],
+            prompt_quote=prompt_quote,
             explanation=str(m.get("explanation") or "")[:500],
         ))
 

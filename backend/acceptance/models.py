@@ -115,6 +115,9 @@ class SupportingFile(StrictModel):
         return v
 
 
+MAIN_MODULE_FILENAME = "solution.py"
+
+
 class EvaluationRequest(StrictModel):
     requirement: str = Field(min_length=1, max_length=20000)
     generation_prompt: str = Field(default="", max_length=20000)
@@ -134,6 +137,13 @@ class EvaluationRequest(StrictModel):
         )
         if total > 262144:
             raise ValueError("源码总量超过 256 KiB 上限")
+        # 主代码写入 solution.py，辅助文件不得与其冲突（P0-4）
+        normalized = [f.path.replace("\\", "/").lstrip("./") for f in self.supporting_files]
+        for p in normalized:
+            if p == MAIN_MODULE_FILENAME or p.endswith(f"/{MAIN_MODULE_FILENAME}"):
+                raise ValueError(f"辅助文件不得覆盖主代码模块 {MAIN_MODULE_FILENAME}")
+        if len(set(normalized)) != len(normalized):
+            raise ValueError("存在重复的辅助文件路径")
         return self
 
 

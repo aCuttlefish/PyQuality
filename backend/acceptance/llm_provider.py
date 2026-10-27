@@ -80,12 +80,13 @@ def generate_structured(
 
 
 def strip_forbidden_fields(data: dict[str, Any]) -> dict[str, Any]:
-    """防御性剥离受保护字段（用于嵌套结构）。"""
+    """仅剥离 LLM proposal **顶层** 的受保护系统字段（P0-5 修复）。
+
+    不递归删除：嵌套数据（如测试断言中的 expected 业务值
+    {"verified": true, "evidence": [1]}）是合法用户业务数据，
+    递归删除会破坏其原始语义。系统权限隔离通过顶层 schema
+    校验（generate_structured）+ Pydantic 输入输出模型实现。
+    """
     if isinstance(data, dict):
-        return {
-            k: strip_forbidden_fields(v)
-            for k, v in data.items() if k not in FORBIDDEN_PROPOSAL_FIELDS
-        }
-    if isinstance(data, list):
-        return [strip_forbidden_fields(x) for x in data]
+        return {k: v for k, v in data.items() if k not in FORBIDDEN_PROPOSAL_FIELDS}
     return data

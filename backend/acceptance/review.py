@@ -3,6 +3,12 @@
 TestPlanner 的 expected 必须来自需求推导，不能调用待测代码取得；
 SpecAndOracleReviewer 做固定结构校验 + LLM 语义审查，
 语义审查通过仍归为 AUTO_REVIEWED（不是数学证明）。
+
+P0 修复（v4.1）：
+- 审查器必须收到完整原始需求 R（不是摘要）与真实断言/expected/预期依据。
+- requirement_reviews 的 faithful=false 必须阻止该需求进入可验收状态。
+- 必要契约被 REJECTED 时不得批准；缺失审查结果视为未通过。
+- 只有全部必要需求 faithful 且其必要契约被接受时才 AUTO_REVIEWED。
 """
 from __future__ import annotations
 
@@ -14,7 +20,6 @@ from backend.acceptance.models import (
     CanonicalSpec,
     CheckCase,
     ContractSpec,
-    OracleReview,
     TestPlan,
 )
 from backend.logger import get_logger
@@ -57,10 +62,13 @@ contract_id、合法输入依据、expected_basis 和输入类别。
 }"""
 
 REVIEW_TASK = """审查 candidate_spec、候选规则与案例是否忠实于 requirements_text。
+requirements_text 是用户的完整原始需求，是唯一业务依据。
 逐条检查：需求来源、输入是否合法、预期推导、是否遗漏必要行为、
 是否新增用户未要求的条件、是否可能被空洞实现满足。
 区分规则是必要条件、充分条件、等价条件还是尚不明确。
 为每项给出 ACCEPTED_FOR_TESTING、PENDING 或 REJECTED 建议及理由。
+对每条需求输出 requirement_reviews，faithful 表示候选规格与案例
+整体上是否忠实表达了该需求；存在遗漏、曲解或空洞覆盖时必须为 false。
 你的审查是解释性审查，不是形式化证明，不输出执行结果或最终 verdict。
 
 输出 JSON 结构：
@@ -77,12 +85,6 @@ REVIEW_TASK = """审查 candidate_spec、候选规则与案例是否忠实于 re
   }],
   "spec_level_issues": ["..."]
 }"""
-
-ALLOWED_EXCEPTIONS = {
-    "ValueError", "TypeError", "KeyError", "IndexError", "ZeroDivisionError",
-    "ArithmeticError", "AttributeError", "LookupError", "AssertionError",
-    "NotImplementedError", "OverflowError", "StopIteration", "RuntimeError",
-}
 
 
 class PlanResult:
@@ -179,19 +181,39 @@ class ReviewResult:
         self.mode = mode
         self.error = error
         self.accepted_contracts: set[str] = set()
+        self.rejected_contracts: set[str] = set()
         self.relations: dict[str, str] = {}
         self.spec_level_issues: list[str] = []
+        # requirement_id -> (faithful: bool | None, issues: list[str])
+        # None 表示审查器未覆盖该条需求（视为未通过）
+        self.requirement_faithful: dict[str, Optional[bool]] = {}
+        self.requirement_issues: dict[str, list[str]] = {}
+
+    @property
+    def blocking_issues(self) -> list[str]:
+        out = list(self.spec_level_issues)
+        for rid, issues in self.requirement_issues.items():
+            out.extend(f"{rid}: {i}" for i in issues)
+        return out
 
 
-def review_spec_and_plan(spec: CanonicalSpec, plan: TestPlan) -> ReviewResult:
+def review_spec_and_plan(
+    spec: CanonicalSpec,
+    plan: TestPlan,
+    requirement_text: str = "",
+) -> ReviewResult:
     """阶段 D 审查：固定校验 + LLM 语义审查。
 
-    语义审查成功 → 契约标记 ACCEPTED_FOR_TESTING，规格 AUTO_REVIEWED；
-    LLM 不可用 → 保持 PENDING/UNRESOLVED（spec_ready 为 false）。
+    - requirement_text 必须是完整原始需求 R，不得用摘要替代。
+    - 审查 payload 包含完整断言与 expected（不再 exclude）。
+    - 语义审查成功 → 必要需求全部 faithful 且契约接受才 AUTO_REVIEWED；
+    - LLM 不可用 → 保持 PENDING/UNRESOLVED（spec_ready 为 false）。
     """
     result = ReviewResult("UNAVAILABLE", "语义审查未执行（模型不可用）")
+    # 原始需求 R 优先；规格中的 digest 仅作兜底（夹具路径已填充完整需求）
+    raw_req = requirement_text or spec.requirement_text_digest
     payload = {
-        "requirements_text": spec.requirement_text_digest,
+        "requirements_text": raw_req,
         "candidate_spec": {
             "requirements": [r.model_dump() for r in spec.requirements],
             "input_domain": [d.model_dump() for d in spec.input_domain],
@@ -200,7 +222,8 @@ def review_spec_and_plan(spec: CanonicalSpec, plan: TestPlan) -> ReviewResult:
             "contracts": [
                 c.model_dump(exclude={"spec_hash"}) for c in plan.contracts
             ],
-            "cases": [c.model_dump(exclude={"assertion"}) for c in plan.cases],
+            # 完整断言与 expected 交给审查器（修复 exclude={"assertion"}）
+            "cases": [c.model_dump() for c in plan.cases],
         },
     }
     try:
@@ -226,9 +249,35 @@ def review_spec_and_plan(spec: CanonicalSpec, plan: TestPlan) -> ReviewResult:
         if review_status in ("ACCEPTED_FOR_TESTING", "PENDING", "REJECTED"):
             if review_status == "ACCEPTED_FOR_TESTING":
                 result.accepted_contracts.add(cid)
+            elif review_status == "REJECTED":
+                result.rejected_contracts.add(cid)
             relation = r.get("relation_to_requirement")
             if relation in ("NECESSARY", "SUFFICIENT", "EQUIVALENT", "UNKNOWN"):
                 result.relations[cid] = relation
+
+    # 处理 requirement_reviews：faithful=false 或缺失都视为未通过
+    req_reviews = data.get("requirement_reviews")
+    known_req_ids = {r.id for r in spec.requirements}
+    if isinstance(req_reviews, list):
+        for rr in req_reviews:
+            if not isinstance(rr, dict):
+                continue
+            rid = str(rr.get("requirement_id") or "")
+            if rid not in known_req_ids:
+                continue
+            faithful = rr.get("faithful")
+            if isinstance(faithful, bool):
+                result.requirement_faithful[rid] = faithful
+            issues = [
+                str(i) for i in (rr.get("issues") or [])[:5] if str(i).strip()
+            ]
+            if issues:
+                result.requirement_issues[rid] = issues
+
+    # 审查器未覆盖的必要需求 → 显式记为未通过（faithful 缺失）
+    for req in spec.requirements:
+        if req.id not in result.requirement_faithful:
+            result.requirement_faithful[req.id] = None
 
     result.mode = "LLM"
     result.error = ""
@@ -239,10 +288,18 @@ def review_spec_and_plan(spec: CanonicalSpec, plan: TestPlan) -> ReviewResult:
 
 
 def apply_review(spec: CanonicalSpec, plan: TestPlan, review: ReviewResult) -> None:
-    """将审查结果应用到规格与计划（冻结前的最后一步）。"""
+    """将审查结果应用到规格与计划（冻结前的最后一步）。
+
+    - REJECTED 契约保持 REJECTED（不得进入验收）。
+    - faithful=false / faithful 缺失的必要需求 → 规格 UNRESOLVED。
+    - 只有全部必要需求 faithful 且必要契约被接受才 AUTO_REVIEWED。
+    """
     for contract in plan.contracts:
         if review.mode == "LLM":
-            if contract.contract_id in review.accepted_contracts:
+            if contract.contract_id in review.rejected_contracts:
+                contract.oracle_review = "REJECTED"
+                contract.interpretation_status = "UNRESOLVED"
+            elif contract.contract_id in review.accepted_contracts:
                 contract.oracle_review = "ACCEPTED_FOR_TESTING"
                 contract.interpretation_status = "AUTO_REVIEWED"
                 if contract.contract_id in review.relations:
@@ -251,9 +308,31 @@ def apply_review(spec: CanonicalSpec, plan: TestPlan, review: ReviewResult) -> N
                 contract.oracle_review = "PENDING"
         else:
             contract.oracle_review = "PENDING"
-    if review.mode == "LLM" and review.accepted_contracts:
-        spec.interpretation_status = "AUTO_REVIEWED"
+
+    mandatory_ids = {r.id for r in spec.requirements if r.mandatory}
+    mandatory_contracts = [
+        c for c in plan.contracts if mandatory_ids & set(c.requirement_ids)
+    ]
+
+    if review.mode == "LLM":
+        all_faithful = all(
+            review.requirement_faithful.get(rid) is True for rid in mandatory_ids
+        )
+        mandatory_accepted = bool(mandatory_contracts) and all(
+            c.oracle_review == "ACCEPTED_FOR_TESTING" for c in mandatory_contracts
+        )
+        if all_faithful and mandatory_accepted:
+            spec.interpretation_status = "AUTO_REVIEWED"
+        else:
+            spec.interpretation_status = "UNRESOLVED"
+
     if review.spec_level_issues:
         spec.unresolved_questions = list(
             dict.fromkeys(spec.unresolved_questions + review.spec_level_issues)
+        )
+    for rid, issues in review.requirement_issues.items():
+        if not issues:
+            continue
+        spec.unresolved_questions = list(
+            dict.fromkeys(spec.unresolved_questions + [f"{rid}: {i}" for i in issues])
         )

@@ -6,16 +6,28 @@
 <title>PyQuality · 代码验收</title>
 <link rel="stylesheet" href="/static/style.css">
 <style>
-.acc-wrap { max-width: 960px; margin: 0 auto; padding: 24px; }
-.acc-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-.acc-input { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+html, body { height: 100%; }
+body { display: flex; flex-direction: column; overflow: hidden; }
+.topbar { flex-shrink: 0; }
+.acc-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; width: 100%; max-width: 960px; margin: 0 auto; }
+.acc-input { flex-shrink: 0; background: var(--panel); border-bottom: 1px solid var(--border); }
+.acc-input-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; cursor: pointer; user-select: none; }
+.acc-input-head h3 { font-size: 14px; color: var(--primary2); }
+.acc-input-head .toggle-hint { font-size: 12px; color: var(--muted); }
+.input-summary { display: none; padding: 0 16px 10px; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.acc-input-body { padding: 0 16px 14px; }
+.acc-input.collapsed .acc-input-body { display: none; }
+.acc-input.collapsed .input-summary { display: block; }
 .acc-input label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 4px; }
-.acc-input textarea { width: 100%; min-height: 90px; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel2); color: var(--text); font-family: Consolas, monospace; font-size: 12.5px; resize: vertical; }
-.verdict-badge { display: inline-block; padding: 6px 18px; border-radius: 20px; font-weight: 700; font-size: 15px; }
+.acc-input textarea { width: 100%; min-height: 54px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel2); color: var(--text); font-family: Consolas, monospace; font-size: 12.5px; resize: vertical; box-sizing: border-box; }
+#codeText { min-height: 84px; }
+.input-actions { display: flex; gap: 10px; margin-top: 12px; align-items: center; flex-wrap: wrap; }
+#reportArea { flex: 1; overflow-y: auto; padding: 0 16px 24px; }
+.verdict-badge { display: inline-block; padding: 5px 16px; border-radius: 18px; font-weight: 700; font-size: 14px; }
 .verdict-FAIL { background: rgba(255,92,108,.15); color: var(--red); border: 1px solid var(--red); }
 .verdict-PASS_WITHIN_SCOPE { background: rgba(46,204,143,.15); color: var(--green); border: 1px solid var(--green); }
 .verdict-INCONCLUSIVE { background: rgba(245,185,66,.15); color: var(--yellow); border: 1px solid var(--yellow); }
-.acc-section { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-top: 16px; }
+.acc-section { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-top: 14px; }
 .acc-section h3 { margin-bottom: 10px; color: var(--primary2); }
 .req-row { display: flex; gap: 8px; align-items: baseline; padding: 6px 0; border-bottom: 1px dashed var(--border); font-size: 13.5px; }
 .req-status { font-weight: 700; min-width: 130px; }
@@ -31,6 +43,7 @@
 .evi-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 .evi-table td, .evi-table th { border: 1px solid var(--border); padding: 5px 8px; text-align: left; }
 .muted { color: var(--muted); font-size: 12px; }
+.reeval-btn { display: block; margin: 18px auto 0; }
 </style>
 </head>
 <body>
@@ -43,26 +56,50 @@
     <a href="/" class="btn ghost sm">← 返回聊天</a>
   </div>
 </header>
-<main class="acc-wrap">
-  <div class="acc-input">
-    <h3>🧾 评估输入</h3>
-    <label>需求 R（自然语言）</label>
-    <textarea id="reqText" placeholder="实现 max_even(nums)。输入整数列表，返回其中最大的偶数；不存在偶数时返回 None；不得修改输入列表。"></textarea>
-    <label>生成提示词 P（可选）</label>
-    <textarea id="promptText" placeholder="使用 Python 实现 max_even(nums)，返回最大的偶数，找不到时返回 0。"></textarea>
-    <label>代码 C</label>
-    <textarea id="codeText" placeholder="def max_even(nums):&#10;    ..."></textarea>
-    <div style="display:flex; gap:10px; margin-top:14px; align-items:center;">
-      <button class="btn primary" id="evalBtn">开始验收</button>
-      <button class="btn ghost" id="demoBtn">填入 max_even 示例（错误实现）</button>
-      <span class="muted" id="evalStatus"></span>
+<div class="acc-body">
+  <div class="acc-input" id="inputBox">
+    <div class="acc-input-head" id="inputHead">
+      <h3>🧾 评估输入</h3>
+      <span class="toggle-hint" id="toggleHint">收起 ▲</span>
+    </div>
+    <div class="input-summary" id="inputSummary"></div>
+    <div class="acc-input-body">
+      <label>需求 R（自然语言）</label>
+      <textarea id="reqText" placeholder="实现 max_even(nums)。输入整数列表，返回其中最大的偶数；不存在偶数时返回 None；不得修改输入列表。"></textarea>
+      <label>生成提示词 P（可选）</label>
+      <textarea id="promptText" placeholder="使用 Python 实现 max_even(nums)，返回最大的偶数，找不到时返回 0。"></textarea>
+      <label>代码 C</label>
+      <textarea id="codeText" placeholder="def max_even(nums):&#10;    ..."></textarea>
+      <div class="input-actions">
+        <button class="btn primary" id="evalBtn">开始验收</button>
+        <button class="btn ghost sm" id="demoBtn">填入 max_even 示例（错误实现）</button>
+        <span class="muted" id="evalStatus"></span>
+      </div>
     </div>
   </div>
   <div id="reportArea"></div>
-</main>
+</div>
 <script>
 const $ = (id) => document.getElementById(id);
+function expandInput() {
+  $("inputBox").classList.remove("collapsed");
+  $("toggleHint").textContent = "收起 ▲";
+}
+function collapseInput() {
+  const req = $("reqText").value.trim();
+  const code = $("codeText").value.trim();
+  if (!req && !code) return;
+  $("inputBox").classList.add("collapsed");
+  $("toggleHint").textContent = "展开修改 ▼";
+  const head = req ? "R: " + req : "";
+  $("inputSummary").textContent = (head || "P/C 输入已保存") + (head.length > 60 ? "…" : "");
+}
+$("inputHead").addEventListener("click", () => {
+  if ($("inputBox").classList.contains("collapsed")) expandInput();
+  else collapseInput();
+});
 $("demoBtn").addEventListener("click", () => {
+  expandInput();
   $("reqText").value = "实现 max_even(nums)。输入整数列表，返回其中最大的偶数；不存在偶数时返回 None；不得修改输入列表。";
   $("promptText").value = "使用 Python 实现 max_even(nums)，返回最大的偶数，找不到时返回 0。";
   $("codeText").value = "def max_even(nums):\n    return max((x for x in nums if x % 2 == 0), default=0)\n";
@@ -85,6 +122,8 @@ $("evalBtn").addEventListener("click", async () => {
     const data = await resp.json();
     if (!resp.ok) throw new Error(data.detail || "评估失败");
     renderReport(data.report);
+    collapseInput();
+    $("reportArea").scrollTop = 0;
   } catch (e) {
     $("reportArea").innerHTML = `<div class="acc-section"><p style="color:var(--red)">⚠ ${e.message}</p></div>`;
   } finally {
@@ -155,6 +194,8 @@ function renderReport(r) {
     }
     html += `</table></details>`;
   }
+
+  html += `<button class="btn ghost reeval-btn" onclick="expandInput()">✏️ 修改输入，重新评估</button>`;
   area.innerHTML = html;
 }
 </script>
