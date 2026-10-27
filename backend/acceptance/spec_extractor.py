@@ -22,10 +22,13 @@ from backend.logger import get_logger
 logger = get_logger("spec_extractor")
 
 EXTRACT_TASK = """仅根据 requirements_text 和明确提供的技术要求提取验收项。
-将输入域、返回值、分支、边界、异常、副作用等拆为可检查的要求。
+将返回值、分支、边界、异常、副作用等可检查的行为拆为必要要求。
+输入类型/格式声明写入 input_domain 字段，接口名与参数签名写入
+technical_constraints，不要把纯输入域或接口声明重复生成为必要需求
+（除非需求对该输入规定了明确行为，如类型非法时抛异常）。
 每条区分 EXPLICIT、DERIVED、UNCLEAR，并保留原文与推导依据。
 不参考当前实现来补全业务规则。
-需求没有要求的防御性处理只可列为可选建议。
+需求没有要求的防御性处理只可列为可选建议（mandatory=false）。
 输出 requirements、input_domain、technical_constraints、
 unresolved_questions 以及建议的输入类别。
 

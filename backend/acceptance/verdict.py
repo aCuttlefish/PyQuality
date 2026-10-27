@@ -59,6 +59,14 @@ def _relation_supports_pass(contract: ContractSpec) -> bool:
     return contract.relation_to_requirement in ("SUFFICIENT", "EQUIVALENT")
 
 
+def _requirement_unclear(spec: CanonicalSpec, req_id: str) -> bool:
+    """origin=UNCLEAR 的需求依赖额外假设，不能支持确定通过（6.2 规则 2）。"""
+    for r in spec.requirements:
+        if r.id == req_id:
+            return r.origin == "UNCLEAR"
+    return False
+
+
 class VerdictInput:
     """判定内核输入：由后端组装，模型无权填写。"""
 
@@ -213,6 +221,11 @@ def evaluate_requirement(
         return "UNKNOWN", evidence_ids, [], notes + ["该需求没有任何检查案例"]
 
     if all_executed_and_passed:
+        if _requirement_unclear(vi.spec, req_id):
+            # 需求本身不明确（依赖额外假设）：即使检查通过也不得确定通过（6.2 规则 2）
+            return "UNKNOWN", evidence_ids, [], notes + [
+                "需求来源为 UNCLEAR（依赖额外假设），需要用户澄清后才能支持确定结论"
+            ]
         if pass_capable:
             return "PASS_WITHIN_SCOPE", evidence_ids, [], notes
         # 仅必要条件通过：不足以支持整体验收（P0-2，方案 8.2）

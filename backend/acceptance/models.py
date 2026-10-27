@@ -399,6 +399,12 @@ class RequirementResult(StrictModel):
     failed_case_ids: list[str] = Field(default_factory=list)
     explanation: str = ""
     assurance: AssuranceLevel = "NONE"
+    # 阶段 G 报告字段：代码位置 / 未覆盖范围 / 阻塞来源
+    code_location: str = ""
+    uncovered_scope: str = ""
+    blocked_source: Literal[
+        "", "REQUIREMENT", "SPEC", "TEST_PLAN", "EXECUTION_ENV"
+    ] = ""
 
 
 class StageResult(StrictModel):

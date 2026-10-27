@@ -252,7 +252,11 @@ def review_spec_and_plan(
             elif review_status == "REJECTED":
                 result.rejected_contracts.add(cid)
             relation = r.get("relation_to_requirement")
-            if relation in ("NECESSARY", "SUFFICIENT", "EQUIVALENT", "UNKNOWN"):
+            reason = str(r.get("reason") or "").strip()
+            if relation in ("SUFFICIENT", "EQUIVALENT") and not reason:
+                # 6.2 条 10：无语义依据的充分/等价标签不得成为正确性依据 → 降级 UNKNOWN
+                result.relations[cid] = "UNKNOWN"
+            elif relation in ("NECESSARY", "SUFFICIENT", "EQUIVALENT", "UNKNOWN"):
                 result.relations[cid] = relation
 
     # 处理 requirement_reviews：faithful=false 或缺失都视为未通过

@@ -58,6 +58,40 @@ def _norm_text(s: str) -> str:
     return "".join(s.split())
 
 
+def _entry_location(entrypoint: Entrypoint | None) -> str:
+    """入口代码位置（阶段 G：代码位置字段）。"""
+    if entrypoint is None:
+        return ""
+    return f"solution.py:{entrypoint.callable}"
+
+
+def _uncovered_scope_for(r, status: str, plan: TestPlan, cases_by_req: dict) -> str:
+    """未覆盖范围说明（阶段 G）。"""
+    if status == "PASS_WITHIN_SCOPE":
+        return f"本轮已验证「{r.statement[:60]}」声明范围内行为；未验证输入域外的行为"
+    if status == "FAIL":
+        return ""  # 已确认违反，无需未覆盖说明
+    if not cases_by_req.get(r.id):
+        return "该需求没有任何检查案例，完全未覆盖"
+    return "关键检查未全部执行或缺少支持整体的验收依据"
+
+
+def _blocked_source_for(r, status: str, notes: list[str]) -> str:
+    """阻塞来源分类：需求 / 规格 / 测试计划 / 执行环境（阶段 G）。"""
+    if status != "UNKNOWN":
+        return ""
+    joined = "; ".join(notes)
+    if "UNCLEAR" in joined or r.origin == "UNCLEAR":
+        return "REQUIREMENT"
+    if "oracle 未通过当前策略" in joined or "PENDING" in joined:
+        return "SPEC"
+    if "未执行" in joined or "缺少支持整体通过的充分" in joined:
+        return "TEST_PLAN"
+    if any(k in joined for k in ("ENV_ERROR", "TIMEOUT", "HARNESS_ERROR")):
+        return "EXECUTION_ENV"
+    return "TEST_PLAN"
+
+
 def _locate_entrypoint(request: EvaluationRequest) -> tuple[Entrypoint | None, str]:
     """入口定位：显式指定优先；否则 AST 静态定位；多候选记录歧义。"""
     if request.entrypoint:
@@ -284,6 +318,8 @@ def evaluate(request: EvaluationRequest) -> EvaluationReport:
             for rid in c.requirement_ids:
                 cases_by_req.setdefault(rid, []).append(c)
         contracts = {c.contract_id: c for c in plan.contracts}
+        entry_loc = _entry_location(entrypoint)
+        exec_blocked = not backend.available
         for r in spec.requirements:
             st, eids, fids, notes = verdict_mod.evaluate_requirement(
                 r.id, vi, cases_by_req, contracts
@@ -292,11 +328,23 @@ def evaluate(request: EvaluationRequest) -> EvaluationReport:
                 requirement_id=r.id, statement=r.statement, status=st,
                 evidence_ids=eids, failed_case_ids=fids,
                 explanation="; ".join(notes[:3]),
+                code_location=entry_loc,
+                uncovered_scope=_uncovered_scope_for(r, st, plan, cases_by_req),
+                blocked_source=(
+                    "EXECUTION_ENV" if (exec_blocked and st == "UNKNOWN")
+                    else _blocked_source_for(r, st, notes)
+                ),
             ))
 
     # TECH_COMPILE 聚合
     compile_failed, _ = verdict_mod.compile_evidence_gate(evidence, ch)
-    required_items = [{"status": rr.status} for rr in requirement_results]
+    # 6.2 规则 7：只有必要需求进入总体聚合；可选需求失败不得无条件
+    # 导致功能验收失败（其状态仍在 requirement_results 中展示）
+    mandatory_results = [
+        rr for rr in requirement_results
+        if any(r.id == rr.requirement_id and r.mandatory for r in spec.requirements)
+    ] if spec else []
+    required_items = [{"status": rr.status} for rr in mandatory_results]
     spec_ready = (
         spec is not None and plan is not None
         and verdict_mod.spec_is_ready(spec, request.options.oracle_policy, plan)

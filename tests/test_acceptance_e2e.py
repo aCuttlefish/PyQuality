@@ -191,7 +191,7 @@ class TestDegradedPaths:
         assert report.reproducibility.spec_hash
         assert report.reproducibility.plan_hash
         assert report.reproducibility.request_hash
-        assert report.isolation_level == "SUBPROCESS_SANDBOX"
+        assert report.isolation_level == "HOST_SUBPROCESS_DEV"  # conftest 显式开发豁免
 
     def test_evidence_cannot_be_reused_across_code(self):
         """A23 场景：不同代码 hash 的证据不复用（通过两次评估独立执行验证）。"""

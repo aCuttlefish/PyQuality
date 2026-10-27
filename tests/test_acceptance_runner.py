@@ -1,5 +1,6 @@
 """隔离执行器测试（M3）：真实子进程执行、超时、损坏输出与伪造输出。"""
 import pytest
+from pathlib import Path
 
 from backend.acceptance import hashing, runner
 from backend.acceptance.fixtures import (
@@ -57,7 +58,7 @@ class TestRealExecution:
             assert e.code_hash == ch
             assert e.spec_hash == spec.spec_hash
             assert e.plan_hash == plan.plan_hash
-            assert "SUBPROCESS_SANDBOX" in e.runtime_fingerprint
+            assert "HOST_SUBPROCESS_DEV" in e.runtime_fingerprint  # conftest 显式开发豁免
 
     def test_forged_stdout_cannot_set_verdict(self):
         """A28：被测代码打印『所有测试通过』或伪造 JSON 不影响判定。"""
@@ -119,32 +120,22 @@ class TestTimeout:
 
 class TestCorruptedOutput:
     def test_missing_results_file(self, monkeypatch, tmp_path):
-        """结果文件缺失 → ENV_ERROR（损坏输出处理）。"""
+        """结果文件缺失 → 全部 ENV_ERROR（协议损坏，不得产生虚假 PASS/FAIL）。"""
         spec, plan = _setup()
         code = MAX_EVEN_CORRECT_CODE
         ch = hashing.code_hash(code, [])
 
         real_run = runner.subprocess.run
 
-        def broken_run(*args, **kwargs):
-            real_run(*args, **kwargs)
-            import subprocess as sp
-
-            class FakeCompleted:
-                returncode = 0
-                stdout = ""
-                stderr = ""
-            return FakeCompleted()
-
-        # 破坏：返回伪造的 completed 对象且删掉 results.json
         def destructive_run(cmd, **kwargs):
             proc = real_run(cmd, **kwargs)
-            results_file = None
-            for arg in cmd:
-                if str(arg).endswith("harness.py"):
-                    results_file = __import__("pathlib").Path(arg).parent / "results.json"
-            if results_file and results_file.exists():
-                results_file.unlink()
+            # 破坏：删除 harness 写出的结果文件
+            env = kwargs.get("env") or {}
+            results_dir = env.get("PYQ_RESULTS_DIR")
+            if results_dir:
+                rf = Path(results_dir) / "results.json"
+                if rf.exists():
+                    rf.unlink()
             return proc
 
         monkeypatch.setattr(runner.subprocess, "run", destructive_run)
@@ -152,6 +143,7 @@ class TestCorruptedOutput:
             code, [], _entry(), plan.cases, ch, plan.plan_hash, spec.spec_hash,
         )
         assert all(e.status == "ENV_ERROR" for e in evs)
+        assert any("missing" in ln or "corrupted" in ln for ln in logs)
 
 
 class TestCompileCheck:

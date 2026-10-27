@@ -54,16 +54,22 @@ class TestForbiddenFields:
         with pytest.raises(llm_provider.ProviderUnavailable):
             llm_provider.generate_structured("t", {})
 
-    def test_strip_forbidden_recursive(self):
+    def test_strip_forbidden_top_level_only(self):
+        """P0-5：只剥离顶层系统字段，嵌套业务数据（verified/evidence）完整保留。"""
         data = {
             "ok": 1,
-            "nested": {"verified": True, "keep": 2},
-            "list": [{"evidence": [], "x": 1}],
+            "code_verdict": "PASS_WITHIN_SCOPE",  # 顶层系统字段 → 剥离
+            "cases": [
+                {"assertion": {"kind": "RETURN_EQUALS",
+                               "expected": {"verified": True, "evidence": [1]}}}
+            ],
         }
         out = llm_provider.strip_forbidden_fields(data)
-        assert "ok" in out
-        assert "verified" not in out["nested"]
-        assert "evidence" not in out["list"][0]
+        assert out["ok"] == 1
+        assert "code_verdict" not in out
+        # 嵌套业务数据不被篡改
+        expected = out["cases"][0]["assertion"]["expected"]
+        assert expected == {"verified": True, "evidence": [1]}
 
 
 class TestSpecExtractorMock:
