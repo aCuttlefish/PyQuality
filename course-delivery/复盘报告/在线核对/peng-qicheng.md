@@ -40,7 +40,7 @@ v4.3 的实测补上了这一段。容器内报告的用户编号是 65534，根
 
 ## 五、AI 使用声明与日志
 
-组长使用 Codex 辅助整理了本报告。技术结论引用项目组的版本验收记录和回归用例，模型建议与程序运行结果各有出处。
+组长使用 Codex 辅助整理了本报告。技术结论引用项目组的版本验收记录和回归用例，模型建议与程序运行结果各有出处。本组将组长代表小组提交需求的 Codex 会话作为团队协作记录，八条日志的原件入口列在文末索引中。
 
 2026 年 11 月 15 日，项目组将要求保留重复元素的排序需求及原提示词交给 DeepSeek 诊断。模型指出冲突并提出改写建议。Docker 在相同计划下比较两份实现，结果分别为 4/6 和 6/6［1］。
 
@@ -57,3 +57,5 @@ v4.3 的实测补上了这一段。容器内报告的用户编号是 65534，根
 ［4］[判定模块用例](https://github.com/aCuttlefish/PyQuality/blob/main/tests/test_acceptance_verdict.py)
 
 ［5］[排序判定与环境阻断的验收记录](https://github.com/aCuttlefish/PyQuality/blob/main/docs/v4.2_acceptance_report.md)
+
+［6］[按成员查看团队协作记录及原件](https://github.com/aCuttlefish/PyQuality/blob/main/course-delivery/%E5%A4%8D%E7%9B%98%E6%8A%A5%E5%91%8A/%E5%8D%8F%E4%BD%9C%E8%AE%B0%E5%BD%95%E7%B4%A2%E5%BC%95.md)

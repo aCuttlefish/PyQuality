@@ -40,7 +40,7 @@ v4.2 的元音统计实验中，正确实现一度得到“无法判定”。问
 
 ## 五、AI 使用声明与日志
 
-我在课程交付中使用 Codex 整理规格、讲稿和本报告。以下一条是项目组的模型实验，一条是我发起的材料整理记录。
+我在课程交付中使用 Codex 整理规格、讲稿和本报告。以下一条是项目组的模型实验，一条是我发起的材料整理记录。本组将组长代表小组提交需求的 Codex 会话作为团队协作记录，八条日志的原件入口列在文末索引中。
 
 2026 年 11 月 15 日，项目组用 DeepSeek 检查元音统计、范围限制和排序示例的提示词冲突。模型给出改写文本，程序按原计划运行候选代码。其中七例元音演示由 4 项通过提高到 7 项通过［1］。
 
@@ -61,3 +61,5 @@ v4.2 的元音统计实验中，正确实现一度得到“无法判定”。问
 ［6］[v4.2 验收记录](https://github.com/aCuttlefish/PyQuality/blob/main/docs/v4.2_acceptance_report.md)
 
 ［7］[终期交付验证记录](https://github.com/aCuttlefish/PyQuality/blob/main/course-delivery/tests/%E4%BA%A4%E4%BB%98%E9%AA%8C%E8%AF%81%E8%AE%B0%E5%BD%95.md)
+
+［8］[按成员查看团队协作记录及原件](https://github.com/aCuttlefish/PyQuality/blob/main/course-delivery/%E5%A4%8D%E7%9B%98%E6%8A%A5%E5%91%8A/%E5%8D%8F%E4%BD%9C%E8%AE%B0%E5%BD%95%E7%B4%A2%E5%BC%95.md)

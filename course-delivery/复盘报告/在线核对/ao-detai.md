@@ -40,7 +40,7 @@
 
 ## 五、AI 使用声明与日志
 
-组长使用 Codex 辅助整理了本报告。下面两项均为项目组保存的 DeepSeek 实验。每项都保留了原始提示词、模型回答和前后两份运行报告。
+组长使用 Codex 辅助整理了本报告。下面两项均为项目组保存的 DeepSeek 实验。每项都保留了原始提示词、模型回答和前后两份运行报告。本组将组长代表小组提交需求的 Codex 会话作为团队协作记录，八条日志的原件入口列在文末索引中。
 
 2026 年 11 月 15 日，电商满减实验先按 float 生成候选代码，再用改写后的精确十进制要求重新生成。在冻结的十一项检查中，M11 的实际结果从 100.00 元变为 80.00 元［1］。
 
@@ -59,3 +59,5 @@
 ［5］[金额实验重新生成验收报告](https://github.com/aCuttlefish/PyQuality/blob/main/course-delivery/eval/real_cases/order_discount/regenerated_report.json)
 
 ［6］[扑克牌公开案例记录](https://github.com/aCuttlefish/PyQuality/blob/main/docs/public_cases/copilot_cards/case_report.txt)
+
+［7］[按成员查看团队协作记录及原件](https://github.com/aCuttlefish/PyQuality/blob/main/course-delivery/%E5%A4%8D%E7%9B%98%E6%8A%A5%E5%91%8A/%E5%8D%8F%E4%BD%9C%E8%AE%B0%E5%BD%95%E7%B4%A2%E5%BC%95.md)
