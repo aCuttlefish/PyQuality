@@ -1,0 +1,19 @@
+{
+  "id": "clamp",
+  "title": "范围限制：遗漏下界与非法范围",
+  "requirement": "实现 clamp(value, lower, upper)。输入均为整数；lower 大于 upper 时抛出 ValueError；否则将 value 限制在闭区间 [lower, upper] 内，区间内保持原值。",
+  "generation_prompt": "实现 clamp(value, lower, upper)，超过上界时返回上界，其他情况直接返回 value。",
+  "code": "def clamp(value, lower, upper):\n    return min(value, upper)\n",
+  "correct_code": "def clamp(value, lower, upper):\n    \"\"\"把整数限制在闭区间内，拒绝倒置的区间。\"\"\"\n    if lower > upper:\n        raise ValueError('lower must not exceed upper')\n    return max(lower, min(value, upper))\n",
+  "entrypoint": {"module":"solution","callable":"clamp"},
+  "examples": [
+    {"args":[5,0,10],"expected":5,"note":"区间内保持原值"},
+    {"args":[-1,0,10],"expected":0,"note":"低于下界时返回下界"},
+    {"args":[11,0,10],"expected":10,"note":"高于上界时返回上界"},
+    {"args":[0,0,10],"expected":0,"note":"等于下界时保持"},
+    {"args":[10,0,10],"expected":10,"note":"等于上界时保持"},
+    {"args":[-8,-5,-1],"expected":-5,"note":"负数区间的下界"},
+    {"args":[3,2,2],"expected":2,"note":"上下界相等"},
+    {"args":[5,10,0],"assertion":{"kind":"RAISES","exception_type":"ValueError"},"note":"倒置的范围必须抛出异常"}
+  ]
+}

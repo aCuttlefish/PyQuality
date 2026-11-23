@@ -1,0 +1,27 @@
+{
+  "repository": "https://github.com/d4vidsha/github-copilot-examples",
+  "source_url": "https://github.com/d4vidsha/github-copilot-examples/blob/b498862156248610dd0151a6cfb385d936ff94e2/target-sum-with-n-terms.py",
+  "ai_provenance_url": "https://github.com/d4vidsha/github-copilot-examples/blob/b498862156248610dd0151a6cfb385d936ff94e2/target-sum-with-n-terms.py",
+  "ai_provenance": "作者在源文件开头明确说明整个 possibilities 函数由 GitHub Copilot 生成；来源为作者自述，没有完整生成日志。",
+  "commit": "b498862156248610dd0151a6cfb385d936ff94e2",
+  "commit_date": "2022-05-26T23:15:35Z",
+  "git_blob": "de3d76cfe7762503b6925b63cf423429a56fd7e0",
+  "source_sha256": "606524cc1ac3d37a314ab6321d11a773a32ac040c3c30d45e8b97bc1565a4fcc",
+  "source_bytes": 1194,
+  "original_source_unmodified": true,
+  "original_prompt": "未公开；保留空字段，不以源代码注释冒充完整生成提示词。",
+  "original_task_note": "源文件任务说明要求找到用 n 项构成目标和 m 的所有方式；其函数显式处理 n=0，且界面没有排除零项。",
+  "test_author": "本次复现实验操作者",
+  "repair_author": "本次复现实验操作者，非上游作者或模型重新生成",
+  "repair": "操作者在 n == 0 的分支增加 m == 0 条件；仅当目标和也为零时添加空方案。",
+  "scope": "九组固定非负整数输入；最大目标和 10，最大项数 3；不验收负数输入、大规模性能或未测试输入。",
+  "reproduced_at": "2026-11-15T12:36:33.347564+00:00",
+  "advice_context": "实际辅助文件源码及从 1 开始的显式行号",
+  "verified_source_location": {
+    "file": "target-sum-with-n-terms.py",
+    "line": 16
+  },
+  "dataset_url": "https://zenodo.org/records/14565942",
+  "dataset_member": "souce-data/1-Copilot/repo/python/case7/target-sum-with-n-terms.py",
+  "dataset_snapshot_matches": true
+}

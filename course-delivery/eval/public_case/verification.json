@@ -1,0 +1,25 @@
+{
+  "related_regressions": "79 passed",
+  "live_reports": {
+    "initial": {
+      "mandatory_requirements": 1,
+      "requirements_checked": 1,
+      "cases_planned": 6,
+      "cases_executed": 6,
+      "cases_passed": 2,
+      "cases_failed": 4
+    },
+    "repaired": {
+      "mandatory_requirements": 1,
+      "requirements_checked": 1,
+      "cases_planned": 6,
+      "cases_executed": 6,
+      "cases_passed": 6,
+      "cases_failed": 0
+    },
+    "model_advice": "LLM"
+  },
+  "same_plan": true,
+  "docker_replay": true,
+  "source_snapshot_matches": true
+}

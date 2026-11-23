@@ -1,0 +1,808 @@
+[
+  {
+    "id": "copilot_cards",
+    "title": "声称 52 张的扑克牌程序实际生成 56 张",
+    "source_url": "https://github.com/Soneji/copilot-demos/blob/2f9edf5216f11c0f958d7370a862a82f1b72c3c4/cards.py",
+    "ai_provenance_url": "https://github.com/Soneji/copilot-demos/blob/2f9edf5216f11c0f958d7370a862a82f1b72c3c4/README.md",
+    "same_plan": true,
+    "same_adapter": true,
+    "adapter_sha256": "c7e73da935e3e3612bf9912a8e3167c1a10ae0365e2e95a7e731f98dcab513fc",
+    "initial_verdict": "FAIL",
+    "repaired_verdict": "PASS_WITHIN_SCOPE",
+    "initial": {
+      "mandatory_requirements": 3,
+      "requirements_checked": 3,
+      "cases_planned": 7,
+      "cases_executed": 7,
+      "cases_passed": 3,
+      "cases_failed": 4
+    },
+    "repaired": {
+      "mandatory_requirements": 3,
+      "requirements_checked": 3,
+      "cases_planned": 7,
+      "cases_executed": 7,
+      "cases_passed": 7,
+      "cases_failed": 0
+    },
+    "isolation": "DOCKER",
+    "cases": [
+      {
+        "case_id": "CARD01",
+        "input": [
+          1,
+          "deck_count"
+        ],
+        "expected": 52,
+        "initial": {
+          "status": "ASSERTION_FAILED",
+          "observation": {
+            "return_value": 56,
+            "duration_ms": 10.790229998747236,
+            "check_detail": "返回值 56 不等于期望 52"
+          }
+        },
+        "repaired": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": 52,
+            "duration_ms": 6.625174999498995
+          }
+        }
+      },
+      {
+        "case_id": "CARD02",
+        "input": [
+          2,
+          "deck_count"
+        ],
+        "expected": 52,
+        "initial": {
+          "status": "ASSERTION_FAILED",
+          "observation": {
+            "return_value": 56,
+            "duration_ms": 0.748660999306594,
+            "check_detail": "返回值 56 不等于期望 52"
+          }
+        },
+        "repaired": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": 52,
+            "duration_ms": 0.543124999239808
+          }
+        }
+      },
+      {
+        "case_id": "CARD03",
+        "input": [
+          7,
+          "deck_count"
+        ],
+        "expected": 52,
+        "initial": {
+          "status": "ASSERTION_FAILED",
+          "observation": {
+            "return_value": 56,
+            "duration_ms": 0.840746999529074,
+            "check_detail": "返回值 56 不等于期望 52"
+          }
+        },
+        "repaired": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": 52,
+            "duration_ms": 0.5478080001921626
+          }
+        }
+      },
+      {
+        "case_id": "CARD04",
+        "input": [
+          2,
+          "cards"
+        ],
+        "expected": [
+          "10 of Clubs",
+          "10 of Diamonds",
+          "10 of Hearts",
+          "10 of Spades",
+          "2 of Clubs",
+          "2 of Diamonds",
+          "2 of Hearts",
+          "2 of Spades",
+          "3 of Clubs",
+          "3 of Diamonds",
+          "3 of Hearts",
+          "3 of Spades",
+          "4 of Clubs",
+          "4 of Diamonds",
+          "4 of Hearts",
+          "4 of Spades",
+          "5 of Clubs",
+          "5 of Diamonds",
+          "5 of Hearts",
+          "5 of Spades",
+          "6 of Clubs",
+          "6 of Diamonds",
+          "6 of Hearts",
+          "6 of Spades",
+          "7 of Clubs",
+          "7 of Diamonds",
+          "7 of Hearts",
+          "7 of Spades",
+          "8 of Clubs",
+          "8 of Diamonds",
+          "8 of Hearts",
+          "8 of Spades",
+          "9 of Clubs",
+          "9 of Diamonds",
+          "9 of Hearts",
+          "9 of Spades",
+          "Ace of Clubs",
+          "Ace of Diamonds",
+          "Ace of Hearts",
+          "Ace of Spades",
+          "Jack of Clubs",
+          "Jack of Diamonds",
+          "Jack of Hearts",
+          "Jack of Spades",
+          "King of Clubs",
+          "King of Diamonds",
+          "King of Hearts",
+          "King of Spades",
+          "Queen of Clubs",
+          "Queen of Diamonds",
+          "Queen of Hearts",
+          "Queen of Spades"
+        ],
+        "initial": {
+          "status": "ASSERTION_FAILED",
+          "observation": {
+            "return_value": [
+              "1 of Clubs",
+              "1 of Diamonds",
+              "1 of Hearts",
+              "1 of Spades",
+              "10 of Clubs",
+              "10 of Diamonds",
+              "10 of Hearts",
+              "10 of Spades",
+              "2 of Clubs",
+              "2 of Diamonds",
+              "2 of Hearts",
+              "2 of Spades",
+              "3 of Clubs",
+              "3 of Diamonds",
+              "3 of Hearts",
+              "3 of Spades",
+              "4 of Clubs",
+              "4 of Diamonds",
+              "4 of Hearts",
+              "4 of Spades",
+              "5 of Clubs",
+              "5 of Diamonds",
+              "5 of Hearts",
+              "5 of Spades",
+              "6 of Clubs",
+              "6 of Diamonds",
+              "6 of Hearts",
+              "6 of Spades",
+              "7 of Clubs",
+              "7 of Diamonds",
+              "7 of Hearts",
+              "7 of Spades",
+              "8 of Clubs",
+              "8 of Diamonds",
+              "8 of Hearts",
+              "8 of Spades",
+              "9 of Clubs",
+              "9 of Diamonds",
+              "9 of Hearts",
+              "9 of Spades",
+              "Ace of Clubs",
+              "Ace of Diamonds",
+              "Ace of Hearts",
+              "Ace of Spades",
+              "Jack of Clubs",
+              "Jack of Diamonds",
+              "Jack of Hearts",
+              "Jack of Spades",
+              "King of Clubs",
+              "King of Diamonds",
+              "King of Hearts",
+              "King of Spades",
+              "Queen of Clubs",
+              "Queen of Diamonds",
+              "Queen of Hearts",
+              "Queen of Spades"
+            ],
+            "duration_ms": 0.5015890001232037,
+            "check_detail": "返回值 ['1 of Clubs', '1 of Diamonds', '1 of Hearts', '1 of Spades', '10 of Clubs', '10 of Diamonds', '10 of Hearts', '10 of Spades', '2 of Clubs', '2 of Diamonds', '2 of Hearts', '2 of Spades', '3 of Clubs', '3 of Diamonds', '3 of Hearts', '3 of Spades', '4 of Clubs', '4 of Diamonds', '4 of Hearts', '4 of Spades', '5 of Clubs', '5 of Diamonds', '5 of Hearts', '5 of Spades', '6 of Clubs', '6 of Diamonds', '6 of Hearts', '6 of Spades', '7 of Clubs', '7 of Diamonds', '7 of Hearts', '7 of Spades', '8 of Clubs', '8 of Diamonds', '8 of Hearts', '8 of Spades', '9 of Clubs', '9 of Diamonds', '9 of Hearts', '9 of Spades', 'Ace of Clubs', 'Ace of Diamonds', 'Ace of Hearts', 'Ace of Spades', 'Jack of Clubs', 'Jack of Diamonds', 'Jack of Hearts', 'Jack of Spades', 'King of Clubs', 'King of Diamonds', 'King of Hearts', 'King of Spades', 'Queen of Clubs', 'Queen of Diamonds', 'Queen of Hearts', 'Queen of Spades'] 不等于期望 ['10 of Clubs', '10 of Diamonds', '10 of Hearts', '10 of Spades', '2 of Clubs', '2 of Diamonds', '2 of Hearts', '2 of Spades', '3 of Clubs', '3 of Diamonds', '3 of Hearts', '3 of Spades', '4 of Clubs', '4 of Diamonds', '4 of Hearts', '4 of Spades', '5 of Clubs', '5 of Diamonds', '5 of Hearts', '5 of Spades', '6 of Clubs', '6 of Diamonds', '6 of Hearts', '6 of Spades', '7 of Clubs', '7 of Diamonds', '7 of Hearts', '7 of Spades', '8 of Clubs', '8 of Diamonds', '8 of Hearts', '8 of Spades', '9 of Clubs', '9 of Diamonds', '9 of Hearts', '9 of Spades', 'Ace of Clubs', 'Ace of Diamonds', 'Ace of Hearts', 'Ace of Spades', 'Jack of Clubs', 'Jack of Diamonds', 'Jack of Hearts', 'Jack of Spades', 'King of Clubs', 'King of Diamonds', 'King of Hearts', 'King of Spades', 'Queen of Clubs', 'Queen of Diamonds', 'Queen of Hearts', 'Queen of Spades']"
+          }
+        },
+        "repaired": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": [
+              "10 of Clubs",
+              "10 of Diamonds",
+              "10 of Hearts",
+              "10 of Spades",
+              "2 of Clubs",
+              "2 of Diamonds",
+              "2 of Hearts",
+              "2 of Spades",
+              "3 of Clubs",
+              "3 of Diamonds",
+              "3 of Hearts",
+              "3 of Spades",
+              "4 of Clubs",
+              "4 of Diamonds",
+              "4 of Hearts",
+              "4 of Spades",
+              "5 of Clubs",
+              "5 of Diamonds",
+              "5 of Hearts",
+              "5 of Spades",
+              "6 of Clubs",
+              "6 of Diamonds",
+              "6 of Hearts",
+              "6 of Spades",
+              "7 of Clubs",
+              "7 of Diamonds",
+              "7 of Hearts",
+              "7 of Spades",
+              "8 of Clubs",
+              "8 of Diamonds",
+              "8 of Hearts",
+              "8 of Spades",
+              "9 of Clubs",
+              "9 of Diamonds",
+              "9 of Hearts",
+              "9 of Spades",
+              "Ace of Clubs",
+              "Ace of Diamonds",
+              "Ace of Hearts",
+              "Ace of Spades",
+              "Jack of Clubs",
+              "Jack of Diamonds",
+              "Jack of Hearts",
+              "Jack of Spades",
+              "King of Clubs",
+              "King of Diamonds",
+              "King of Hearts",
+              "King of Spades",
+              "Queen of Clubs",
+              "Queen of Diamonds",
+              "Queen of Hearts",
+              "Queen of Spades"
+            ],
+            "duration_ms": 0.4838820004806621
+          }
+        }
+      },
+      {
+        "case_id": "CARD05",
+        "input": [
+          2,
+          "hand_sizes"
+        ],
+        "expected": [
+          7,
+          7
+        ],
+        "initial": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": [
+              7,
+              7
+            ],
+            "duration_ms": 0.44890600111102685
+          }
+        },
+        "repaired": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": [
+              7,
+              7
+            ],
+            "duration_ms": 0.4623299992090324
+          }
+        }
+      },
+      {
+        "case_id": "CARD06",
+        "input": [
+          4,
+          "hand_sizes"
+        ],
+        "expected": [
+          7,
+          7,
+          7,
+          7
+        ],
+        "initial": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": [
+              7,
+              7,
+              7,
+              7
+            ],
+            "duration_ms": 0.43909300075029023
+          }
+        },
+        "repaired": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": [
+              7,
+              7,
+              7,
+              7
+            ],
+            "duration_ms": 0.44109100053901784
+          }
+        }
+      },
+      {
+        "case_id": "CARD07",
+        "input": [
+          7,
+          "dealt_unique"
+        ],
+        "expected": true,
+        "initial": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": true,
+            "duration_ms": 0.5489340001076926
+          }
+        },
+        "repaired": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": true,
+            "duration_ms": 0.5522110004676506
+          }
+        }
+      }
+    ],
+    "scope": "七项固定检查，玩家数 1、2、4、7；仅验收标准牌组与每人七张发牌，不验收完整游戏规则、随机性或安全性。"
+  },
+  {
+    "id": "copilot_zero_terms",
+    "title": "组合枚举工具把无解情况报告成一个空方案",
+    "source_url": "https://github.com/d4vidsha/github-copilot-examples/blob/b498862156248610dd0151a6cfb385d936ff94e2/target-sum-with-n-terms.py",
+    "ai_provenance_url": "https://github.com/d4vidsha/github-copilot-examples/blob/b498862156248610dd0151a6cfb385d936ff94e2/target-sum-with-n-terms.py",
+    "same_plan": true,
+    "same_adapter": true,
+    "adapter_sha256": "d5d9e623b459233073ea436f53cc99b05bc7cad97e3837205ef087dad551adfe",
+    "initial_verdict": "FAIL",
+    "repaired_verdict": "PASS_WITHIN_SCOPE",
+    "initial": {
+      "mandatory_requirements": 1,
+      "requirements_checked": 1,
+      "cases_planned": 9,
+      "cases_executed": 9,
+      "cases_passed": 6,
+      "cases_failed": 3
+    },
+    "repaired": {
+      "mandatory_requirements": 1,
+      "requirements_checked": 1,
+      "cases_planned": 9,
+      "cases_executed": 9,
+      "cases_passed": 9,
+      "cases_failed": 0
+    },
+    "isolation": "DOCKER",
+    "cases": [
+      {
+        "case_id": "SUM01",
+        "input": [
+          0,
+          0
+        ],
+        "expected": [
+          []
+        ],
+        "initial": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": [
+              []
+            ],
+            "duration_ms": 31.160876000285498
+          }
+        },
+        "repaired": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": [
+              []
+            ],
+            "duration_ms": 32.63723000054597
+          }
+        }
+      },
+      {
+        "case_id": "SUM02",
+        "input": [
+          1,
+          0
+        ],
+        "expected": [],
+        "initial": {
+          "status": "ASSERTION_FAILED",
+          "observation": {
+            "return_value": [
+              []
+            ],
+            "duration_ms": 0.2189880015066592,
+            "check_detail": "返回值 [[]] 不等于期望 []"
+          }
+        },
+        "repaired": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": [],
+            "duration_ms": 0.22115700085123535
+          }
+        }
+      },
+      {
+        "case_id": "SUM03",
+        "input": [
+          5,
+          0
+        ],
+        "expected": [],
+        "initial": {
+          "status": "ASSERTION_FAILED",
+          "observation": {
+            "return_value": [
+              []
+            ],
+            "duration_ms": 0.17847900016931817,
+            "check_detail": "返回值 [[]] 不等于期望 []"
+          }
+        },
+        "repaired": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": [],
+            "duration_ms": 0.18754499978967942
+          }
+        }
+      },
+      {
+        "case_id": "SUM04",
+        "input": [
+          10,
+          0
+        ],
+        "expected": [],
+        "initial": {
+          "status": "ASSERTION_FAILED",
+          "observation": {
+            "return_value": [
+              []
+            ],
+            "duration_ms": 0.16889099970285315,
+            "check_detail": "返回值 [[]] 不等于期望 []"
+          }
+        },
+        "repaired": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": [],
+            "duration_ms": 0.1674169998295838
+          }
+        }
+      },
+      {
+        "case_id": "SUM05",
+        "input": [
+          0,
+          1
+        ],
+        "expected": [
+          [
+            0
+          ]
+        ],
+        "initial": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": [
+              [
+                0
+              ]
+            ],
+            "duration_ms": 0.181155999598559
+          }
+        },
+        "repaired": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": [
+              [
+                0
+              ]
+            ],
+            "duration_ms": 0.16282400065392721
+          }
+        }
+      },
+      {
+        "case_id": "SUM06",
+        "input": [
+          5,
+          1
+        ],
+        "expected": [
+          [
+            5
+          ]
+        ],
+        "initial": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": [
+              [
+                5
+              ]
+            ],
+            "duration_ms": 0.336856001013075
+          }
+        },
+        "repaired": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": [
+              [
+                5
+              ]
+            ],
+            "duration_ms": 0.1666329990257509
+          }
+        }
+      },
+      {
+        "case_id": "SUM07",
+        "input": [
+          3,
+          2
+        ],
+        "expected": [
+          [
+            0,
+            3
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            0
+          ]
+        ],
+        "initial": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": [
+              [
+                0,
+                3
+              ],
+              [
+                1,
+                2
+              ],
+              [
+                2,
+                1
+              ],
+              [
+                3,
+                0
+              ]
+            ],
+            "duration_ms": 0.2934480016847374
+          }
+        },
+        "repaired": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": [
+              [
+                0,
+                3
+              ],
+              [
+                1,
+                2
+              ],
+              [
+                2,
+                1
+              ],
+              [
+                3,
+                0
+              ]
+            ],
+            "duration_ms": 0.1759610004228307
+          }
+        }
+      },
+      {
+        "case_id": "SUM08",
+        "input": [
+          2,
+          3
+        ],
+        "expected": [
+          [
+            0,
+            0,
+            2
+          ],
+          [
+            0,
+            1,
+            1
+          ],
+          [
+            0,
+            2,
+            0
+          ],
+          [
+            1,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            2,
+            0,
+            0
+          ]
+        ],
+        "initial": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": [
+              [
+                0,
+                0,
+                2
+              ],
+              [
+                0,
+                1,
+                1
+              ],
+              [
+                0,
+                2,
+                0
+              ],
+              [
+                1,
+                0,
+                1
+              ],
+              [
+                1,
+                1,
+                0
+              ],
+              [
+                2,
+                0,
+                0
+              ]
+            ],
+            "duration_ms": 0.2907760008383775
+          }
+        },
+        "repaired": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": [
+              [
+                0,
+                0,
+                2
+              ],
+              [
+                0,
+                1,
+                1
+              ],
+              [
+                0,
+                2,
+                0
+              ],
+              [
+                1,
+                0,
+                1
+              ],
+              [
+                1,
+                1,
+                0
+              ],
+              [
+                2,
+                0,
+                0
+              ]
+            ],
+            "duration_ms": 0.18989599993801676
+          }
+        }
+      },
+      {
+        "case_id": "SUM09",
+        "input": [
+          0,
+          3
+        ],
+        "expected": [
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "initial": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": [
+              [
+                0,
+                0,
+                0
+              ]
+            ],
+            "duration_ms": 0.1973309990717098
+          }
+        },
+        "repaired": {
+          "status": "PASSED",
+          "observation": {
+            "return_value": [
+              [
+                0,
+                0,
+                0
+              ]
+            ],
+            "duration_ms": 0.18397100029687863
+          }
+        }
+      }
+    ],
+    "scope": "九组固定非负整数输入；最大目标和 10，最大项数 3；不验收负数输入、大规模性能或未测试输入。"
+  }
+]

@@ -1,0 +1,1257 @@
+{
+  "schema_version": "1.0",
+  "evaluation_id": "EVAL-0bf8600ae65c",
+  "created_at": 1794743384.8328614,
+  "job_status": "COMPLETED",
+  "code_verdict": "FAIL",
+  "assurance_level": "NONE",
+  "spec_interpretation": "USER_CONFIRMED",
+  "summary": "按当前需求解读，需求「按精确十进制金额计算总价，不能因二进制浮点误差改变优惠判断。」违反（M11）；需求「总价达到或超过 100.00 元时减 20.00 元，每单只减一次；不足 100.00 元不优惠。」违反（M11）。",
+  "requirement_results": [
+    {
+      "requirement_id": "R1",
+      "statement": "按精确十进制金额计算总价，不能因二进制浮点误差改变优惠判断。",
+      "status": "FAIL",
+      "evidence_ids": [
+        "EV-a63e6a8957ba",
+        "EV-fd04d4b68231",
+        "EV-50a55f2c242e",
+        "EV-8f7758818ed5",
+        "EV-b381c3bcc5d0"
+      ],
+      "failed_case_ids": [
+        "M11"
+      ],
+      "explanation": "",
+      "assurance": "NONE",
+      "code_location": "solution.py:calculate_payable",
+      "uncovered_scope": "",
+      "blocked_source": ""
+    },
+    {
+      "requirement_id": "R2",
+      "statement": "总价达到或超过 100.00 元时减 20.00 元，每单只减一次；不足 100.00 元不优惠。",
+      "status": "FAIL",
+      "evidence_ids": [
+        "EV-a63e6a8957ba",
+        "EV-938b8d10c6c0",
+        "EV-8ea97523740e",
+        "EV-50a55f2c242e",
+        "EV-8f7758818ed5",
+        "EV-c47b6482445c"
+      ],
+      "failed_case_ids": [
+        "M11"
+      ],
+      "explanation": "",
+      "assurance": "NONE",
+      "code_location": "solution.py:calculate_payable",
+      "uncovered_scope": "",
+      "blocked_source": ""
+    },
+    {
+      "requirement_id": "R3",
+      "statement": "返回恰好两位小数的金额字符串；空购物车返回 '0.00'。",
+      "status": "PASS_WITHIN_SCOPE",
+      "evidence_ids": [
+        "EV-5c9c250d5805",
+        "EV-b381c3bcc5d0",
+        "EV-d0da9d6ac7a9"
+      ],
+      "failed_case_ids": [],
+      "explanation": "",
+      "assurance": "TESTED",
+      "code_location": "solution.py:calculate_payable",
+      "uncovered_scope": "本轮通过 3 个认可案例；未穷尽输入域，不保证未测试输入",
+      "blocked_source": ""
+    },
+    {
+      "requirement_id": "R4",
+      "statement": "不得修改输入列表及商品字典。",
+      "status": "PASS_WITHIN_SCOPE",
+      "evidence_ids": [
+        "EV-40d59d3f416b"
+      ],
+      "failed_case_ids": [],
+      "explanation": "",
+      "assurance": "TESTED",
+      "code_location": "solution.py:calculate_payable",
+      "uncovered_scope": "本轮通过 1 个认可案例；未穷尽输入域，不保证未测试输入",
+      "blocked_source": ""
+    }
+  ],
+  "prompt_report": {
+    "mappings": [
+      {
+        "requirement_id": "R1",
+        "status": "CONFLICT",
+        "requirement_quote": "按精确十进制金额计算总价，不能因二进制浮点误差改变优惠判断。",
+        "prompt_quote": "先将每项 price 转成 float 乘以 quantity，逐项累加后判断是否满 100 元",
+        "explanation": "提示词明确要求使用 float 进行金额转换与累加，与 R1 要求的精确十进制计算直接冲突，且可能因二进制浮点误差改变满减判断。"
+      },
+      {
+        "requirement_id": "R2",
+        "status": "COVERED",
+        "requirement_quote": "总价达到或超过 100.00 元时减 20.00 元，每单只减一次；不足 100.00 元不优惠。",
+        "prompt_quote": "判断是否满 100 元；满 100 减 20 元，每单只减一次。",
+        "explanation": "提示词表达了满 100 减 20 且每单只减一次，但“满 100 元”未明确为“达到或超过 100.00 元”，且未显式说明不足 100 不优惠（可由“满 100 减 20”隐含）。整体覆盖核心规则，但阈值精度表述可更明确。"
+      },
+      {
+        "requirement_id": "R3",
+        "status": "COVERED",
+        "requirement_quote": "返回恰好两位小数的金额字符串；空购物车返回 '0.00'。",
+        "prompt_quote": "最后把应付金额格式化为两位小数字符串并返回。",
+        "explanation": "提示词覆盖了返回两位小数字符串的要求，但未提及空购物车返回 '0.00' 的边界情况。"
+      },
+      {
+        "requirement_id": "R4",
+        "status": "MISSING_FROM_VISIBLE_PROMPT",
+        "requirement_quote": "不得修改输入列表及商品字典。",
+        "prompt_quote": "",
+        "explanation": "当前可见提示词中未体现不得修改输入列表及商品字典的约束。"
+      }
+    ],
+    "extra_requirements": [
+      {
+        "content": "只用标准库",
+        "kind": "TECHNICAL",
+        "needs_user_confirmation": false
+      },
+      {
+        "content": "代码简洁",
+        "kind": "TECHNICAL",
+        "needs_user_confirmation": false
+      }
+    ],
+    "optimized_prompt": "帮我写一个 Python 函数 calculate_payable(items)，items 是商品字典列表，price 为金额字符串，quantity 为整数。请使用精确十进制金额计算（例如 decimal.Decimal），不得使用二进制浮点数进行金额转换或累加，确保总价计算及优惠判断不受浮点误差影响。逐项计算 price 乘以 quantity 并累加得到总价；当总价达到或超过 100.00 元时减 20.00 元，每单只减一次；不足 100.00 元不优惠。最后将应付金额格式化为恰好两位小数的字符串并返回；空购物车返回 '0.00'。不得修改输入列表及商品字典。只用标准库，代码简洁。",
+    "changes": [
+      {
+        "before": "先将每项 price 转成 float 乘以 quantity，逐项累加后判断是否满 100 元",
+        "after": "请使用精确十进制金额计算（例如 decimal.Decimal），不得使用二进制浮点数进行金额转换或累加，确保总价计算及优惠判断不受浮点误差影响。逐项计算 price 乘以 quantity 并累加得到总价；当总价达到或超过 100.00 元时减 20.00 元",
+        "requirement_id": "R1",
+        "reason": "原提示词要求使用 float，与 R1 精确十进制计算要求冲突；改为使用 decimal.Decimal 并明确禁止二进制浮点金额运算。"
+      },
+      {
+        "before": "满 100 减 20 元，每单只减一次。",
+        "after": "当总价达到或超过 100.00 元时减 20.00 元，每单只减一次；不足 100.00 元不优惠。",
+        "requirement_id": "R2",
+        "reason": "将“满 100 元”明确为“达到或超过 100.00 元”，并补充不足 100.00 元不优惠，消除阈值精度歧义。"
+      },
+      {
+        "before": "最后把应付金额格式化为两位小数字符串并返回。",
+        "after": "最后将应付金额格式化为恰好两位小数的字符串并返回；空购物车返回 '0.00'。",
+        "requirement_id": "R3",
+        "reason": "补充空购物车返回 '0.00' 的边界要求，并强调“恰好两位小数”。"
+      },
+      {
+        "before": "",
+        "after": "不得修改输入列表及商品字典。",
+        "requirement_id": "R4",
+        "reason": "补充 R4 关于不得修改输入列表及商品字典的约束。"
+      }
+    ],
+    "unresolved_questions": [
+      "R2 中“总价达到或超过 100.00 元”是否包含总价恰好为 100.00 元的情形？提示词原文“满 100 元”存在歧义，需确认阈值边界。",
+      "R3 中“恰好两位小数的金额字符串”是否要求四舍五入到两位小数？提示词未明确舍入规则。"
+    ],
+    "optimization_validation": "NOT_EVALUATED",
+    "mode": "LLM",
+    "prompt_code_relation": [
+      {
+        "requirement_id": "R1",
+        "prompt_status": "CONFLICT",
+        "code_status": "FAIL",
+        "relation": "SAME_REQUIREMENT_DEVIATION"
+      },
+      {
+        "requirement_id": "R2",
+        "prompt_status": "COVERED",
+        "code_status": "FAIL",
+        "relation": "PROMPT_COVERS_BUT_CODE_FAILS"
+      },
+      {
+        "requirement_id": "R3",
+        "prompt_status": "COVERED",
+        "code_status": "PASS_WITHIN_SCOPE",
+        "relation": "NO_OBSERVED_RELATION"
+      },
+      {
+        "requirement_id": "R4",
+        "prompt_status": "MISSING_FROM_VISIBLE_PROMPT",
+        "code_status": "PASS_WITHIN_SCOPE",
+        "relation": "PROMPT_ISSUE_BUT_CODE_PASSES"
+      }
+    ]
+  },
+  "code_suggestions": [
+    {
+      "suggestion_id": "SUG-7206ac6c",
+      "finding_id": "M11",
+      "requirement_ids": [
+        "R1",
+        "R2"
+      ],
+      "evidence_ids": [
+        "EV-a63e6a8957ba"
+      ],
+      "category": "CORRECTNESS_FIX",
+      "location": "solution.py:2",
+      "trigger_condition": "{\"args\": [[{\"price\": \"49.05\", \"quantity\": 1}, {\"price\": \"41.90\", \"quantity\": 1}, {\"price\": \"9.05\", \"quantity\": 1}]], \"kwargs\": {}}",
+      "expected": "\"80.00\"",
+      "actual": "{\"return_value\": \"100.00\", \"duration_ms\": 0.0032869993447093293, \"check_detail\": \"返回值 '100.00' 不等于期望 '80.00'\"}",
+      "explanation": "当前实现使用 float 累加商品金额，导致十进制精确和为 100.00 的购物车在二进制浮点下得到 99.99999999999999，未达到 R2 规定的 100.00 满减门槛，从而漏减 20.00，违反 R1 要求的精确十进制计算。已通过的 M03（100.00 单商品）、M05（100.01）、M06（73.96+4.14+21.90）等边界案例说明门槛判断和单次满减逻辑本身正确，问题仅在于金额累加精度。",
+      "fix": "将金额累加改为十进制精确计算：使用 decimal.Decimal 解析 item['price'] 字符串并乘以 quantity 累加，满减判断和最终格式化均基于 Decimal 结果；保留现有满减逻辑（>= 100 减 20 一次）和 f-string 两位小数输出格式，不修改输入列表及商品字典。",
+      "regression_check": "复用已确认标准，重跑 M11 及全部固定案例",
+      "validation_status": "SYSTEM_FILLED",
+      "mode": "LLM"
+    },
+    {
+      "suggestion_id": "SUG-QUALITY-1",
+      "finding_id": "QUALITY-1",
+      "requirement_ids": [],
+      "evidence_ids": [
+        "EV-34f1ac9d2a13"
+      ],
+      "category": "READABILITY",
+      "location": "solution.py:1",
+      "trigger_condition": "",
+      "expected": "",
+      "actual": "",
+      "explanation": "静态规则 missing_docstring：函数 calculate_payable 缺少 docstring",
+      "fix": "为函数/类添加 docstring 说明用途和参数",
+      "regression_check": "修改后重跑同一标准的全部案例，确认行为保持",
+      "validation_status": "SYSTEM_FILLED",
+      "mode": "RULE_FALLBACK"
+    }
+  ],
+  "repair_candidate": null,
+  "evidence": [
+    {
+      "evidence_id": "EV-5c9c250d5805",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "3d981faf565b9afd7de3e078212efbfb32ad561c191cdf437fa7995bb3c9fc9a",
+      "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+      "plan_hash": "408686dc9e5bc201b6feb70212c5d91a7435f72ed3184ffcad31a42b70e998ae",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "M01",
+      "requirement_ids": [
+        "R3"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": "0.00",
+        "duration_ms": 27.082043001428246
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-0bf8600ae65c\\evidence-results.json"
+      ],
+      "duration_ms": 27.082043001428246,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-fd04d4b68231",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "3d981faf565b9afd7de3e078212efbfb32ad561c191cdf437fa7995bb3c9fc9a",
+      "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+      "plan_hash": "408686dc9e5bc201b6feb70212c5d91a7435f72ed3184ffcad31a42b70e998ae",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "M02",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": "49.70",
+        "duration_ms": 0.007226999514386989
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-0bf8600ae65c\\evidence-results.json"
+      ],
+      "duration_ms": 0.007226999514386989,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-938b8d10c6c0",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "3d981faf565b9afd7de3e078212efbfb32ad561c191cdf437fa7995bb3c9fc9a",
+      "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+      "plan_hash": "408686dc9e5bc201b6feb70212c5d91a7435f72ed3184ffcad31a42b70e998ae",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "M03",
+      "requirement_ids": [
+        "R2"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": "80.00",
+        "duration_ms": 0.0024119999579852447
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-0bf8600ae65c\\evidence-results.json"
+      ],
+      "duration_ms": 0.0024119999579852447,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-8ea97523740e",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "3d981faf565b9afd7de3e078212efbfb32ad561c191cdf437fa7995bb3c9fc9a",
+      "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+      "plan_hash": "408686dc9e5bc201b6feb70212c5d91a7435f72ed3184ffcad31a42b70e998ae",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "M04",
+      "requirement_ids": [
+        "R2"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": "99.99",
+        "duration_ms": 0.001796001015463844
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-0bf8600ae65c\\evidence-results.json"
+      ],
+      "duration_ms": 0.001796001015463844,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-50a55f2c242e",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "3d981faf565b9afd7de3e078212efbfb32ad561c191cdf437fa7995bb3c9fc9a",
+      "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+      "plan_hash": "408686dc9e5bc201b6feb70212c5d91a7435f72ed3184ffcad31a42b70e998ae",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "M05",
+      "requirement_ids": [
+        "R1",
+        "R2"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": "80.01",
+        "duration_ms": 0.0015189998521236703
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-0bf8600ae65c\\evidence-results.json"
+      ],
+      "duration_ms": 0.0015189998521236703,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-8f7758818ed5",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "3d981faf565b9afd7de3e078212efbfb32ad561c191cdf437fa7995bb3c9fc9a",
+      "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+      "plan_hash": "408686dc9e5bc201b6feb70212c5d91a7435f72ed3184ffcad31a42b70e998ae",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "M06",
+      "requirement_ids": [
+        "R1",
+        "R2"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": "80.00",
+        "duration_ms": 0.002050999682978727
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-0bf8600ae65c\\evidence-results.json"
+      ],
+      "duration_ms": 0.002050999682978727,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-c47b6482445c",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "3d981faf565b9afd7de3e078212efbfb32ad561c191cdf437fa7995bb3c9fc9a",
+      "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+      "plan_hash": "408686dc9e5bc201b6feb70212c5d91a7435f72ed3184ffcad31a42b70e998ae",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "M07",
+      "requirement_ids": [
+        "R2"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": "180.00",
+        "duration_ms": 0.0016930007404880598
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-0bf8600ae65c\\evidence-results.json"
+      ],
+      "duration_ms": 0.0016930007404880598,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-b381c3bcc5d0",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "3d981faf565b9afd7de3e078212efbfb32ad561c191cdf437fa7995bb3c9fc9a",
+      "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+      "plan_hash": "408686dc9e5bc201b6feb70212c5d91a7435f72ed3184ffcad31a42b70e998ae",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "M08",
+      "requirement_ids": [
+        "R1",
+        "R3"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": "0.30",
+        "duration_ms": 0.001534001057734713
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-0bf8600ae65c\\evidence-results.json"
+      ],
+      "duration_ms": 0.001534001057734713,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-d0da9d6ac7a9",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "3d981faf565b9afd7de3e078212efbfb32ad561c191cdf437fa7995bb3c9fc9a",
+      "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+      "plan_hash": "408686dc9e5bc201b6feb70212c5d91a7435f72ed3184ffcad31a42b70e998ae",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "M09",
+      "requirement_ids": [
+        "R3"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": "0.00",
+        "duration_ms": 0.0016880003386177123
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-0bf8600ae65c\\evidence-results.json"
+      ],
+      "duration_ms": 0.0016880003386177123,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-40d59d3f416b",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "3d981faf565b9afd7de3e078212efbfb32ad561c191cdf437fa7995bb3c9fc9a",
+      "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+      "plan_hash": "408686dc9e5bc201b6feb70212c5d91a7435f72ed3184ffcad31a42b70e998ae",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "M10",
+      "requirement_ids": [
+        "R4"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": "80.00",
+        "args_before": {
+          "arg:0": [
+            {
+              "price": "73.96",
+              "quantity": 1
+            },
+            {
+              "price": "4.14",
+              "quantity": 1
+            },
+            {
+              "price": "21.90",
+              "quantity": 1
+            }
+          ]
+        },
+        "args_after": {
+          "arg:0": [
+            {
+              "price": "73.96",
+              "quantity": 1
+            },
+            {
+              "price": "4.14",
+              "quantity": 1
+            },
+            {
+              "price": "21.90",
+              "quantity": 1
+            }
+          ]
+        },
+        "duration_ms": 0.010965999535983428
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-0bf8600ae65c\\evidence-results.json"
+      ],
+      "duration_ms": 0.010965999535983428,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-a63e6a8957ba",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "3d981faf565b9afd7de3e078212efbfb32ad561c191cdf437fa7995bb3c9fc9a",
+      "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+      "plan_hash": "408686dc9e5bc201b6feb70212c5d91a7435f72ed3184ffcad31a42b70e998ae",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "M11",
+      "requirement_ids": [
+        "R1",
+        "R2"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": "100.00",
+        "duration_ms": 0.0032869993447093293,
+        "check_detail": "返回值 '100.00' 不等于期望 '80.00'"
+      },
+      "status": "ASSERTION_FAILED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-0bf8600ae65c\\evidence-results.json"
+      ],
+      "duration_ms": 0.0032869993447093293,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-34f1ac9d2a13",
+      "kind": "STATIC_FACT",
+      "producer": "static-quality/1.0",
+      "code_hash": "3d981faf565b9afd7de3e078212efbfb32ad561c191cdf437fa7995bb3c9fc9a",
+      "spec_hash": "",
+      "plan_hash": "",
+      "runtime_fingerprint": "",
+      "case_id": "",
+      "requirement_ids": [],
+      "phase": "ASSERT",
+      "observation": {
+        "type": "missing_docstring",
+        "severity": "low",
+        "file": "solution.py",
+        "line": 1,
+        "message": "函数 calculate_payable 缺少 docstring",
+        "suggestion": "为函数/类添加 docstring 说明用途和参数",
+        "category": "READABILITY",
+        "finding_id": "QUALITY-1"
+      },
+      "status": "PASSED",
+      "artifact_refs": [],
+      "duration_ms": null,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    }
+  ],
+  "coverage": {
+    "mandatory_requirements": 4,
+    "requirements_checked": 4,
+    "cases_planned": 11,
+    "cases_executed": 11,
+    "cases_passed": 10,
+    "cases_failed": 1
+  },
+  "blockers": [],
+  "limitations": [
+    "MVP 未对任意 Python 与任意自然语言需求提供普遍正确性证明",
+    "容器隔离（非特权/无网络/只读根/资源限额）：不等于抵御所有恶意代码的完备安全边界",
+    "输入不变检查不检测『先修改再恢复』的瞬时写入",
+    "实验操作者已独立核对以下固定案例；结论只覆盖本轮检查，不保证未测试输入。"
+  ],
+  "stage_results": [
+    {
+      "stage": "A_input_and_compile",
+      "status": "COMPLETED",
+      "detail": "编译检查通过",
+      "duration_ms": 0.4954999894835055
+    },
+    {
+      "stage": "B_spec",
+      "status": "COMPLETED",
+      "detail": "规格模式 USER_STANDARD，interpretation=USER_CONFIRMED",
+      "duration_ms": null
+    },
+    {
+      "stage": "E_execute",
+      "status": "COMPLETED",
+      "detail": "11 条案例证据",
+      "duration_ms": null
+    },
+    {
+      "stage": "F_prompt_audit",
+      "status": "COMPLETED",
+      "detail": "mode=LLM",
+      "duration_ms": null
+    },
+    {
+      "stage": "F_suggestions",
+      "status": "COMPLETED",
+      "detail": "2 条建议",
+      "duration_ms": null
+    }
+  ],
+  "reproducibility": {
+    "code_hash": "3d981faf565b9afd7de3e078212efbfb32ad561c191cdf437fa7995bb3c9fc9a",
+    "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+    "plan_hash": "408686dc9e5bc201b6feb70212c5d91a7435f72ed3184ffcad31a42b70e998ae",
+    "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+    "request_hash": "1e37acae115963da7dfd857df656fa373d2f87cfefa5cb7abb51536b914d9137"
+  },
+  "isolation_level": "DOCKER",
+  "acceptance_standard_id": "STD-d82f1c9e27e44d0b9e2b904118b22c9f",
+  "canonical_spec": {
+    "spec_id": "STD-d82f1c9e27e44d0b9e2b904118b22c9f",
+    "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+    "revision": 1,
+    "interpretation_status": "USER_CONFIRMED",
+    "requirements": [
+      {
+        "id": "R1",
+        "statement": "按精确十进制金额计算总价，不能因二进制浮点误差改变优惠判断。",
+        "kind": "FUNCTIONAL",
+        "mandatory": true,
+        "origin": "EXPLICIT",
+        "source_quote": "按精确十进制金额计算总价，不能因二进制浮点误差改变优惠判断。",
+        "source_start": null,
+        "source_end": null,
+        "acceptance_intent": "",
+        "unresolved_questions": [],
+        "derivation_basis": ""
+      },
+      {
+        "id": "R2",
+        "statement": "总价达到或超过 100.00 元时减 20.00 元，每单只减一次；不足 100.00 元不优惠。",
+        "kind": "FUNCTIONAL",
+        "mandatory": true,
+        "origin": "EXPLICIT",
+        "source_quote": "总价达到或超过 100.00 元时减 20.00 元，每单只减一次；不足 100.00 元不优惠。",
+        "source_start": null,
+        "source_end": null,
+        "acceptance_intent": "",
+        "unresolved_questions": [],
+        "derivation_basis": ""
+      },
+      {
+        "id": "R3",
+        "statement": "返回恰好两位小数的金额字符串；空购物车返回 '0.00'。",
+        "kind": "FUNCTIONAL",
+        "mandatory": true,
+        "origin": "EXPLICIT",
+        "source_quote": "返回恰好两位小数的金额字符串；空购物车返回 '0.00'。",
+        "source_start": null,
+        "source_end": null,
+        "acceptance_intent": "",
+        "unresolved_questions": [],
+        "derivation_basis": ""
+      },
+      {
+        "id": "R4",
+        "statement": "不得修改输入列表及商品字典。",
+        "kind": "SIDE_EFFECT",
+        "mandatory": true,
+        "origin": "EXPLICIT",
+        "source_quote": "不得修改输入列表及商品字典。",
+        "source_start": null,
+        "source_end": null,
+        "acceptance_intent": "",
+        "unresolved_questions": [],
+        "derivation_basis": ""
+      }
+    ],
+    "input_domain": [],
+    "technical_constraints": [],
+    "unresolved_questions": [],
+    "limitations": [
+      "实验操作者已独立核对以下固定案例；结论只覆盖本轮检查，不保证未测试输入。"
+    ],
+    "requirement_text_digest": "实现 calculate_payable(items)。items 是商品字典列表，price 是最多两位小数的非负十进制金额字符串，quantity 是非负整数。按精确十进制金额计算总价，不能因二进制浮点误差改变优惠判断。总价达到或超过 100.00 元时减 20.00 元，每单只减一次；不足 100.00 元不优惠。返回恰好两位小数的金额字符串；空购物车返回 '0.00'。不得修改输入列表及商品字典。"
+  },
+  "test_plan": {
+    "plan_id": "PLAN-order_discount",
+    "plan_hash": "408686dc9e5bc201b6feb70212c5d91a7435f72ed3184ffcad31a42b70e998ae",
+    "revision": 1,
+    "contracts": [
+      {
+        "contract_id": "K_R1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "description": "按精确十进制金额计算总价，不能因二进制浮点误差改变优惠判断。",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "实验操作者独立核对固定案例的完整预期；充分性仅限声明的案例范围",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_R2",
+        "requirement_ids": [
+          "R2"
+        ],
+        "description": "总价达到或超过 100.00 元时减 20.00 元，每单只减一次；不足 100.00 元不优惠。",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "实验操作者独立核对固定案例的完整预期；充分性仅限声明的案例范围",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_R3",
+        "requirement_ids": [
+          "R3"
+        ],
+        "description": "返回恰好两位小数的金额字符串；空购物车返回 '0.00'。",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "实验操作者独立核对固定案例的完整预期；充分性仅限声明的案例范围",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_R4",
+        "requirement_ids": [
+          "R4"
+        ],
+        "description": "不得修改输入列表及商品字典。",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "实验操作者独立核对固定案例的完整预期；充分性仅限声明的案例范围",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_CASE_M01",
+        "requirement_ids": [
+          "R3"
+        ],
+        "description": "空购物车明确返回 0.00",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "独立核对的固定输入及期望，结论不覆盖未测试输入",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_CASE_M02",
+        "requirement_ids": [
+          "R1"
+        ],
+        "description": "19.90 × 2 + 9.90 = 49.70，不满减",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "独立核对的固定输入及期望，结论不覆盖未测试输入",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_CASE_M03",
+        "requirement_ids": [
+          "R2"
+        ],
+        "description": "100.00 达到门槛，减 20.00",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "独立核对的固定输入及期望，结论不覆盖未测试输入",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_CASE_M04",
+        "requirement_ids": [
+          "R2"
+        ],
+        "description": "99.99 未达到门槛",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "独立核对的固定输入及期望，结论不覆盖未测试输入",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_CASE_M05",
+        "requirement_ids": [
+          "R1",
+          "R2"
+        ],
+        "description": "100.01 减 20.00 = 80.01",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "独立核对的固定输入及期望，结论不覆盖未测试输入",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_CASE_M06",
+        "requirement_ids": [
+          "R1",
+          "R2"
+        ],
+        "description": "十进制精确和为 100.00，须优惠 20.00",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "独立核对的固定输入及期望，结论不覆盖未测试输入",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_CASE_M07",
+        "requirement_ids": [
+          "R2"
+        ],
+        "description": "200.00 仍只优惠一次，减 20.00",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "独立核对的固定输入及期望，结论不覆盖未测试输入",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_CASE_M08",
+        "requirement_ids": [
+          "R1",
+          "R3"
+        ],
+        "description": "0.10 × 3 = 0.30",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "独立核对的固定输入及期望，结论不覆盖未测试输入",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_CASE_M09",
+        "requirement_ids": [
+          "R3"
+        ],
+        "description": "零金额按两位小数格式返回",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "独立核对的固定输入及期望，结论不覆盖未测试输入",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_CASE_M10",
+        "requirement_ids": [
+          "R4"
+        ],
+        "description": "独立保存输入快照，验证调用前后列表及嵌套记录完全相同",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "独立核对的固定输入及期望，结论不覆盖未测试输入",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_CASE_M11",
+        "requirement_ids": [
+          "R1",
+          "R2"
+        ],
+        "description": "十进制精确和为 100.00；Docker Python 3.10 的 float 求和为 99.99999999999999，须保持满减资格",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "独立核对的固定输入及期望，结论不覆盖未测试输入",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+        "coverage_note": ""
+      }
+    ],
+    "cases": [
+      {
+        "case_id": "M01",
+        "contract_id": "K_CASE_M01",
+        "requirement_ids": [
+          "R3"
+        ],
+        "category": "",
+        "args": [
+          []
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": "0.00"
+        },
+        "expected_basis": "空购物车明确返回 0.00",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "M02",
+        "contract_id": "K_CASE_M02",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "price": "19.90",
+              "quantity": 2
+            },
+            {
+              "price": "9.90",
+              "quantity": 1
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": "49.70"
+        },
+        "expected_basis": "19.90 × 2 + 9.90 = 49.70，不满减",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "M03",
+        "contract_id": "K_CASE_M03",
+        "requirement_ids": [
+          "R2"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "price": "100.00",
+              "quantity": 1
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": "80.00"
+        },
+        "expected_basis": "100.00 达到门槛，减 20.00",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "M04",
+        "contract_id": "K_CASE_M04",
+        "requirement_ids": [
+          "R2"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "price": "99.99",
+              "quantity": 1
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": "99.99"
+        },
+        "expected_basis": "99.99 未达到门槛",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "M05",
+        "contract_id": "K_CASE_M05",
+        "requirement_ids": [
+          "R1",
+          "R2"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "price": "100.01",
+              "quantity": 1
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": "80.01"
+        },
+        "expected_basis": "100.01 减 20.00 = 80.01",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "M06",
+        "contract_id": "K_CASE_M06",
+        "requirement_ids": [
+          "R1",
+          "R2"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "price": "73.96",
+              "quantity": 1
+            },
+            {
+              "price": "4.14",
+              "quantity": 1
+            },
+            {
+              "price": "21.90",
+              "quantity": 1
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": "80.00"
+        },
+        "expected_basis": "十进制精确和为 100.00，须优惠 20.00",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "M07",
+        "contract_id": "K_CASE_M07",
+        "requirement_ids": [
+          "R2"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "price": "200.00",
+              "quantity": 1
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": "180.00"
+        },
+        "expected_basis": "200.00 仍只优惠一次，减 20.00",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "M08",
+        "contract_id": "K_CASE_M08",
+        "requirement_ids": [
+          "R1",
+          "R3"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "price": "0.10",
+              "quantity": 3
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": "0.30"
+        },
+        "expected_basis": "0.10 × 3 = 0.30",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "M09",
+        "contract_id": "K_CASE_M09",
+        "requirement_ids": [
+          "R3"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "price": "0.00",
+              "quantity": 1
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": "0.00"
+        },
+        "expected_basis": "零金额按两位小数格式返回",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "M10",
+        "contract_id": "K_CASE_M10",
+        "requirement_ids": [
+          "R4"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "price": "73.96",
+              "quantity": 1
+            },
+            {
+              "price": "4.14",
+              "quantity": 1
+            },
+            {
+              "price": "21.90",
+              "quantity": 1
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "INPUT_UNCHANGED",
+          "targets": [
+            {
+              "kind": "ARG",
+              "index": 0,
+              "name": null
+            }
+          ]
+        },
+        "expected_basis": "独立保存输入快照，验证调用前后列表及嵌套记录完全相同",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "M11",
+        "contract_id": "K_CASE_M11",
+        "requirement_ids": [
+          "R1",
+          "R2"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "price": "49.05",
+              "quantity": 1
+            },
+            {
+              "price": "41.90",
+              "quantity": 1
+            },
+            {
+              "price": "9.05",
+              "quantity": 1
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": "80.00"
+        },
+        "expected_basis": "十进制精确和为 100.00；Docker Python 3.10 的 float 求和为 99.99999999999999，须保持满减资格",
+        "input_domain_status": "IN_SCOPE"
+      }
+    ],
+    "coverage_notes": []
+  },
+  "quality_report": {
+    "status": "NEEDS_IMPROVEMENT",
+    "readability_score": 70.0,
+    "readability_grade": "B",
+    "findings": [
+      {
+        "type": "missing_docstring",
+        "severity": "low",
+        "file": "solution.py",
+        "line": 1,
+        "message": "函数 calculate_payable 缺少 docstring",
+        "suggestion": "为函数/类添加 docstring 说明用途和参数",
+        "category": "READABILITY",
+        "finding_id": "QUALITY-1",
+        "evidence_id": "EV-34f1ac9d2a13"
+      }
+    ],
+    "criteria": "高严重度安全问题需人工审查；其他静态问题给出改进建议，不替代功能测试。"
+  },
+  "usability": "NOT_USABLE",
+  "next_actions": [
+    "根据失败案例的输入、期望及实际值修改代码，再复用相同标准验收",
+    "按代码质量清单修订；高严重度安全风险需人工审查，修改后重跑功能测试",
+    "复制改进提示词生成新代码，再用当前确认标准评估；建议效果尚未验证"
+  ]
+}

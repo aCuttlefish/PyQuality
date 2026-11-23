@@ -1,0 +1,62 @@
+[
+  {
+    "suggestion_id": "SUG-f0635c48",
+    "finding_id": "SUM02",
+    "requirement_ids": [
+      "R1"
+    ],
+    "evidence_ids": [
+      "EV-619cd4ff955c"
+    ],
+    "category": "CORRECTNESS_FIX",
+    "location": "upstream.py:16",
+    "trigger_condition": "{\"args\": [1, 0], \"kwargs\": {}}",
+    "expected": "[]",
+    "actual": "{\"return_value\": [[]], \"duration_ms\": 0.2189880015066592, \"check_detail\": \"返回值 [[]] 不等于期望 []\"}",
+    "explanation": "upstream.py 第 16-17 行在 n == 0 时无条件 append([])，未检查 m 是否为 0。长度为 0 的序列总和恒为 0，因此仅当 m == 0 时 [[]] 才符合 R1；m > 0 时应返回空列表。SUM02/SUM03/SUM04 均因此失败，而 SUM01 (0,0) 通过，说明修复必须保留 m == 0 时返回 [[]] 的行为。solution.py 第 8 行直接透传 upstream 结果，未做过滤，故缺陷位于 upstream.py。",
+    "fix": "将 upstream.py 第 16-17 行改为：if n == 0: if m == 0: combos.append([])（m != 0 时不追加任何元素，返回空列表）。不改动 solution.py 的接口与透传逻辑。",
+    "regression_check": "复用已确认标准，重跑 SUM02 及全部固定案例",
+    "validation_status": "SYSTEM_FILLED",
+    "mode": "LLM"
+  },
+  {
+    "suggestion_id": "SUG-2e0c1263",
+    "finding_id": "SUM03",
+    "requirement_ids": [
+      "R1"
+    ],
+    "evidence_ids": [
+      "EV-c9c2054c8d04"
+    ],
+    "category": "CORRECTNESS_FIX",
+    "location": "upstream.py:16",
+    "trigger_condition": "{\"args\": [5, 0], \"kwargs\": {}}",
+    "expected": "[]",
+    "actual": "{\"return_value\": [[]], \"duration_ms\": 0.17847900016931817, \"check_detail\": \"返回值 [[]] 不等于期望 []\"}",
+    "explanation": "与 SUM02 同一根因：n == 0 分支未校验 m。SUM03 是同一缺陷在 m=5 下的表现，修复 SUM02 的同一处代码即可覆盖。",
+    "fix": "同 SUM02 的修复：n == 0 时仅在 m == 0 时追加空序列。",
+    "regression_check": "复用已确认标准，重跑 SUM03 及全部固定案例",
+    "validation_status": "SYSTEM_FILLED",
+    "mode": "LLM"
+  },
+  {
+    "suggestion_id": "SUG-a88fc324",
+    "finding_id": "SUM04",
+    "requirement_ids": [
+      "R1"
+    ],
+    "evidence_ids": [
+      "EV-9d1c97f9b9ba"
+    ],
+    "category": "CORRECTNESS_FIX",
+    "location": "upstream.py:16",
+    "trigger_condition": "{\"args\": [10, 0], \"kwargs\": {}}",
+    "expected": "[]",
+    "actual": "{\"return_value\": [[]], \"duration_ms\": 0.16889099970285315, \"check_detail\": \"返回值 [[]] 不等于期望 []\"}",
+    "explanation": "与 SUM02/SUM03 同一根因，n == 0 分支未校验 m。修复同一处代码即可覆盖。",
+    "fix": "同 SUM02 的修复：n == 0 时仅在 m == 0 时追加空序列。",
+    "regression_check": "复用已确认标准，重跑 SUM04 及全部固定案例",
+    "validation_status": "SYSTEM_FILLED",
+    "mode": "LLM"
+  }
+]

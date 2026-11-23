@@ -1,0 +1,372 @@
+{
+  "schema_version": "1.0",
+  "evaluation_id": "EVAL-8517950dd7a9",
+  "created_at": 1792572385.015013,
+  "job_status": "COMPLETED",
+  "code_verdict": "PASS_WITHIN_SCOPE",
+  "assurance_level": "TESTED",
+  "spec_interpretation": "USER_CONFIRMED",
+  "summary": "按当前需求解读，本轮检查通过（范围内已认可检查全部执行且通过）。",
+  "requirement_results": [
+    {
+      "requirement_id": "R1",
+      "statement": "返回输入列表中最大的偶数",
+      "status": "PASS_WITHIN_SCOPE",
+      "evidence_ids": [
+        "EV-148afe394577",
+        "EV-ae103174ea9f",
+        "EV-e8b3e715f700",
+        "EV-670e0a06f412"
+      ],
+      "failed_case_ids": [],
+      "explanation": "",
+      "assurance": "NONE"
+    },
+    {
+      "requirement_id": "R2",
+      "statement": "不存在偶数时返回 None",
+      "status": "PASS_WITHIN_SCOPE",
+      "evidence_ids": [
+        "EV-d582ea8c7536",
+        "EV-a7ad91fa2792"
+      ],
+      "failed_case_ids": [],
+      "explanation": "",
+      "assurance": "NONE"
+    },
+    {
+      "requirement_id": "R3",
+      "statement": "不得修改输入列表",
+      "status": "PASS_WITHIN_SCOPE",
+      "evidence_ids": [
+        "EV-a4d66cca6549"
+      ],
+      "failed_case_ids": [],
+      "explanation": "",
+      "assurance": "NONE"
+    }
+  ],
+  "prompt_report": {
+    "mappings": [
+      {
+        "requirement_id": "R1",
+        "status": "MISSING_FROM_VISIBLE_PROMPT",
+        "requirement_quote": "返回输入列表中最大的偶数",
+        "prompt_quote": "",
+        "explanation": "当前可见的 generation_prompt 为空字符串，未体现任何要求。generation_context 中 is_complete 与 requirements_also_visible 均为 null，无法确认原生成上下文是否已包含 R1，因此是否为真实遗漏取决于未知上下文。"
+      },
+      {
+        "requirement_id": "R2",
+        "status": "MISSING_FROM_VISIBLE_PROMPT",
+        "requirement_quote": "不存在偶数时返回 None",
+        "prompt_quote": "",
+        "explanation": "可见提示词中未体现无偶数时返回 None 的要求。generation_context 未提供完整性信息，无法判断原上下文是否已包含该要求。"
+      },
+      {
+        "requirement_id": "R3",
+        "status": "MISSING_FROM_VISIBLE_PROMPT",
+        "requirement_quote": "不得修改输入列表",
+        "prompt_quote": "",
+        "explanation": "可见提示词中未体现不得修改输入列表的副作用约束。generation_context 未提供完整性信息，无法判断原上下文是否已包含该要求。"
+      }
+    ],
+    "extra_requirements": [],
+    "optimized_prompt": "实现一个函数，接收一个输入列表，返回该列表中最大的偶数；如果列表中不存在偶数，则返回 None。函数不得修改输入列表，调用前后输入列表的内容应保持不变。",
+    "changes": [
+      {
+        "before": "",
+        "after": "实现一个函数，接收一个输入列表，返回该列表中最大的偶数；如果列表中不存在偶数，则返回 None。函数不得修改输入列表，调用前后输入列表的内容应保持不变。",
+        "requirement_id": "R1",
+        "reason": "可见提示词为空，未表达 R1 的核心功能要求，依据 canonical_spec 原文补入。"
+      },
+      {
+        "before": "",
+        "after": "如果列表中不存在偶数，则返回 None。",
+        "requirement_id": "R2",
+        "reason": "可见提示词未表达无偶数时的返回值要求，依据 canonical_spec 原文补入。"
+      },
+      {
+        "before": "",
+        "after": "函数不得修改输入列表，调用前后输入列表的内容应保持不变。",
+        "requirement_id": "R3",
+        "reason": "可见提示词未表达副作用约束，依据 canonical_spec 原文补入。"
+      }
+    ],
+    "unresolved_questions": [
+      "generation_context.is_complete 为 null，无法确认原生成上下文是否已包含 R1、R2、R3，因此上述 MISSING_FROM_VISIBLE_PROMPT 是否为真实遗漏尚不确定。",
+      "generation_context.requirements_also_visible 为 null，无法判断原上下文是否已向模型展示完整需求。",
+      "输入列表为空列表时是否按“不存在偶数”处理并返回 None，canonical_spec 未单独说明，需确认是否沿用 R2。"
+    ],
+    "optimization_validation": "NOT_EVALUATED",
+    "mode": "LLM",
+    "prompt_code_relation": [
+      {
+        "requirement_id": "R1",
+        "prompt_status": "MISSING_FROM_VISIBLE_PROMPT",
+        "code_status": "PASS_WITHIN_SCOPE",
+        "relation": "PROMPT_ISSUE_BUT_CODE_PASSES"
+      },
+      {
+        "requirement_id": "R2",
+        "prompt_status": "MISSING_FROM_VISIBLE_PROMPT",
+        "code_status": "PASS_WITHIN_SCOPE",
+        "relation": "PROMPT_ISSUE_BUT_CODE_PASSES"
+      },
+      {
+        "requirement_id": "R3",
+        "prompt_status": "MISSING_FROM_VISIBLE_PROMPT",
+        "code_status": "PASS_WITHIN_SCOPE",
+        "relation": "PROMPT_ISSUE_BUT_CODE_PASSES"
+      }
+    ]
+  },
+  "code_suggestions": [],
+  "repair_candidate": null,
+  "evidence": [
+    {
+      "evidence_id": "EV-148afe394577",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.0",
+      "code_hash": "06fdece94b9c8bfdfbbd6ff5f8c3be4d82d83eb5ec3811601d4513ee7b8ad1b7",
+      "spec_hash": "189178be0d8bf5bb29db5770bf79ac9aac5bdf127fdd0ddad31e5e53abefe786",
+      "plan_hash": "5f5c7e7e98bda916f08c72c1339c5ab145af5de6331b234763f5c0305e82dad4",
+      "runtime_fingerprint": "acceptance-runner/1.0 python=3.10.11 platform=Windows-10-10.0.26200-SP0 isolation=SUBPROCESS_SANDBOX",
+      "case_id": "T1",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 8,
+        "duration_ms": 0.0
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\chw28\\AppData\\Local\\Temp\\pyq_accept__5x3duxd\\results.json"
+      ],
+      "duration_ms": 0.0,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-ae103174ea9f",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.0",
+      "code_hash": "06fdece94b9c8bfdfbbd6ff5f8c3be4d82d83eb5ec3811601d4513ee7b8ad1b7",
+      "spec_hash": "189178be0d8bf5bb29db5770bf79ac9aac5bdf127fdd0ddad31e5e53abefe786",
+      "plan_hash": "5f5c7e7e98bda916f08c72c1339c5ab145af5de6331b234763f5c0305e82dad4",
+      "runtime_fingerprint": "acceptance-runner/1.0 python=3.10.11 platform=Windows-10-10.0.26200-SP0 isolation=SUBPROCESS_SANDBOX",
+      "case_id": "T2",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": -2,
+        "duration_ms": 0.0
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\chw28\\AppData\\Local\\Temp\\pyq_accept__5x3duxd\\results.json"
+      ],
+      "duration_ms": 0.0,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-e8b3e715f700",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.0",
+      "code_hash": "06fdece94b9c8bfdfbbd6ff5f8c3be4d82d83eb5ec3811601d4513ee7b8ad1b7",
+      "spec_hash": "189178be0d8bf5bb29db5770bf79ac9aac5bdf127fdd0ddad31e5e53abefe786",
+      "plan_hash": "5f5c7e7e98bda916f08c72c1339c5ab145af5de6331b234763f5c0305e82dad4",
+      "runtime_fingerprint": "acceptance-runner/1.0 python=3.10.11 platform=Windows-10-10.0.26200-SP0 isolation=SUBPROCESS_SANDBOX",
+      "case_id": "T3",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 0,
+        "duration_ms": 0.0
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\chw28\\AppData\\Local\\Temp\\pyq_accept__5x3duxd\\results.json"
+      ],
+      "duration_ms": 0.0,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-670e0a06f412",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.0",
+      "code_hash": "06fdece94b9c8bfdfbbd6ff5f8c3be4d82d83eb5ec3811601d4513ee7b8ad1b7",
+      "spec_hash": "189178be0d8bf5bb29db5770bf79ac9aac5bdf127fdd0ddad31e5e53abefe786",
+      "plan_hash": "5f5c7e7e98bda916f08c72c1339c5ab145af5de6331b234763f5c0305e82dad4",
+      "runtime_fingerprint": "acceptance-runner/1.0 python=3.10.11 platform=Windows-10-10.0.26200-SP0 isolation=SUBPROCESS_SANDBOX",
+      "case_id": "T4",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 6,
+        "duration_ms": 0.0
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\chw28\\AppData\\Local\\Temp\\pyq_accept__5x3duxd\\results.json"
+      ],
+      "duration_ms": 0.0,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-d582ea8c7536",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.0",
+      "code_hash": "06fdece94b9c8bfdfbbd6ff5f8c3be4d82d83eb5ec3811601d4513ee7b8ad1b7",
+      "spec_hash": "189178be0d8bf5bb29db5770bf79ac9aac5bdf127fdd0ddad31e5e53abefe786",
+      "plan_hash": "5f5c7e7e98bda916f08c72c1339c5ab145af5de6331b234763f5c0305e82dad4",
+      "runtime_fingerprint": "acceptance-runner/1.0 python=3.10.11 platform=Windows-10-10.0.26200-SP0 isolation=SUBPROCESS_SANDBOX",
+      "case_id": "T5",
+      "requirement_ids": [
+        "R2"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": null,
+        "duration_ms": 0.0
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\chw28\\AppData\\Local\\Temp\\pyq_accept__5x3duxd\\results.json"
+      ],
+      "duration_ms": 0.0,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-a7ad91fa2792",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.0",
+      "code_hash": "06fdece94b9c8bfdfbbd6ff5f8c3be4d82d83eb5ec3811601d4513ee7b8ad1b7",
+      "spec_hash": "189178be0d8bf5bb29db5770bf79ac9aac5bdf127fdd0ddad31e5e53abefe786",
+      "plan_hash": "5f5c7e7e98bda916f08c72c1339c5ab145af5de6331b234763f5c0305e82dad4",
+      "runtime_fingerprint": "acceptance-runner/1.0 python=3.10.11 platform=Windows-10-10.0.26200-SP0 isolation=SUBPROCESS_SANDBOX",
+      "case_id": "T6",
+      "requirement_ids": [
+        "R2"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": null,
+        "duration_ms": 0.0
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\chw28\\AppData\\Local\\Temp\\pyq_accept__5x3duxd\\results.json"
+      ],
+      "duration_ms": 0.0,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-a4d66cca6549",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.0",
+      "code_hash": "06fdece94b9c8bfdfbbd6ff5f8c3be4d82d83eb5ec3811601d4513ee7b8ad1b7",
+      "spec_hash": "189178be0d8bf5bb29db5770bf79ac9aac5bdf127fdd0ddad31e5e53abefe786",
+      "plan_hash": "5f5c7e7e98bda916f08c72c1339c5ab145af5de6331b234763f5c0305e82dad4",
+      "runtime_fingerprint": "acceptance-runner/1.0 python=3.10.11 platform=Windows-10-10.0.26200-SP0 isolation=SUBPROCESS_SANDBOX",
+      "case_id": "T7",
+      "requirement_ids": [
+        "R3"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 8,
+        "args_before": {
+          "arg:0": [
+            4,
+            1,
+            8,
+            3
+          ]
+        },
+        "args_after": {
+          "arg:0": [
+            4,
+            1,
+            8,
+            3
+          ]
+        },
+        "duration_ms": 0.0
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\chw28\\AppData\\Local\\Temp\\pyq_accept__5x3duxd\\results.json"
+      ],
+      "duration_ms": 0.0,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    }
+  ],
+  "coverage": {
+    "mandatory_requirements": 3,
+    "requirements_checked": 3,
+    "cases_planned": 7,
+    "cases_executed": 7,
+    "cases_passed": 7,
+    "cases_failed": 0
+  },
+  "blockers": [],
+  "limitations": [
+    "MVP 未对任意 Python 与任意自然语言需求提供普遍正确性证明",
+    "进程级隔离：无 Docker 网络隔离与 CPU/内存限额，非完备安全边界",
+    "输入不变检查不检测『先修改再恢复』的瞬时写入"
+  ],
+  "stage_results": [
+    {
+      "stage": "A_input_and_compile",
+      "status": "COMPLETED",
+      "detail": "编译检查通过",
+      "duration_ms": 0.0
+    },
+    {
+      "stage": "B_spec",
+      "status": "COMPLETED",
+      "detail": "规格模式 FIXTURE，interpretation=USER_CONFIRMED",
+      "duration_ms": null
+    },
+    {
+      "stage": "E_execute",
+      "status": "COMPLETED",
+      "detail": "7 条案例证据",
+      "duration_ms": null
+    },
+    {
+      "stage": "F_prompt_audit",
+      "status": "COMPLETED",
+      "detail": "mode=LLM",
+      "duration_ms": null
+    },
+    {
+      "stage": "F_suggestions",
+      "status": "COMPLETED",
+      "detail": "0 条建议",
+      "duration_ms": null
+    }
+  ],
+  "reproducibility": {
+    "code_hash": "06fdece94b9c8bfdfbbd6ff5f8c3be4d82d83eb5ec3811601d4513ee7b8ad1b7",
+    "spec_hash": "189178be0d8bf5bb29db5770bf79ac9aac5bdf127fdd0ddad31e5e53abefe786",
+    "plan_hash": "5f5c7e7e98bda916f08c72c1339c5ab145af5de6331b234763f5c0305e82dad4",
+    "runtime_fingerprint": "acceptance-runner/1.0 python=3.10.11 platform=Windows-10-10.0.26200-SP0 isolation=SUBPROCESS_SANDBOX",
+    "request_hash": "17458471c2b7d3a7fe43bace5dd0029f710596844d72e2a7a0f8256b43563bda"
+  },
+  "isolation_level": "SUBPROCESS_SANDBOX"
+}

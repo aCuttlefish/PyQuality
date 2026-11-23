@@ -1,0 +1,322 @@
+{
+  "id": "contact_import",
+  "title": "通讯录导入：邮箱规范化遗漏造成重复联系人",
+  "requirement": "实现 deduplicate_contacts(contacts)，用于通讯录导入去重。contacts 为联系人字典列表，每条均有 name 和 email；email 是非空 ASCII 字符串，可带首尾空格。比较邮箱时须去除首尾空格并忽略字母大小写；去重键的规范化不得改变输出记录原有的 email 内容。重复邮箱保留第一次出现的完整记录，结果按被保留记录在原列表中第一次出现的顺序排列。不得修改输入列表或任一联系人字典；空列表返回空列表。",
+  "entrypoint": {
+    "module": "solution",
+    "callable": "deduplicate_contacts"
+  },
+  "initial_prompt": "帮我写一个 Python 函数 deduplicate_contacts(contacts)。contacts 是联系人字典列表，每条有 name 和 email。按 email 字段去重，每个邮箱只保留一条，返回去重后的联系人列表。用字典实现，代码简洁，只用标准库。",
+  "design_note": "初始提示词是有意保留常见遗漏的简短需求；完整业务规则先独立写入验收标准。",
+  "requirements": [
+    {
+      "id": "R1",
+      "quote": "比较邮箱时须去除首尾空格并忽略字母大小写；去重键的规范化不得改变输出记录原有的 email 内容。",
+      "kind": "FUNCTIONAL"
+    },
+    {
+      "id": "R2",
+      "quote": "重复邮箱保留第一次出现的完整记录",
+      "kind": "FUNCTIONAL"
+    },
+    {
+      "id": "R3",
+      "quote": "结果按被保留记录在原列表中第一次出现的顺序排列。",
+      "kind": "FUNCTIONAL"
+    },
+    {
+      "id": "R4",
+      "quote": "不得修改输入列表或任一联系人字典；空列表返回空列表。",
+      "kind": "SIDE_EFFECT"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "C01",
+      "requirement_ids": [
+        "R4"
+      ],
+      "args": [
+        []
+      ],
+      "assertion": {
+        "kind": "RETURN_EQUALS",
+        "expected": []
+      },
+      "expected_basis": "空列表返回空列表"
+    },
+    {
+      "case_id": "C02",
+      "requirement_ids": [
+        "R1"
+      ],
+      "args": [
+        [
+          {
+            "name": "Alice 首次导入",
+            "email": "Alice@Example.com"
+          }
+        ]
+      ],
+      "assertion": {
+        "kind": "RETURN_EQUALS",
+        "expected": [
+          {
+            "name": "Alice 首次导入",
+            "email": "Alice@Example.com"
+          }
+        ]
+      },
+      "expected_basis": "保留输出原记录的邮箱大小写"
+    },
+    {
+      "case_id": "C03",
+      "requirement_ids": [
+        "R3"
+      ],
+      "args": [
+        [
+          {
+            "name": "Bob 原始记录",
+            "email": " bob@example.com "
+          },
+          {
+            "name": "Alice 首次导入",
+            "email": "Alice@Example.com"
+          },
+          {
+            "name": "Carol",
+            "email": "carol@example.com"
+          }
+        ]
+      ],
+      "assertion": {
+        "kind": "RETURN_EQUALS",
+        "expected": [
+          {
+            "name": "Bob 原始记录",
+            "email": " bob@example.com "
+          },
+          {
+            "name": "Alice 首次导入",
+            "email": "Alice@Example.com"
+          },
+          {
+            "name": "Carol",
+            "email": "carol@example.com"
+          }
+        ]
+      },
+      "expected_basis": "不同邮箱按输入顺序输出"
+    },
+    {
+      "case_id": "C04",
+      "requirement_ids": [
+        "R2"
+      ],
+      "args": [
+        [
+          {
+            "name": "Alice 首次导入",
+            "email": "Alice@Example.com"
+          },
+          {
+            "name": "Alice 后续更新",
+            "email": "Alice@Example.com"
+          }
+        ]
+      ],
+      "assertion": {
+        "kind": "RETURN_EQUALS",
+        "expected": [
+          {
+            "name": "Alice 首次导入",
+            "email": "Alice@Example.com"
+          }
+        ]
+      },
+      "expected_basis": "相同邮箱不同姓名时保留第一条完整记录"
+    },
+    {
+      "case_id": "C05",
+      "requirement_ids": [
+        "R1",
+        "R2"
+      ],
+      "args": [
+        [
+          {
+            "name": "Alice 首次导入",
+            "email": "Alice@Example.com"
+          },
+          {
+            "name": "Alice 后续导入",
+            "email": "alice@example.com"
+          }
+        ]
+      ],
+      "assertion": {
+        "kind": "RETURN_EQUALS",
+        "expected": [
+          {
+            "name": "Alice 首次导入",
+            "email": "Alice@Example.com"
+          }
+        ]
+      },
+      "expected_basis": "Alice@Example.com 和 alice@example.com 归为同一邮箱"
+    },
+    {
+      "case_id": "C06",
+      "requirement_ids": [
+        "R1",
+        "R2"
+      ],
+      "args": [
+        [
+          {
+            "name": "Bob 原始记录",
+            "email": " bob@example.com "
+          },
+          {
+            "name": "Bob 重复记录",
+            "email": "bob@example.com"
+          }
+        ]
+      ],
+      "assertion": {
+        "kind": "RETURN_EQUALS",
+        "expected": [
+          {
+            "name": "Bob 原始记录",
+            "email": " bob@example.com "
+          }
+        ]
+      },
+      "expected_basis": "去除首尾空格后相同，保留第一条且不改写原 email"
+    },
+    {
+      "case_id": "C07",
+      "requirement_ids": [
+        "R2",
+        "R3"
+      ],
+      "args": [
+        [
+          {
+            "name": "Bob 原始记录",
+            "email": " bob@example.com "
+          },
+          {
+            "name": "Alice 首次导入",
+            "email": "Alice@Example.com"
+          },
+          {
+            "name": "Bob 重复记录",
+            "email": "bob@example.com"
+          },
+          {
+            "name": "Carol",
+            "email": "carol@example.com"
+          }
+        ]
+      ],
+      "assertion": {
+        "kind": "RETURN_EQUALS",
+        "expected": [
+          {
+            "name": "Bob 原始记录",
+            "email": " bob@example.com "
+          },
+          {
+            "name": "Alice 首次导入",
+            "email": "Alice@Example.com"
+          },
+          {
+            "name": "Carol",
+            "email": "carol@example.com"
+          }
+        ]
+      },
+      "expected_basis": "去重后仍按原始首次出现顺序排列"
+    },
+    {
+      "case_id": "C08",
+      "requirement_ids": [
+        "R4"
+      ],
+      "args": [
+        [
+          {
+            "name": "Bob 原始记录",
+            "email": " bob@example.com "
+          },
+          {
+            "name": "Alice 首次导入",
+            "email": "Alice@Example.com"
+          },
+          {
+            "name": "Alice 后续导入",
+            "email": "alice@example.com"
+          },
+          {
+            "name": "Bob 重复记录",
+            "email": "bob@example.com"
+          },
+          {
+            "name": "Carol",
+            "email": "carol@example.com"
+          }
+        ]
+      ],
+      "assertion": {
+        "kind": "INPUT_UNCHANGED",
+        "targets": [
+          {
+            "kind": "ARG",
+            "index": 0
+          }
+        ]
+      },
+      "expected_basis": "独立保存输入快照，验证调用前后列表及嵌套记录完全相同"
+    },
+    {
+      "case_id": "C09",
+      "requirement_ids": [
+        "R1",
+        "R2",
+        "R3"
+      ],
+      "args": [
+        [
+          {
+            "name": "Alice 首次导入",
+            "email": "Alice@Example.com"
+          },
+          {
+            "name": "重复",
+            "email": "  ALICE@EXAMPLE.COM  "
+          },
+          {
+            "name": "Bob 原始记录",
+            "email": " bob@example.com "
+          }
+        ]
+      ],
+      "assertion": {
+        "kind": "RETURN_EQUALS",
+        "expected": [
+          {
+            "name": "Alice 首次导入",
+            "email": "Alice@Example.com"
+          },
+          {
+            "name": "Bob 原始记录",
+            "email": " bob@example.com "
+          }
+        ]
+      },
+      "expected_basis": "同时存在大小写与空格差异，保持第一条和顺序"
+    }
+  ]
+}

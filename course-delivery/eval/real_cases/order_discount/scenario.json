@@ -1,0 +1,276 @@
+{
+  "id": "order_discount",
+  "title": "电商满减：浮点误差导致满 100 元未优惠",
+  "requirement": "实现 calculate_payable(items)。items 是商品字典列表，price 是最多两位小数的非负十进制金额字符串，quantity 是非负整数。按精确十进制金额计算总价，不能因二进制浮点误差改变优惠判断。总价达到或超过 100.00 元时减 20.00 元，每单只减一次；不足 100.00 元不优惠。返回恰好两位小数的金额字符串；空购物车返回 '0.00'。不得修改输入列表及商品字典。",
+  "entrypoint": {
+    "module": "solution",
+    "callable": "calculate_payable"
+  },
+  "initial_prompt": "帮我写一个 Python 函数 calculate_payable(items)，items 是商品字典列表，price 为金额字符串，quantity 为整数。先将每项 price 转成 float 乘以 quantity，逐项累加后判断是否满 100 元；满 100 减 20 元，每单只减一次。最后把应付金额格式化为两位小数字符串并返回。只用标准库，代码简洁。",
+  "design_note": "初始提示词明确指定 float，这是待诊断的工程选择；不声称模型无提示自行引入错误。",
+  "requirements": [
+    {
+      "id": "R1",
+      "quote": "按精确十进制金额计算总价，不能因二进制浮点误差改变优惠判断。",
+      "kind": "FUNCTIONAL"
+    },
+    {
+      "id": "R2",
+      "quote": "总价达到或超过 100.00 元时减 20.00 元，每单只减一次；不足 100.00 元不优惠。",
+      "kind": "FUNCTIONAL"
+    },
+    {
+      "id": "R3",
+      "quote": "返回恰好两位小数的金额字符串；空购物车返回 '0.00'。",
+      "kind": "FUNCTIONAL"
+    },
+    {
+      "id": "R4",
+      "quote": "不得修改输入列表及商品字典。",
+      "kind": "SIDE_EFFECT"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "M01",
+      "requirement_ids": [
+        "R3"
+      ],
+      "args": [
+        []
+      ],
+      "assertion": {
+        "kind": "RETURN_EQUALS",
+        "expected": "0.00"
+      },
+      "expected_basis": "空购物车明确返回 0.00"
+    },
+    {
+      "case_id": "M02",
+      "requirement_ids": [
+        "R1"
+      ],
+      "args": [
+        [
+          {
+            "price": "19.90",
+            "quantity": 2
+          },
+          {
+            "price": "9.90",
+            "quantity": 1
+          }
+        ]
+      ],
+      "assertion": {
+        "kind": "RETURN_EQUALS",
+        "expected": "49.70"
+      },
+      "expected_basis": "19.90 × 2 + 9.90 = 49.70，不满减"
+    },
+    {
+      "case_id": "M03",
+      "requirement_ids": [
+        "R2"
+      ],
+      "args": [
+        [
+          {
+            "price": "100.00",
+            "quantity": 1
+          }
+        ]
+      ],
+      "assertion": {
+        "kind": "RETURN_EQUALS",
+        "expected": "80.00"
+      },
+      "expected_basis": "100.00 达到门槛，减 20.00"
+    },
+    {
+      "case_id": "M04",
+      "requirement_ids": [
+        "R2"
+      ],
+      "args": [
+        [
+          {
+            "price": "99.99",
+            "quantity": 1
+          }
+        ]
+      ],
+      "assertion": {
+        "kind": "RETURN_EQUALS",
+        "expected": "99.99"
+      },
+      "expected_basis": "99.99 未达到门槛"
+    },
+    {
+      "case_id": "M05",
+      "requirement_ids": [
+        "R1",
+        "R2"
+      ],
+      "args": [
+        [
+          {
+            "price": "100.01",
+            "quantity": 1
+          }
+        ]
+      ],
+      "assertion": {
+        "kind": "RETURN_EQUALS",
+        "expected": "80.01"
+      },
+      "expected_basis": "100.01 减 20.00 = 80.01"
+    },
+    {
+      "case_id": "M06",
+      "requirement_ids": [
+        "R1",
+        "R2"
+      ],
+      "args": [
+        [
+          {
+            "price": "73.96",
+            "quantity": 1
+          },
+          {
+            "price": "4.14",
+            "quantity": 1
+          },
+          {
+            "price": "21.90",
+            "quantity": 1
+          }
+        ]
+      ],
+      "assertion": {
+        "kind": "RETURN_EQUALS",
+        "expected": "80.00"
+      },
+      "expected_basis": "十进制精确和为 100.00，须优惠 20.00"
+    },
+    {
+      "case_id": "M07",
+      "requirement_ids": [
+        "R2"
+      ],
+      "args": [
+        [
+          {
+            "price": "200.00",
+            "quantity": 1
+          }
+        ]
+      ],
+      "assertion": {
+        "kind": "RETURN_EQUALS",
+        "expected": "180.00"
+      },
+      "expected_basis": "200.00 仍只优惠一次，减 20.00"
+    },
+    {
+      "case_id": "M08",
+      "requirement_ids": [
+        "R1",
+        "R3"
+      ],
+      "args": [
+        [
+          {
+            "price": "0.10",
+            "quantity": 3
+          }
+        ]
+      ],
+      "assertion": {
+        "kind": "RETURN_EQUALS",
+        "expected": "0.30"
+      },
+      "expected_basis": "0.10 × 3 = 0.30"
+    },
+    {
+      "case_id": "M09",
+      "requirement_ids": [
+        "R3"
+      ],
+      "args": [
+        [
+          {
+            "price": "0.00",
+            "quantity": 1
+          }
+        ]
+      ],
+      "assertion": {
+        "kind": "RETURN_EQUALS",
+        "expected": "0.00"
+      },
+      "expected_basis": "零金额按两位小数格式返回"
+    },
+    {
+      "case_id": "M10",
+      "requirement_ids": [
+        "R4"
+      ],
+      "args": [
+        [
+          {
+            "price": "73.96",
+            "quantity": 1
+          },
+          {
+            "price": "4.14",
+            "quantity": 1
+          },
+          {
+            "price": "21.90",
+            "quantity": 1
+          }
+        ]
+      ],
+      "assertion": {
+        "kind": "INPUT_UNCHANGED",
+        "targets": [
+          {
+            "kind": "ARG",
+            "index": 0
+          }
+        ]
+      },
+      "expected_basis": "独立保存输入快照，验证调用前后列表及嵌套记录完全相同"
+    },
+    {
+      "case_id": "M11",
+      "requirement_ids": [
+        "R1",
+        "R2"
+      ],
+      "args": [
+        [
+          {
+            "price": "49.05",
+            "quantity": 1
+          },
+          {
+            "price": "41.90",
+            "quantity": 1
+          },
+          {
+            "price": "9.05",
+            "quantity": 1
+          }
+        ]
+      ],
+      "assertion": {
+        "kind": "RETURN_EQUALS",
+        "expected": "80.00"
+      },
+      "expected_basis": "十进制精确和为 100.00；Docker Python 3.10 的 float 求和为 99.99999999999999，须保持满减资格"
+    }
+  ]
+}
