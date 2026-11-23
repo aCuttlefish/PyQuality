@@ -1,7 +1,9 @@
 uploads/
 __pycache__/
 *.pyc
-.pytest_cache/.env
+.pytest_cache/
+.env
+.venv/
 data/
 logs/
 .codeartsdoer/

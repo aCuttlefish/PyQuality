@@ -1,0 +1,29 @@
+{
+  "requirement": "实现 calculate_payable(items)。items 是商品字典列表，price 是最多两位小数的非负十进制金额字符串，quantity 是非负整数。按精确十进制金额计算总价，不能因二进制浮点误差改变优惠判断。总价达到或超过 100.00 元时减 20.00 元，每单只减一次；不足 100.00 元不优惠。返回恰好两位小数的金额字符串；空购物车返回 '0.00'。不得修改输入列表及商品字典。",
+  "generation_prompt": "帮我写一个 Python 函数 calculate_payable(items)，items 是商品字典列表，price 为金额字符串，quantity 为整数。先将每项 price 转成 float 乘以 quantity，逐项累加后判断是否满 100 元；满 100 减 20 元，每单只减一次。最后把应付金额格式化为两位小数字符串并返回。只用标准库，代码简洁。",
+  "code": "def calculate_payable(items):\n    total = sum(float(item['price']) * item['quantity'] for item in items)\n    if total >= 100:\n        total -= 20\n    return f\"{total:.2f}\"\n",
+  "supporting_files": [],
+  "entrypoint": {
+    "module": "solution",
+    "callable": "calculate_payable"
+  },
+  "generation_context": {
+    "is_complete": true,
+    "requirements_also_visible": false,
+    "additional_messages": []
+  },
+  "acceptance_materials": {
+    "trusted_examples": [],
+    "confirmed_spec_id": "STD-d82f1c9e27e44d0b9e2b904118b22c9f",
+    "confirmed_spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+    "approved_reference_id": null
+  },
+  "options": {
+    "oracle_policy": "confirmed_only",
+    "generate_repair_candidate": false,
+    "enable_property_testing": false,
+    "enable_crosshair": false,
+    "max_requirements": 20,
+    "max_cases": 40
+  }
+}

@@ -29,6 +29,8 @@ technical_constraints，不要把纯输入域或接口声明重复生成为必�
 每条区分 EXPLICIT、DERIVED、UNCLEAR，并保留原文与推导依据。
 不参考当前实现来补全业务规则。
 需求没有要求的防御性处理只可列为可选建议（mandatory=false）。
+不要把已有需求的自然推论（如“总个数为非负整数”）重复拆成新增必要需求；
+只有用户明确单独要求返回类型时才拆分类型约束。每项必要需求应对应独立业务行为。
 输出 requirements、input_domain、technical_constraints、
 unresolved_questions 以及建议的输入类别。
 

@@ -1,0 +1,82 @@
+[
+  {
+    "suggestion_id": "SUG-b3dbc269",
+    "finding_id": "CARD01",
+    "requirement_ids": [
+      "R1"
+    ],
+    "evidence_ids": [
+      "EV-dbb7eff541aa"
+    ],
+    "category": "CORRECTNESS_FIX",
+    "location": "upstream.py:3",
+    "trigger_condition": "{\"args\": [1, \"deck_count\"], \"kwargs\": {}}",
+    "expected": "52",
+    "actual": "{\"return_value\": 56, \"duration_ms\": 10.790229998747236, \"check_detail\": \"返回值 56 不等于期望 52\"}",
+    "explanation": "upstream.py 第 3 行 cards 列表以 1 开头，包含 1 至 10 共 10 个数字牌面，加上 Jack/Queen/King/Ace 共 14 种牌面，乘以 4 种花色得到 56 张牌。这同时违反 R1（52 张）和 R2（牌面为 2 至 10 等，无其他牌）。CARD01/CARD02/CARD03 的 deck_count 返回 56，CARD04 的 cards 返回包含 '1 of Clubs' 等 4 张非法牌。CARD05/CARD06/CARD07 已通过，说明发牌流程本身正确，修复牌面列表不会影响这些案例。",
+    "fix": "将 upstream.py 第 3 行的 cards 列表从 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, \"Jack\", \"Queen\", \"King\", \"Ace\"] 改为 [2, 3, 4, 5, 6, 7, 8, 9, 10, \"Jack\", \"Queen\", \"King\", \"Ace\"]，即删除数字 1。",
+    "regression_check": "复用已确认标准，重跑 CARD01 及全部固定案例",
+    "validation_status": "SYSTEM_FILLED",
+    "mode": "LLM"
+  },
+  {
+    "suggestion_id": "SUG-3ec04aa0",
+    "finding_id": "CARD02",
+    "requirement_ids": [
+      "R1"
+    ],
+    "evidence_ids": [
+      "EV-63361ca12e3c"
+    ],
+    "category": "CORRECTNESS_FIX",
+    "location": "solution.py:R1",
+    "trigger_condition": "{\"args\": [2, \"deck_count\"], \"kwargs\": {}}",
+    "expected": "52",
+    "actual": "{\"return_value\": 56, \"duration_ms\": 0.748660999306594, \"check_detail\": \"返回值 56 不等于期望 52\"}",
+    "explanation": "已确认缺陷：需求「初始牌组恰好包含 52 张牌。」在案例 CARD02 上失败",
+    "fix": "修改实现使 CARD02 通过：发牌不改变初始牌组的总张数",
+    "regression_check": "复用已确认标准，重跑 CARD02 及全部固定案例",
+    "validation_status": "SYSTEM_FILLED",
+    "mode": "RULE_FALLBACK"
+  },
+  {
+    "suggestion_id": "SUG-5a63d092",
+    "finding_id": "CARD03",
+    "requirement_ids": [
+      "R1"
+    ],
+    "evidence_ids": [
+      "EV-4a1ecdf2c25c"
+    ],
+    "category": "CORRECTNESS_FIX",
+    "location": "solution.py:R1",
+    "trigger_condition": "{\"args\": [7, \"deck_count\"], \"kwargs\": {}}",
+    "expected": "52",
+    "actual": "{\"return_value\": 56, \"duration_ms\": 0.840746999529074, \"check_detail\": \"返回值 56 不等于期望 52\"}",
+    "explanation": "已确认缺陷：需求「初始牌组恰好包含 52 张牌。」在案例 CARD03 上失败",
+    "fix": "修改实现使 CARD03 通过：7 人发出 49 张牌，剩余 3 张，合计 52",
+    "regression_check": "复用已确认标准，重跑 CARD03 及全部固定案例",
+    "validation_status": "SYSTEM_FILLED",
+    "mode": "RULE_FALLBACK"
+  },
+  {
+    "suggestion_id": "SUG-bcde4c4c",
+    "finding_id": "CARD04",
+    "requirement_ids": [
+      "R2"
+    ],
+    "evidence_ids": [
+      "EV-f9ec3d4764c9"
+    ],
+    "category": "CORRECTNESS_FIX",
+    "location": "solution.py:R2",
+    "trigger_condition": "{\"args\": [2, \"cards\"], \"kwargs\": {}}",
+    "expected": "[\"10 of Clubs\", \"10 of Diamonds\", \"10 of Hearts\", \"10 of Spades\", \"2 of Clubs\", \"2 of Diamonds\", \"2 of Hearts\", \"2 of Spades\", \"3 of Clubs\", \"3 of Diamonds\", \"3 of Hearts\", \"3 of Spades\", \"4 of Clubs\", \"4 of Diamonds\", \"4 of Hearts\", \"4 of Spades\", \"5 of Clubs\", \"5 of Diamonds\", \"5 of Hearts\", \"5 of Spades\", \"6 of Clubs\", \"6 of Diamonds\", \"6 of Hearts\", \"6 of Spades\", \"7 of Clubs\", \"7 of Diamonds\", \"7 of Hearts\", \"7 of Spades\", \"8 of Clubs\", \"8 of Diamonds\", \"8 of Hearts\", \"8 of Spades\", \"9 of Clubs\", \"9 of Diamonds\", \"9 of Hearts\", \"9 of Spades\", \"Ace of Clubs\", \"Ace of Diamonds\", \"Ace of Hearts\", \"Ace of Spades\", \"Jack of Clubs\", \"Jack of Diamonds\", \"Jack of Hearts\", \"Jack of Spades\", \"King of Clubs\", \"King of Diamonds\", \"King of Hearts\", \"King of Spades\", \"Queen of Clubs\", \"Queen of Diamonds\", \"Queen of Hearts\", \"Queen of Spades\"]",
+    "actual": "{\"return_value\": [\"1 of Clubs\", \"1 of Diamonds\", \"1 of Hearts\", \"1 of Spades\", \"10 of Clubs\", \"10 of Diamonds\", \"10 of Hearts\", \"10 of Spades\", \"2 of Clubs\", \"2 of Diamonds\", \"2 of Hearts\", \"2 of Spades\", \"3 of Clubs\", \"3 of Diamonds\", \"3 of Hearts\", \"3 of Spades\", \"4 of Clubs\", \"4 of Diamonds\", \"4 of Hearts\", \"4 of Spades\", \"5 of Clubs\", \"5 of Diamonds\", \"5 of Hearts\", \"5 of Spades\", \"6 of Clubs\", \"6 of Diamonds\", \"6 of Hearts\", \"6 of Spades\", \"7 of Clubs\", \"7 of Diamonds\", \"7 of Hearts\", \"7 of Spades\", \"8 of Clubs\", \"8 of Diamonds\", \"8 of Hearts\", \"8 of Spades\", \"9 of Clubs\", \"9 of Diamonds\", \"9 of Hearts\", \"9 of Spades\", \"Ace of Clubs\", \"Ace of Diamonds\", \"Ace of Hearts\", \"Ace of Spades\", \"Jack of Clubs\", \"Jack of Diamonds\", \"Jack of Hearts\", \"Jack of Spades\", \"King of Clubs\", \"King of Diamonds\", \"King of Hearts\", \"King of Spades\", \"Queen of Clubs\", \"Queen of Diamonds\", \"Queen of Hearts\", \"Queen of Spades\"], \"duration_ms\": 0.5015890001232037, \"check_detail\": \"返回值 ['1 of Clubs', '1 of Diamonds', '1 of Hearts', '1 of Spades', '10 of Clubs', '10 of Diamonds', '10 of Hearts', '10 of Spades', '2 of Clubs', '2 of Diamonds', '2 of Hearts', '2 of Spades', '3 of Clubs', '3 of Diamonds', '3 of Hearts', '3 of Spades', '4 of Clubs', '4 of Diamonds', '4 of Hearts', '4 of Spades', '5 of Clubs', '5 of Diamonds', '5 of Hearts', '5 of Spades', '6 of Clubs', '6 of Diamonds', '6 of Hearts', '6 of Spades', '7 of Clubs', '7 of Diamonds', '7 of Hearts', '7 of Spades', '8 of Clubs', '8 of Diamonds', '8 of Hearts', '8 of Spades', '9 of Clubs', '9 of Diamonds', '9 of Hearts', '9 of Spades', 'Ace of Clubs', 'Ace of Diamonds', 'Ace of Hearts', 'Ace of Spades', 'Jack of Clubs', 'Jack of Diamonds', 'Jack of Hearts', 'Jack of Spades', 'King of Clubs', 'King of Diamonds', 'King of Hearts', 'King of Spades', 'Queen of Clubs', 'Queen of Diamonds', 'Queen of Hearts', 'Queen of Spades'] 不等于期望 ['10 of Clubs', '10 of Diamonds', '10 of Hearts', '10 of Spades', '2 of Clubs', '2 of Diamonds', '2 of Hearts', '2 of Spades', '3 of Clubs', '3 of Diamonds', '3 of Hearts', '3 of Spades', '4 of Clubs', '4 of Diamonds', '4 of Hearts', '4 of Spades', '5 of Clubs', '5 of Diamonds', '5 of Hearts', '5 of Spades', '6 of Clubs', '6 of Diamonds', '6 of Hearts', '6 of Spades', '7 of Clubs', '7 of Diamonds', '7 of Hearts', '7 of Spades', '8 of Clubs', '8 of Diamonds', '8 of Hearts', '8 of Spades', '9 of Clubs', '9 of Diamonds', '9 of Hearts', '9 of Spades', 'Ace of Clubs', 'Ace of Diamonds', 'Ace of Hearts', 'Ace of Spades', 'Jack of Clubs', 'Jack of Diamonds', 'Jack of Hearts', 'Jack of Spades', 'King of Clubs', 'King of Diamonds', 'King of Hearts', 'King of Spades', 'Queen of Clubs', 'Queen of Diamonds', 'Queen of Hearts', 'Queen of Spades']\"}",
+    "explanation": "已确认缺陷：需求「牌面为 2 至 10、Jack、Queen、King、Ace，每种牌面各有 Clubs、Diamonds、Hearts、Spades 四种花色，无其他牌。」在案例 CARD04 上失败",
+    "fix": "修改实现使 CARD04 通过：独立构造标准 13 牌面与 4 花色的笛卡尔积；完整比较 52 张牌",
+    "regression_check": "复用已确认标准，重跑 CARD04 及全部固定案例",
+    "validation_status": "SYSTEM_FILLED",
+    "mode": "RULE_FALLBACK"
+  }
+]

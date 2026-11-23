@@ -1,0 +1,886 @@
+{
+  "schema_version": "1.0",
+  "evaluation_id": "EVAL-3dafcdb6c1e6",
+  "created_at": 1794736255.2073083,
+  "job_status": "COMPLETED",
+  "code_verdict": "PASS_WITHIN_SCOPE",
+  "assurance_level": "TESTED",
+  "spec_interpretation": "USER_CONFIRMED",
+  "summary": "按当前需求解读，本轮检查通过（范围内已认可检查全部执行且通过）。",
+  "requirement_results": [
+    {
+      "requirement_id": "R1",
+      "statement": "count_vowels(text) 返回输入字符串中英文字母元音 a、e、i、o、u 的总个数。",
+      "status": "PASS_WITHIN_SCOPE",
+      "evidence_ids": [
+        "EV-dc629aec340a",
+        "EV-6acb22b53527",
+        "EV-d5a98cbc71fe"
+      ],
+      "failed_case_ids": [],
+      "explanation": "",
+      "assurance": "NONE",
+      "code_location": "solution.py:count_vowels",
+      "uncovered_scope": "本轮通过 3 个认可案例；未穷尽输入域，不保证未测试输入",
+      "blocked_source": ""
+    },
+    {
+      "requirement_id": "R2",
+      "statement": "元音统计不区分大小写，即大写 A、E、I、O、U 也计入总数。",
+      "status": "PASS_WITHIN_SCOPE",
+      "evidence_ids": [
+        "EV-131609d8eda1",
+        "EV-d10d909e48ee"
+      ],
+      "failed_case_ids": [],
+      "explanation": "",
+      "assurance": "NONE",
+      "code_location": "solution.py:count_vowels",
+      "uncovered_scope": "本轮通过 2 个认可案例；未穷尽输入域，不保证未测试输入",
+      "blocked_source": ""
+    },
+    {
+      "requirement_id": "R3",
+      "statement": "输入为空字符串时返回 0。",
+      "status": "PASS_WITHIN_SCOPE",
+      "evidence_ids": [
+        "EV-0ba48e1ef018"
+      ],
+      "failed_case_ids": [],
+      "explanation": "",
+      "assurance": "NONE",
+      "code_location": "solution.py:count_vowels",
+      "uncovered_scope": "本轮通过 1 个认可案例；未穷尽输入域，不保证未测试输入",
+      "blocked_source": ""
+    },
+    {
+      "requirement_id": "R4",
+      "statement": "统计时忽略非元音的其他字符（包括非英文字母字符）。",
+      "status": "PASS_WITHIN_SCOPE",
+      "evidence_ids": [
+        "EV-36123dc8c305",
+        "EV-9171c2dd3d39",
+        "EV-646da1f9ec54",
+        "EV-1c51da99926f"
+      ],
+      "failed_case_ids": [],
+      "explanation": "",
+      "assurance": "NONE",
+      "code_location": "solution.py:count_vowels",
+      "uncovered_scope": "本轮通过 4 个认可案例；未穷尽输入域，不保证未测试输入",
+      "blocked_source": ""
+    }
+  ],
+  "prompt_report": {
+    "mappings": [
+      {
+        "requirement_id": "R1",
+        "status": "COVERED",
+        "requirement_quote": "count_vowels(text) 返回输入字符串中英文字母元音 a、e、i、o、u 的总个数。",
+        "prompt_quote": "用 Python 实现 count_vowels(text)，只统计小写 aeiou 的出现次数。",
+        "explanation": "提示词明确要求实现 count_vowels(text) 并统计 aeiou 的出现次数，覆盖了函数名、输入参数和统计目标。"
+      },
+      {
+        "requirement_id": "R2",
+        "status": "CONFLICT",
+        "requirement_quote": "元音统计不区分大小写，即大写 A、E、I、O、U 也计入总数。",
+        "prompt_quote": "只统计小写 aeiou 的出现次数。",
+        "explanation": "提示词限定“只统计小写 aeiou”，与需求要求不区分大小写、大写元音也计入总数直接冲突。"
+      },
+      {
+        "requirement_id": "R3",
+        "status": "MISSING_FROM_VISIBLE_PROMPT",
+        "requirement_quote": "输入为空字符串时返回 0。",
+        "prompt_quote": "",
+        "explanation": "当前可见提示词中未体现空字符串返回 0 的要求；是否为真实遗漏取决于原生成上下文是否包含该要求。"
+      },
+      {
+        "requirement_id": "R4",
+        "status": "MISSING_FROM_VISIBLE_PROMPT",
+        "requirement_quote": "统计时忽略非元音的其他字符（包括非英文字母字符）。",
+        "prompt_quote": "",
+        "explanation": "当前可见提示词中未体现忽略非元音其他字符的要求；是否为真实遗漏取决于原生成上下文是否包含该要求。"
+      }
+    ],
+    "extra_requirements": [
+      {
+        "content": "用 Python 实现",
+        "kind": "TECHNICAL",
+        "needs_user_confirmation": false
+      }
+    ],
+    "optimized_prompt": "用 Python 实现 count_vowels(text)，返回输入字符串中英文字母元音 a、e、i、o、u 的总个数。统计不区分大小写，大写 A、E、I、O、U 也计入总数。输入为空字符串时返回 0。统计时忽略非元音的其他字符（包括非英文字母字符）。",
+    "changes": [
+      {
+        "before": "只统计小写 aeiou 的出现次数。",
+        "after": "返回输入字符串中英文字母元音 a、e、i、o、u 的总个数。统计不区分大小写，大写 A、E、I、O、U 也计入总数。",
+        "requirement_id": "R2",
+        "reason": "原提示词“只统计小写”与 R2 不区分大小写的要求冲突，改为明确大小写均计入。"
+      },
+      {
+        "before": "",
+        "after": "输入为空字符串时返回 0。",
+        "requirement_id": "R3",
+        "reason": "可见提示词未体现空字符串返回 0 的要求，补充该明确需求。"
+      },
+      {
+        "before": "",
+        "after": "统计时忽略非元音的其他字符（包括非英文字母字符）。",
+        "requirement_id": "R4",
+        "reason": "可见提示词未体现忽略非元音其他字符的要求，补充该明确需求。"
+      }
+    ],
+    "unresolved_questions": [
+      "原生成上下文是否已包含 R3（空字符串返回 0）和 R4（忽略非元音其他字符）的完整要求？若已包含，则当前可见提示词中的缺失不构成真实遗漏。"
+    ],
+    "optimization_validation": "NOT_EVALUATED",
+    "mode": "LLM",
+    "prompt_code_relation": [
+      {
+        "requirement_id": "R1",
+        "prompt_status": "COVERED",
+        "code_status": "PASS_WITHIN_SCOPE",
+        "relation": "NO_OBSERVED_RELATION"
+      },
+      {
+        "requirement_id": "R2",
+        "prompt_status": "CONFLICT",
+        "code_status": "PASS_WITHIN_SCOPE",
+        "relation": "PROMPT_ISSUE_BUT_CODE_PASSES"
+      },
+      {
+        "requirement_id": "R3",
+        "prompt_status": "MISSING_FROM_VISIBLE_PROMPT",
+        "code_status": "PASS_WITHIN_SCOPE",
+        "relation": "PROMPT_ISSUE_BUT_CODE_PASSES"
+      },
+      {
+        "requirement_id": "R4",
+        "prompt_status": "MISSING_FROM_VISIBLE_PROMPT",
+        "code_status": "PASS_WITHIN_SCOPE",
+        "relation": "PROMPT_ISSUE_BUT_CODE_PASSES"
+      }
+    ]
+  },
+  "code_suggestions": [],
+  "repair_candidate": null,
+  "evidence": [
+    {
+      "evidence_id": "EV-dc629aec340a",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "4b2927da8265f80c5b3d431f18b49bc1b75382a5712df34120181852fd6031c2",
+      "spec_hash": "7cba56760201de3ce097e526f30458383ac721f03a132a2432d1778a3abbae38",
+      "plan_hash": "a35995095eb3cca94fef4480ea78c2cc596b28005c2e4239e2c6635861e8c985",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T_R1_01",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 2,
+        "duration_ms": 29.8288680000951
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-3dafcdb6c1e6\\evidence-results.json"
+      ],
+      "duration_ms": 29.8288680000951,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-6acb22b53527",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "4b2927da8265f80c5b3d431f18b49bc1b75382a5712df34120181852fd6031c2",
+      "spec_hash": "7cba56760201de3ce097e526f30458383ac721f03a132a2432d1778a3abbae38",
+      "plan_hash": "a35995095eb3cca94fef4480ea78c2cc596b28005c2e4239e2c6635861e8c985",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T_R1_02",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 3,
+        "duration_ms": 0.004127000011067139
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-3dafcdb6c1e6\\evidence-results.json"
+      ],
+      "duration_ms": 0.004127000011067139,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-d5a98cbc71fe",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "4b2927da8265f80c5b3d431f18b49bc1b75382a5712df34120181852fd6031c2",
+      "spec_hash": "7cba56760201de3ce097e526f30458383ac721f03a132a2432d1778a3abbae38",
+      "plan_hash": "a35995095eb3cca94fef4480ea78c2cc596b28005c2e4239e2c6635861e8c985",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T_R1_03",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 1,
+        "duration_ms": 0.0014979998468334088
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-3dafcdb6c1e6\\evidence-results.json"
+      ],
+      "duration_ms": 0.0014979998468334088,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-131609d8eda1",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "4b2927da8265f80c5b3d431f18b49bc1b75382a5712df34120181852fd6031c2",
+      "spec_hash": "7cba56760201de3ce097e526f30458383ac721f03a132a2432d1778a3abbae38",
+      "plan_hash": "a35995095eb3cca94fef4480ea78c2cc596b28005c2e4239e2c6635861e8c985",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T_R2_01",
+      "requirement_ids": [
+        "R2"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 5,
+        "duration_ms": 0.0016510000477865105
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-3dafcdb6c1e6\\evidence-results.json"
+      ],
+      "duration_ms": 0.0016510000477865105,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-d10d909e48ee",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "4b2927da8265f80c5b3d431f18b49bc1b75382a5712df34120181852fd6031c2",
+      "spec_hash": "7cba56760201de3ce097e526f30458383ac721f03a132a2432d1778a3abbae38",
+      "plan_hash": "a35995095eb3cca94fef4480ea78c2cc596b28005c2e4239e2c6635861e8c985",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T_R2_02",
+      "requirement_ids": [
+        "R2"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 3,
+        "duration_ms": 0.0018440000530972611
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-3dafcdb6c1e6\\evidence-results.json"
+      ],
+      "duration_ms": 0.0018440000530972611,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-0ba48e1ef018",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "4b2927da8265f80c5b3d431f18b49bc1b75382a5712df34120181852fd6031c2",
+      "spec_hash": "7cba56760201de3ce097e526f30458383ac721f03a132a2432d1778a3abbae38",
+      "plan_hash": "a35995095eb3cca94fef4480ea78c2cc596b28005c2e4239e2c6635861e8c985",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T_R3_01",
+      "requirement_ids": [
+        "R3"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 0,
+        "duration_ms": 0.0010100000054080738
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-3dafcdb6c1e6\\evidence-results.json"
+      ],
+      "duration_ms": 0.0010100000054080738,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-36123dc8c305",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "4b2927da8265f80c5b3d431f18b49bc1b75382a5712df34120181852fd6031c2",
+      "spec_hash": "7cba56760201de3ce097e526f30458383ac721f03a132a2432d1778a3abbae38",
+      "plan_hash": "a35995095eb3cca94fef4480ea78c2cc596b28005c2e4239e2c6635861e8c985",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T_R4_01",
+      "requirement_ids": [
+        "R4"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 1,
+        "duration_ms": 0.0017029999526130268
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-3dafcdb6c1e6\\evidence-results.json"
+      ],
+      "duration_ms": 0.0017029999526130268,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-9171c2dd3d39",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "4b2927da8265f80c5b3d431f18b49bc1b75382a5712df34120181852fd6031c2",
+      "spec_hash": "7cba56760201de3ce097e526f30458383ac721f03a132a2432d1778a3abbae38",
+      "plan_hash": "a35995095eb3cca94fef4480ea78c2cc596b28005c2e4239e2c6635861e8c985",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T_R4_02",
+      "requirement_ids": [
+        "R4"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 0,
+        "duration_ms": 0.001647999852139037
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-3dafcdb6c1e6\\evidence-results.json"
+      ],
+      "duration_ms": 0.001647999852139037,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-646da1f9ec54",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "4b2927da8265f80c5b3d431f18b49bc1b75382a5712df34120181852fd6031c2",
+      "spec_hash": "7cba56760201de3ce097e526f30458383ac721f03a132a2432d1778a3abbae38",
+      "plan_hash": "a35995095eb3cca94fef4480ea78c2cc596b28005c2e4239e2c6635861e8c985",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T_R4_03",
+      "requirement_ids": [
+        "R4"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 0,
+        "duration_ms": 0.0012909999895782676
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-3dafcdb6c1e6\\evidence-results.json"
+      ],
+      "duration_ms": 0.0012909999895782676,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-1c51da99926f",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "4b2927da8265f80c5b3d431f18b49bc1b75382a5712df34120181852fd6031c2",
+      "spec_hash": "7cba56760201de3ce097e526f30458383ac721f03a132a2432d1778a3abbae38",
+      "plan_hash": "a35995095eb3cca94fef4480ea78c2cc596b28005c2e4239e2c6635861e8c985",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "U_UNICODE",
+      "requirement_ids": [
+        "R4"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 0,
+        "duration_ms": 0.0014059999102755683
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-3dafcdb6c1e6\\evidence-results.json"
+      ],
+      "duration_ms": 0.0014059999102755683,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    }
+  ],
+  "coverage": {
+    "mandatory_requirements": 4,
+    "requirements_checked": 4,
+    "cases_planned": 10,
+    "cases_executed": 10,
+    "cases_passed": 10,
+    "cases_failed": 0
+  },
+  "blockers": [],
+  "limitations": [
+    "MVP 未对任意 Python 与任意自然语言需求提供普遍正确性证明",
+    "容器隔离（非特权/无网络/只读根/资源限额）：不等于抵御所有恶意代码的完备安全边界",
+    "输入不变检查不检测『先修改再恢复』的瞬时写入",
+    "本轮仅验证已确认的固定测试案例；不保证未测试输入与输入域外行为。"
+  ],
+  "stage_results": [
+    {
+      "stage": "A_input_and_compile",
+      "status": "COMPLETED",
+      "detail": "编译检查通过",
+      "duration_ms": 0.8010999881662428
+    },
+    {
+      "stage": "B_spec",
+      "status": "COMPLETED",
+      "detail": "规格模式 USER_STANDARD，interpretation=USER_CONFIRMED",
+      "duration_ms": null
+    },
+    {
+      "stage": "E_execute",
+      "status": "COMPLETED",
+      "detail": "10 条案例证据",
+      "duration_ms": null
+    },
+    {
+      "stage": "F_prompt_audit",
+      "status": "COMPLETED",
+      "detail": "mode=LLM",
+      "duration_ms": null
+    },
+    {
+      "stage": "F_suggestions",
+      "status": "COMPLETED",
+      "detail": "0 条建议",
+      "duration_ms": null
+    }
+  ],
+  "reproducibility": {
+    "code_hash": "4b2927da8265f80c5b3d431f18b49bc1b75382a5712df34120181852fd6031c2",
+    "spec_hash": "7cba56760201de3ce097e526f30458383ac721f03a132a2432d1778a3abbae38",
+    "plan_hash": "a35995095eb3cca94fef4480ea78c2cc596b28005c2e4239e2c6635861e8c985",
+    "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+    "request_hash": "df944915553e369b065dfe54ac492ece4ec8ec5c3fc17ec34c64e29aaba64bfa"
+  },
+  "isolation_level": "DOCKER",
+  "acceptance_standard_id": "STD-857f6ac944794bd8a7a843cbd8418032",
+  "canonical_spec": {
+    "spec_id": "STD-857f6ac944794bd8a7a843cbd8418032",
+    "spec_hash": "7cba56760201de3ce097e526f30458383ac721f03a132a2432d1778a3abbae38",
+    "revision": 1,
+    "interpretation_status": "USER_CONFIRMED",
+    "requirements": [
+      {
+        "id": "R1",
+        "statement": "count_vowels(text) 返回输入字符串中英文字母元音 a、e、i、o、u 的总个数。",
+        "kind": "FUNCTIONAL",
+        "mandatory": true,
+        "origin": "EXPLICIT",
+        "source_quote": "返回其中英文字母元音 a、e、i、o、u 的总个数",
+        "source_start": null,
+        "source_end": null,
+        "acceptance_intent": "对任意字符串输入，统计其中属于集合 {a,e,i,o,u} 的字符数量并返回该整数。",
+        "unresolved_questions": [],
+        "derivation_basis": ""
+      },
+      {
+        "id": "R2",
+        "statement": "元音统计不区分大小写，即大写 A、E、I、O、U 也计入总数。",
+        "kind": "FUNCTIONAL",
+        "mandatory": true,
+        "origin": "EXPLICIT",
+        "source_quote": "不区分大小写",
+        "source_start": null,
+        "source_end": null,
+        "acceptance_intent": "输入包含大写元音时，其数量应被计入返回的总个数。",
+        "unresolved_questions": [],
+        "derivation_basis": ""
+      },
+      {
+        "id": "R3",
+        "statement": "输入为空字符串时返回 0。",
+        "kind": "FUNCTIONAL",
+        "mandatory": true,
+        "origin": "EXPLICIT",
+        "source_quote": "空字符串返回 0",
+        "source_start": null,
+        "source_end": null,
+        "acceptance_intent": "调用 count_vowels(\"\") 应返回整数 0。",
+        "unresolved_questions": [],
+        "derivation_basis": ""
+      },
+      {
+        "id": "R4",
+        "statement": "统计时忽略非元音的其他字符（包括非英文字母字符）。",
+        "kind": "FUNCTIONAL",
+        "mandatory": true,
+        "origin": "EXPLICIT",
+        "source_quote": "忽略其他字符",
+        "source_start": null,
+        "source_end": null,
+        "acceptance_intent": "输入中除 a/e/i/o/u（含大小写）以外的字符不影响返回的总个数。",
+        "unresolved_questions": [],
+        "derivation_basis": ""
+      }
+    ],
+    "input_domain": [
+      {
+        "description": "输入参数 text 为字符串类型。",
+        "source_quote": "输入为字符串",
+        "origin": "EXPLICIT"
+      }
+    ],
+    "technical_constraints": [
+      "模块名：solution",
+      "可调用对象名：count_vowels",
+      "参数签名：count_vowels(text)"
+    ],
+    "unresolved_questions": [],
+    "limitations": [
+      "本轮仅验证已确认的固定测试案例；不保证未测试输入与输入域外行为。"
+    ],
+    "requirement_text_digest": "实现 count_vowels(text)，输入为字符串，返回其中英文字母元音 a、e、i、o、u 的总个数，不区分大小写；空字符串返回 0；忽略其他字符。"
+  },
+  "test_plan": {
+    "plan_id": "PLAN-AUTO",
+    "plan_hash": "a35995095eb3cca94fef4480ea78c2cc596b28005c2e4239e2c6635861e8c985",
+    "revision": 1,
+    "contracts": [
+      {
+        "contract_id": "K_R1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "description": "统计指定输入中英文字母元音的总个数",
+        "input_domain_ref": "text 为字符串，含空字符串",
+        "representation": "RETURN_EQUALS",
+        "relation_to_requirement": "NECESSARY",
+        "relation_basis": "R1 明确要求返回元音总个数，返回值等于预期计数是必要条件。",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "7cba56760201de3ce097e526f30458383ac721f03a132a2432d1778a3abbae38",
+        "coverage_note": "仅覆盖小写元音混合非元音字符的典型输入，不穷尽所有字符串。"
+      },
+      {
+        "contract_id": "K_R1_TYPE",
+        "requirement_ids": [
+          "R1"
+        ],
+        "description": "返回值类型为整数。",
+        "input_domain_ref": "text 为字符串，含空字符串",
+        "representation": "RETURN_TYPE",
+        "relation_to_requirement": "NECESSARY",
+        "relation_basis": "R1 要求返回总个数，计数结果应为整数。",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "7cba56760201de3ce097e526f30458383ac721f03a132a2432d1778a3abbae38",
+        "coverage_note": "检查返回类型，不验证具体数值。"
+      },
+      {
+        "contract_id": "K_R2",
+        "requirement_ids": [
+          "R2"
+        ],
+        "description": "大写元音 A、E、I、O、U 也计入总数，统计不区分大小写。",
+        "input_domain_ref": "text 为字符串，含空字符串",
+        "representation": "RETURN_EQUALS",
+        "relation_to_requirement": "NECESSARY",
+        "relation_basis": "R2 明确要求大写元音计入总数，返回值应包含大写元音计数。",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "7cba56760201de3ce097e526f30458383ac721f03a132a2432d1778a3abbae38",
+        "coverage_note": "覆盖全大写元音及大小写混合输入，不穷尽所有大小写组合。"
+      },
+      {
+        "contract_id": "K_R3",
+        "requirement_ids": [
+          "R3"
+        ],
+        "description": "输入空字符串时返回整数 0。",
+        "input_domain_ref": "text 为字符串，含空字符串",
+        "representation": "RETURN_EQUALS",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "R3 直接规定 count_vowels(\"\") 返回 0，返回值等于 0 即满足该条。",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "7cba56760201de3ce097e526f30458383ac721f03a132a2432d1778a3abbae38",
+        "coverage_note": "仅覆盖空字符串边界。"
+      },
+      {
+        "contract_id": "K_R4",
+        "requirement_ids": [
+          "R4"
+        ],
+        "description": "非元音字符（包括非英文字母字符）不影响返回的总个数。",
+        "input_domain_ref": "text 为字符串，含空字符串",
+        "representation": "RETURN_EQUALS",
+        "relation_to_requirement": "NECESSARY",
+        "relation_basis": "R4 要求忽略其他字符，返回值应只统计元音。",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "7cba56760201de3ce097e526f30458383ac721f03a132a2432d1778a3abbae38",
+        "coverage_note": "覆盖数字、标点、空格、非英文字母等字符，不穷尽所有非元音字符。"
+      },
+      {
+        "contract_id": "K_USER_SCOPE_6",
+        "requirement_ids": [
+          "R1"
+        ],
+        "description": "用户认可的固定案例范围：count_vowels(text) 返回输入字符串中英文字母元音 a、e、i、o、u 的总个数。",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "用户显式选择以这些固定输入的完整预期输出为本轮标准；未测试输入不作结论",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "7cba56760201de3ce097e526f30458383ac721f03a132a2432d1778a3abbae38",
+        "coverage_note": "本轮仅验证已确认的固定测试案例；不保证未测试输入与输入域外行为。"
+      },
+      {
+        "contract_id": "K_USER_SCOPE_7",
+        "requirement_ids": [
+          "R2"
+        ],
+        "description": "用户认可的固定案例范围：元音统计不区分大小写，即大写 A、E、I、O、U 也计入总数。",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "用户显式选择以这些固定输入的完整预期输出为本轮标准；未测试输入不作结论",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "7cba56760201de3ce097e526f30458383ac721f03a132a2432d1778a3abbae38",
+        "coverage_note": "本轮仅验证已确认的固定测试案例；不保证未测试输入与输入域外行为。"
+      },
+      {
+        "contract_id": "K_USER_SCOPE_8",
+        "requirement_ids": [
+          "R4"
+        ],
+        "description": "用户认可的固定案例范围：统计时忽略非元音的其他字符（包括非英文字母字符）。",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "用户显式选择以这些固定输入的完整预期输出为本轮标准；未测试输入不作结论",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "7cba56760201de3ce097e526f30458383ac721f03a132a2432d1778a3abbae38",
+        "coverage_note": "本轮仅验证已确认的固定测试案例；不保证未测试输入与输入域外行为。"
+      }
+    ],
+    "cases": [
+      {
+        "case_id": "T_R1_01",
+        "contract_id": "K_USER_SCOPE_6",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "NORMAL",
+        "args": [
+          "hello"
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 2
+        },
+        "expected_basis": "R1：'hello' 中元音为 e、o，共 2 个。",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T_R1_02",
+        "contract_id": "K_USER_SCOPE_6",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "NORMAL",
+        "args": [
+          "programming"
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 3
+        },
+        "expected_basis": "R1：'programming' 中元音为 o、a、i，共 3 个。",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T_R1_03",
+        "contract_id": "K_R1_TYPE",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "NORMAL",
+        "args": [
+          "abc"
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_TYPE",
+          "expected_type": "int"
+        },
+        "expected_basis": "R1：返回总个数，类型应为整数。",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T_R2_01",
+        "contract_id": "K_USER_SCOPE_7",
+        "requirement_ids": [
+          "R2"
+        ],
+        "category": "NORMAL",
+        "args": [
+          "AEIOU"
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 5
+        },
+        "expected_basis": "R2：大写元音 A、E、I、O、U 均计入，共 5 个。",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T_R2_02",
+        "contract_id": "K_USER_SCOPE_7",
+        "requirement_ids": [
+          "R2"
+        ],
+        "category": "NORMAL",
+        "args": [
+          "Hello World"
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 3
+        },
+        "expected_basis": "R2：'Hello World' 中元音为 e、o、o（含大小写），共 3 个。",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T_R3_01",
+        "contract_id": "K_R3",
+        "requirement_ids": [
+          "R3"
+        ],
+        "category": "EMPTY",
+        "args": [
+          ""
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 0
+        },
+        "expected_basis": "R3：空字符串返回 0。",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T_R4_01",
+        "contract_id": "K_USER_SCOPE_8",
+        "requirement_ids": [
+          "R4"
+        ],
+        "category": "NORMAL",
+        "args": [
+          "a1b2c3!"
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 1
+        },
+        "expected_basis": "R4：数字和标点被忽略，仅 'a' 为元音，共 1 个。",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T_R4_02",
+        "contract_id": "K_USER_SCOPE_8",
+        "requirement_ids": [
+          "R4"
+        ],
+        "category": "NORMAL",
+        "args": [
+          "中文测试"
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 0
+        },
+        "expected_basis": "R4：非英文字母字符被忽略，无元音，返回 0。",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T_R4_03",
+        "contract_id": "K_USER_SCOPE_8",
+        "requirement_ids": [
+          "R4"
+        ],
+        "category": "NORMAL",
+        "args": [
+          "bcdfg"
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 0
+        },
+        "expected_basis": "R4：无元音字符，返回 0。",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "U_UNICODE",
+        "contract_id": "K_USER_SCOPE_8",
+        "requirement_ids": [
+          "R4"
+        ],
+        "category": "",
+        "args": [
+          "İıéÉ"
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 0
+        },
+        "expected_basis": "仅统计英文字母 aeiouAEIOU；其他字符不计数",
+        "input_domain_status": "IN_SCOPE"
+      }
+    ],
+    "coverage_notes": [
+      "已覆盖 R1 基本计数、R2 大小写不敏感、R3 空字符串边界、R4 忽略非元音字符。",
+      "未穷尽所有字符串输入域，例如长字符串、重复元音、混合大小写与非字母字符的组合未全部覆盖。",
+      "未覆盖非字符串输入（如 None、整数）的行为，需求未明确此类输入的处理方式，未生成断言。",
+      "未验证输入参数是否被修改（R1-R4 未要求副作用），故未生成 INPUT_UNCHANGED 案例。"
+    ]
+  },
+  "quality_report": {
+    "status": "CLEAN",
+    "readability_score": 100.0,
+    "readability_grade": "A",
+    "findings": [],
+    "criteria": "高严重度安全问题需人工审查；其他静态问题给出改进建议，不替代功能测试。"
+  },
+  "usability": "USABLE_WITHIN_SCOPE",
+  "next_actions": [
+    "复制改进提示词生成新代码，再用当前确认标准评估；建议效果尚未验证"
+  ]
+}

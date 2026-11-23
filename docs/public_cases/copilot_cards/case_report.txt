@@ -1,0 +1,40 @@
+公开案例：声称 52 张的扑克牌程序实际生成 56 张
+
+源码：https://github.com/Soneji/copilot-demos/blob/2f9edf5216f11c0f958d7370a862a82f1b72c3c4/cards.py
+AI 来源：https://github.com/Soneji/copilot-demos/blob/2f9edf5216f11c0f958d7370a862a82f1b72c3c4/README.md
+来源说明：作者在 README 声明这是 GitHub Copilot 编写的代码；来源为作者自述，没有逐行生成日志。
+提交时间：2021-09-25T01:27:42Z
+Git blob：a3ef6a56a439e3702a5558495a0f9920081ea009
+SHA-256：8f4b47b3890eaf0887eb3bde4faf7890a559b2230a1b9dc0f985699079dbaf39
+
+原程序任务：源文件开头注释要求生成全部 52 张牌；后文注释要求给每名玩家发 7 张互不重复的牌。
+缺陷：原程序同时把 1 和 Ace 列为不同牌面，14 种牌面乘 4 种花色得到 56 张。程序能运行并发牌，但结果违反注释声明。
+
+核对后的原代码位置：cards.py:3
+
+实验方法：完整上游文件不改动，以辅助文件原样运行。适配器只模拟交互并观察状态，或直接转发函数调用。预期牌组由本次实验操作者独立构造，使用 13 种牌面与 4 种花色的笛卡尔积。
+
+测试环境：DOCKER
+同一计划：True
+同一适配器：True
+计划哈希：7e40c0d6584fb82a25c1cd8e508b73da42d16666e36decb3e95c0227a04ae501
+
+CARD01 | 输入 [1, 'deck_count'] | 预期 52 | 原程序 ASSERTION_FAILED | 修复后 PASSED
+CARD02 | 输入 [2, 'deck_count'] | 预期 52 | 原程序 ASSERTION_FAILED | 修复后 PASSED
+CARD03 | 输入 [7, 'deck_count'] | 预期 52 | 原程序 ASSERTION_FAILED | 修复后 PASSED
+CARD04 | 输入 [2, 'cards'] | 预期 ["10 of Clubs", "10 of Diamonds", "10 of Hearts", "10 of Spades", "2 of Clubs", "2 of Diamonds", "2 of Hearts", "2 of Spades", "3 of Clubs", "3 of Diamonds", "3 of Hearts", "3 of Spades", "4 of Clubs", "4 of Diamonds", "4 of Hearts", "4 of Spades", "5 of Clubs", "5 of Diamonds", "5 of Hearts", "5 of Spades", "6 of Clubs", "6 of Diamonds", "6 of Hearts", "6 of Spades", "7 of Clubs", "7 of Diamonds", "7 of Hearts", "7 of Spades", "8 of Clubs", "8 of Diamonds", "8 of Hearts", "8 of Spades", "9 of Clubs", "9 of Diamonds", "9 of Hearts", "9 of Spades", "Ace of Clubs", "Ace of Diamonds", "Ace of Hearts", "Ace of Spades", "Jack of Clubs", "Jack of Diamonds", "Jack of Hearts", "Jack of Spades", "King of Clubs", "King of Diamonds", "King of Hearts", "King of Spades", "Queen of Clubs", "Queen of Diamonds", "Queen of Hearts", "Queen of Spades"] | 原程序 ASSERTION_FAILED | 修复后 PASSED
+CARD05 | 输入 [2, 'hand_sizes'] | 预期 [7, 7] | 原程序 PASSED | 修复后 PASSED
+CARD06 | 输入 [4, 'hand_sizes'] | 预期 [7, 7, 7, 7] | 原程序 PASSED | 修复后 PASSED
+CARD07 | 输入 [7, 'dealt_unique'] | 预期 true | 原程序 PASSED | 修复后 PASSED
+
+原程序判定：FAIL；通过 3/7。
+修复后判定：PASS_WITHIN_SCOPE；通过 7/7。
+修复方法：操作者仅删除牌面列表开头多余的数字 1，保留 Ace，形成 13 种牌面。
+修改由操作者实施；完整模型建议及失败证据见 initial_report.json 和 code_advice.json。--replay 关闭模型调用，因此建议降级为规则模式，功能测试仍在 Docker 实际运行。
+
+结论范围：七项固定检查，玩家数 1、2、4、7；仅验收标准牌组与每人七张发牌，不验收完整游戏规则、随机性或安全性。
+真实性边界：这是公开 AI 辅助示例项目中的真实代码缺陷，不声称已发生生产事故。原始提示词未知，不将空字段或注释冒充生成日志；未验证新提示词对重新生成成功率的提升。
+
+复现命令（仓库根目录，需要 Docker）：
+.\.venv\Scripts\python.exe scripts\run_more_public_cases.py --replay --case copilot_cards
+结果写入 data/more_public_cases_replay，不覆盖 docs 中的模型报告。首次无源码缓存时需联网下载固定提交；缓存后可断网复现功能测试。

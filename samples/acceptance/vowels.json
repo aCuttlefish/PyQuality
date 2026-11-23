@@ -1,0 +1,18 @@
+{
+  "id": "vowels",
+  "title": "元音统计：提示词漏写大小写要求",
+  "requirement": "实现 count_vowels(text)，输入为字符串，返回其中英文字母元音 a、e、i、o、u 的总个数，不区分大小写；空字符串返回 0；忽略其他字符。",
+  "generation_prompt": "用 Python 实现 count_vowels(text)，只统计小写 aeiou 的出现次数。",
+  "code": "def count_vowels(text):\n    return sum(ch in 'aeiou' for ch in text)\n",
+  "correct_code": "def count_vowels(text):\n    \"\"\"统计英文字母元音，包含大小写，忽略其他字符。\"\"\"\n    return sum(ch in 'aeiouAEIOU' for ch in text)\n",
+  "entrypoint": {"module": "solution", "callable": "count_vowels"},
+  "examples": [
+    {"args": ["aeiou"], "expected": 5, "note": "五个小写元音各计一次"},
+    {"args": ["AEIOU"], "expected": 5, "note": "五个大写元音各计一次"},
+    {"args": ["Hello WORLD"], "expected": 3, "note": "e、o、O，共三个元音"},
+    {"args": [""], "expected": 0, "note": "空字符串返回零"},
+    {"args": ["123!?中文"], "expected": 0, "note": "其他字符不计入"},
+    {"args": ["aaAA"], "expected": 4, "note": "重复字符按出现次数计数"},
+    {"args": ["İıéÉ"], "expected": 0, "note": "仅统计英文字母本身，不将其他字符转换成元音"}
+  ]
+}

@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
     logger.info("PyQuality 服务关闭")
 
 
-app = FastAPI(title="Python 代码质量检测平台", version="2.0.0", lifespan=lifespan)
+app = FastAPI(title="Python 代码质量检测与验收平台", version="4.3.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -60,7 +60,7 @@ app.include_router(acceptance.router)
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "service": "python-code-quality", "version": "2.0.0", "status": "running"}
+    return {"ok": True, "service": "python-code-quality", "version": "4.3.0", "status": "running"}
 
 
 if FRONTEND_DIR.exists():

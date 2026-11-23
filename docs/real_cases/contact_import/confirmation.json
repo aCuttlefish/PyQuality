@@ -1,0 +1,628 @@
+{
+  "ok": true,
+  "confirmed_spec_id": "STD-bbd9dec8b9cb4b9c9938a32c86a87013",
+  "confirmed_spec_hash": "82226347e07c2a8476f876ea79b923d9f037d0053277865753457cad78e0bf2b",
+  "confirmed_plan_hash": "06ffeb87a786fef0e0df09df7c11c2d09ec487087fc35ecae7997ae87c473ef0",
+  "confirmed_at": 1794743401.963906,
+  "requirement": "实现 deduplicate_contacts(contacts)，用于通讯录导入去重。contacts 为联系人字典列表，每条均有 name 和 email；email 是非空 ASCII 字符串，可带首尾空格。比较邮箱时须去除首尾空格并忽略字母大小写；去重键的规范化不得改变输出记录原有的 email 内容。重复邮箱保留第一次出现的完整记录，结果按被保留记录在原列表中第一次出现的顺序排列。不得修改输入列表或任一联系人字典；空列表返回空列表。",
+  "entrypoint": {
+    "module": "solution",
+    "callable": "deduplicate_contacts"
+  },
+  "scope_note": "实验操作者已独立核对以下固定案例；结论只覆盖本轮检查，不保证未测试输入。",
+  "spec": {
+    "spec_id": "STD-bbd9dec8b9cb4b9c9938a32c86a87013",
+    "spec_hash": "82226347e07c2a8476f876ea79b923d9f037d0053277865753457cad78e0bf2b",
+    "revision": 1,
+    "interpretation_status": "USER_CONFIRMED",
+    "requirements": [
+      {
+        "id": "R1",
+        "statement": "比较邮箱时须去除首尾空格并忽略字母大小写；去重键的规范化不得改变输出记录原有的 email 内容。",
+        "kind": "FUNCTIONAL",
+        "mandatory": true,
+        "origin": "EXPLICIT",
+        "source_quote": "比较邮箱时须去除首尾空格并忽略字母大小写；去重键的规范化不得改变输出记录原有的 email 内容。",
+        "source_start": null,
+        "source_end": null,
+        "acceptance_intent": "",
+        "unresolved_questions": [],
+        "derivation_basis": ""
+      },
+      {
+        "id": "R2",
+        "statement": "重复邮箱保留第一次出现的完整记录",
+        "kind": "FUNCTIONAL",
+        "mandatory": true,
+        "origin": "EXPLICIT",
+        "source_quote": "重复邮箱保留第一次出现的完整记录",
+        "source_start": null,
+        "source_end": null,
+        "acceptance_intent": "",
+        "unresolved_questions": [],
+        "derivation_basis": ""
+      },
+      {
+        "id": "R3",
+        "statement": "结果按被保留记录在原列表中第一次出现的顺序排列。",
+        "kind": "FUNCTIONAL",
+        "mandatory": true,
+        "origin": "EXPLICIT",
+        "source_quote": "结果按被保留记录在原列表中第一次出现的顺序排列。",
+        "source_start": null,
+        "source_end": null,
+        "acceptance_intent": "",
+        "unresolved_questions": [],
+        "derivation_basis": ""
+      },
+      {
+        "id": "R4",
+        "statement": "不得修改输入列表或任一联系人字典；空列表返回空列表。",
+        "kind": "SIDE_EFFECT",
+        "mandatory": true,
+        "origin": "EXPLICIT",
+        "source_quote": "不得修改输入列表或任一联系人字典；空列表返回空列表。",
+        "source_start": null,
+        "source_end": null,
+        "acceptance_intent": "",
+        "unresolved_questions": [],
+        "derivation_basis": ""
+      }
+    ],
+    "input_domain": [],
+    "technical_constraints": [],
+    "unresolved_questions": [],
+    "limitations": [
+      "实验操作者已独立核对以下固定案例；结论只覆盖本轮检查，不保证未测试输入。"
+    ],
+    "requirement_text_digest": "实现 deduplicate_contacts(contacts)，用于通讯录导入去重。contacts 为联系人字典列表，每条均有 name 和 email；email 是非空 ASCII 字符串，可带首尾空格。比较邮箱时须去除首尾空格并忽略字母大小写；去重键的规范化不得改变输出记录原有的 email 内容。重复邮箱保留第一次出现的完整记录，结果按被保留记录在原列表中第一次出现的顺序排列。不得修改输入列表或任一联系人字典；空列表返回空列表。"
+  },
+  "plan": {
+    "plan_id": "PLAN-contact_import",
+    "plan_hash": "06ffeb87a786fef0e0df09df7c11c2d09ec487087fc35ecae7997ae87c473ef0",
+    "revision": 1,
+    "contracts": [
+      {
+        "contract_id": "K_R1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "description": "比较邮箱时须去除首尾空格并忽略字母大小写；去重键的规范化不得改变输出记录原有的 email 内容。",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "实验操作者独立核对固定案例的完整预期；充分性仅限声明的案例范围",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "82226347e07c2a8476f876ea79b923d9f037d0053277865753457cad78e0bf2b",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_R2",
+        "requirement_ids": [
+          "R2"
+        ],
+        "description": "重复邮箱保留第一次出现的完整记录",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "实验操作者独立核对固定案例的完整预期；充分性仅限声明的案例范围",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "82226347e07c2a8476f876ea79b923d9f037d0053277865753457cad78e0bf2b",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_R3",
+        "requirement_ids": [
+          "R3"
+        ],
+        "description": "结果按被保留记录在原列表中第一次出现的顺序排列。",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "实验操作者独立核对固定案例的完整预期；充分性仅限声明的案例范围",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "82226347e07c2a8476f876ea79b923d9f037d0053277865753457cad78e0bf2b",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_R4",
+        "requirement_ids": [
+          "R4"
+        ],
+        "description": "不得修改输入列表或任一联系人字典；空列表返回空列表。",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "实验操作者独立核对固定案例的完整预期；充分性仅限声明的案例范围",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "82226347e07c2a8476f876ea79b923d9f037d0053277865753457cad78e0bf2b",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_CASE_C01",
+        "requirement_ids": [
+          "R4"
+        ],
+        "description": "空列表返回空列表",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "独立核对的固定输入及期望，结论不覆盖未测试输入",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "82226347e07c2a8476f876ea79b923d9f037d0053277865753457cad78e0bf2b",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_CASE_C02",
+        "requirement_ids": [
+          "R1"
+        ],
+        "description": "保留输出原记录的邮箱大小写",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "独立核对的固定输入及期望，结论不覆盖未测试输入",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "82226347e07c2a8476f876ea79b923d9f037d0053277865753457cad78e0bf2b",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_CASE_C03",
+        "requirement_ids": [
+          "R3"
+        ],
+        "description": "不同邮箱按输入顺序输出",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "独立核对的固定输入及期望，结论不覆盖未测试输入",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "82226347e07c2a8476f876ea79b923d9f037d0053277865753457cad78e0bf2b",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_CASE_C04",
+        "requirement_ids": [
+          "R2"
+        ],
+        "description": "相同邮箱不同姓名时保留第一条完整记录",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "独立核对的固定输入及期望，结论不覆盖未测试输入",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "82226347e07c2a8476f876ea79b923d9f037d0053277865753457cad78e0bf2b",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_CASE_C05",
+        "requirement_ids": [
+          "R1",
+          "R2"
+        ],
+        "description": "Alice@Example.com 和 alice@example.com 归为同一邮箱",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "独立核对的固定输入及期望，结论不覆盖未测试输入",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "82226347e07c2a8476f876ea79b923d9f037d0053277865753457cad78e0bf2b",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_CASE_C06",
+        "requirement_ids": [
+          "R1",
+          "R2"
+        ],
+        "description": "去除首尾空格后相同，保留第一条且不改写原 email",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "独立核对的固定输入及期望，结论不覆盖未测试输入",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "82226347e07c2a8476f876ea79b923d9f037d0053277865753457cad78e0bf2b",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_CASE_C07",
+        "requirement_ids": [
+          "R2",
+          "R3"
+        ],
+        "description": "去重后仍按原始首次出现顺序排列",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "独立核对的固定输入及期望，结论不覆盖未测试输入",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "82226347e07c2a8476f876ea79b923d9f037d0053277865753457cad78e0bf2b",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_CASE_C08",
+        "requirement_ids": [
+          "R4"
+        ],
+        "description": "独立保存输入快照，验证调用前后列表及嵌套记录完全相同",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "独立核对的固定输入及期望，结论不覆盖未测试输入",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "82226347e07c2a8476f876ea79b923d9f037d0053277865753457cad78e0bf2b",
+        "coverage_note": ""
+      },
+      {
+        "contract_id": "K_CASE_C09",
+        "requirement_ids": [
+          "R1",
+          "R2",
+          "R3"
+        ],
+        "description": "同时存在大小写与空格差异，保持第一条和顺序",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "独立核对的固定输入及期望，结论不覆盖未测试输入",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "82226347e07c2a8476f876ea79b923d9f037d0053277865753457cad78e0bf2b",
+        "coverage_note": ""
+      }
+    ],
+    "cases": [
+      {
+        "case_id": "C01",
+        "contract_id": "K_CASE_C01",
+        "requirement_ids": [
+          "R4"
+        ],
+        "category": "",
+        "args": [
+          []
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": []
+        },
+        "expected_basis": "空列表返回空列表",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "C02",
+        "contract_id": "K_CASE_C02",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": [
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            }
+          ]
+        },
+        "expected_basis": "保留输出原记录的邮箱大小写",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "C03",
+        "contract_id": "K_CASE_C03",
+        "requirement_ids": [
+          "R3"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "name": "Bob 原始记录",
+              "email": " bob@example.com "
+            },
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            },
+            {
+              "name": "Carol",
+              "email": "carol@example.com"
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": [
+            {
+              "name": "Bob 原始记录",
+              "email": " bob@example.com "
+            },
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            },
+            {
+              "name": "Carol",
+              "email": "carol@example.com"
+            }
+          ]
+        },
+        "expected_basis": "不同邮箱按输入顺序输出",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "C04",
+        "contract_id": "K_CASE_C04",
+        "requirement_ids": [
+          "R2"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            },
+            {
+              "name": "Alice 后续更新",
+              "email": "Alice@Example.com"
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": [
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            }
+          ]
+        },
+        "expected_basis": "相同邮箱不同姓名时保留第一条完整记录",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "C05",
+        "contract_id": "K_CASE_C05",
+        "requirement_ids": [
+          "R1",
+          "R2"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            },
+            {
+              "name": "Alice 后续导入",
+              "email": "alice@example.com"
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": [
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            }
+          ]
+        },
+        "expected_basis": "Alice@Example.com 和 alice@example.com 归为同一邮箱",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "C06",
+        "contract_id": "K_CASE_C06",
+        "requirement_ids": [
+          "R1",
+          "R2"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "name": "Bob 原始记录",
+              "email": " bob@example.com "
+            },
+            {
+              "name": "Bob 重复记录",
+              "email": "bob@example.com"
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": [
+            {
+              "name": "Bob 原始记录",
+              "email": " bob@example.com "
+            }
+          ]
+        },
+        "expected_basis": "去除首尾空格后相同，保留第一条且不改写原 email",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "C07",
+        "contract_id": "K_CASE_C07",
+        "requirement_ids": [
+          "R2",
+          "R3"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "name": "Bob 原始记录",
+              "email": " bob@example.com "
+            },
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            },
+            {
+              "name": "Bob 重复记录",
+              "email": "bob@example.com"
+            },
+            {
+              "name": "Carol",
+              "email": "carol@example.com"
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": [
+            {
+              "name": "Bob 原始记录",
+              "email": " bob@example.com "
+            },
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            },
+            {
+              "name": "Carol",
+              "email": "carol@example.com"
+            }
+          ]
+        },
+        "expected_basis": "去重后仍按原始首次出现顺序排列",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "C08",
+        "contract_id": "K_CASE_C08",
+        "requirement_ids": [
+          "R4"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "name": "Bob 原始记录",
+              "email": " bob@example.com "
+            },
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            },
+            {
+              "name": "Alice 后续导入",
+              "email": "alice@example.com"
+            },
+            {
+              "name": "Bob 重复记录",
+              "email": "bob@example.com"
+            },
+            {
+              "name": "Carol",
+              "email": "carol@example.com"
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "INPUT_UNCHANGED",
+          "targets": [
+            {
+              "kind": "ARG",
+              "index": 0,
+              "name": null
+            }
+          ]
+        },
+        "expected_basis": "独立保存输入快照，验证调用前后列表及嵌套记录完全相同",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "C09",
+        "contract_id": "K_CASE_C09",
+        "requirement_ids": [
+          "R1",
+          "R2",
+          "R3"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            },
+            {
+              "name": "重复",
+              "email": "  ALICE@EXAMPLE.COM  "
+            },
+            {
+              "name": "Bob 原始记录",
+              "email": " bob@example.com "
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": [
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            },
+            {
+              "name": "Bob 原始记录",
+              "email": " bob@example.com "
+            }
+          ]
+        },
+        "expected_basis": "同时存在大小写与空格差异，保持第一条和顺序",
+        "input_domain_status": "IN_SCOPE"
+      }
+    ],
+    "coverage_notes": []
+  },
+  "case_scope_confirmed": false
+}

@@ -6,12 +6,16 @@ POST /api/acceptance/evaluate — 同步评估（受 60s 超时保护）。
 """
 from __future__ import annotations
 
+import json
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, ValidationError
 
 from backend.acceptance.models import EvaluationReport, EvaluationRequest
 from backend.acceptance.service import evaluate
+from backend.acceptance import standards
+from backend.acceptance.environment import inspect_environment
 from backend.logger import get_logger
+from backend.config import BASE_DIR
 
 logger = get_logger("acceptance_api")
 router = APIRouter(prefix="/api/acceptance", tags=["acceptance"])
@@ -26,6 +30,32 @@ class EvaluateBody(BaseModel):
     generation_context: dict | None = None
     acceptance_materials: dict | None = None
     options: dict | None = None
+
+
+@router.get("/environment")
+def environment_status():
+    return {"ok": True, **inspect_environment()}
+
+
+@router.get("/demos")
+def demos():
+    return {"ok": True, "demos": [
+        json.loads(p.read_text(encoding="utf-8"))
+        for p in sorted((BASE_DIR / "samples" / "acceptance").glob("*.json"))
+    ]}
+
+
+@router.post("/prepare")
+def prepare_standard(body: EvaluationRequest):
+    return standards.prepare(body)
+
+
+@router.post("/confirm")
+def confirm_standard(body: standards.StandardConfirmation):
+    try:
+        return standards.confirm(body)
+    except ValueError as e:
+        raise HTTPException(422, str(e))
 
 
 @router.post("/evaluate")

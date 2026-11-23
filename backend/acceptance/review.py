@@ -37,6 +37,8 @@ contract_id、合法输入依据、expected_basis 和输入类别。
 允许的 assertion kind 与字段（严格联合，禁止额外字段）：
 - {"kind":"RETURN_EQUALS","expected": <JSON 值>}
 - {"kind":"RETURN_IS_NONE"}
+- {"kind":"RETURN_TYPE","expected_type":"int|float|str|bool|list|dict|NoneType"}
+- {"kind":"RETURN_MATCHES","predicate":{"op":"IS_NONNEGATIVE|IS_POSITIVE|IS_EVEN|IS_ODD","value_type":"int"}}
 - {"kind":"RAISES","exception_type":"ValueError|TypeError|KeyError|IndexError|ZeroDivisionError|...","message_contains":""}
 - {"kind":"INPUT_UNCHANGED","targets":[{"kind":"ARG","index":0}]}
 - {"kind":"ALL_ITEMS_MATCH","predicate":{"op":"IS_EVEN|IS_NONNEGATIVE|IS_POSITIVE|IS_ODD|IS_NONE","value_type":"int|str|bool|float"}}

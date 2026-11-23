@@ -61,6 +61,13 @@ class Entrypoint(StrictModel):
     module: str = "solution"
     callable: str
 
+    @field_validator("callable")
+    @classmethod
+    def _valid_callable(cls, v: str) -> str:
+        if not v.isidentifier() or v.startswith("__"):
+            raise ValueError("函数入口必须是普通 Python 标识符")
+        return v
+
     @field_validator("module")
     @classmethod
     def _valid_module(cls, v: str) -> str:
@@ -95,8 +102,8 @@ class EvaluateOptions(StrictModel):
     generate_repair_candidate: bool = False
     enable_property_testing: bool = False
     enable_crosshair: bool = False
-    max_requirements: int = 20
-    max_cases: int = 40
+    max_requirements: int = Field(default=20, ge=1, le=20)
+    max_cases: int = Field(default=40, ge=1, le=40)
 
 
 class SupportingFile(StrictModel):
@@ -106,12 +113,14 @@ class SupportingFile(StrictModel):
     @field_validator("path")
     @classmethod
     def _safe_path(cls, v: str) -> str:
-        from pathlib import PurePosixPath
+        from pathlib import PurePosixPath, PureWindowsPath
         p = PurePosixPath(v)
-        if p.is_absolute() or ".." in p.parts or v.startswith("/") or "\\" in v:
+        if p.is_absolute() or PureWindowsPath(v).drive or ".." in p.parts or v.startswith("/") or "\\" in v:
             raise ValueError(f"辅助文件路径不合法: {v!r}")
         if not v.endswith(".py"):
             raise ValueError(f"仅支持 .py 辅助文件: {v!r}")
+        if p.name in {"harness.py"}:
+            raise ValueError("辅助文件不能使用执行器保留名称 harness.py")
         return v
 
 
@@ -220,6 +229,16 @@ class ReturnIsNoneAssertion(StrictModel):
     kind: Literal["RETURN_IS_NONE"]
 
 
+class ReturnTypeAssertion(StrictModel):
+    kind: Literal["RETURN_TYPE"]
+    expected_type: Literal["int", "float", "str", "bool", "list", "dict", "NoneType"]
+
+
+class ReturnMatchesAssertion(StrictModel):
+    kind: Literal["RETURN_MATCHES"]
+    predicate: PredicateSpec
+
+
 class RaisesAssertion(StrictModel):
     kind: Literal["RAISES"]
     exception_type: str
@@ -264,7 +283,7 @@ class SameMultisetAssertion(StrictModel):
 Assertion = Union[
     ReturnEqualsAssertion, ReturnIsNoneAssertion, RaisesAssertion,
     InputUnchangedAssertion, AllItemsMatchAssertion, OrderedAssertion,
-    SameMultisetAssertion,
+    SameMultisetAssertion, ReturnTypeAssertion, ReturnMatchesAssertion,
 ]
 
 
@@ -431,6 +450,14 @@ class ReproducibilityInfo(StrictModel):
     request_hash: str = ""
 
 
+class QualityReport(StrictModel):
+    status: Literal["CLEAN", "NEEDS_IMPROVEMENT", "REVIEW_REQUIRED"] = "CLEAN"
+    readability_score: float = 0
+    readability_grade: str = "N/A"
+    findings: list[dict[str, Any]] = Field(default_factory=list)
+    criteria: str = "高严重度安全问题需人工审查；其他静态问题给出改进建议，不替代功能测试。"
+
+
 class EvaluationReport(StrictModel):
     schema_version: str = "1.0"
     evaluation_id: str = Field(default_factory=lambda: f"EVAL-{uuid.uuid4().hex[:12]}")
@@ -451,3 +478,9 @@ class EvaluationReport(StrictModel):
     stage_results: list[StageResult] = Field(default_factory=list)
     reproducibility: Optional[ReproducibilityInfo] = None
     isolation_level: str = ""
+    acceptance_standard_id: str = ""
+    canonical_spec: Optional[CanonicalSpec] = None
+    test_plan: Optional[TestPlan] = None
+    quality_report: QualityReport = Field(default_factory=QualityReport)
+    usability: Literal["NOT_USABLE", "USABLE_WITH_ADVICE", "USABLE_WITHIN_SCOPE", "REVIEW_REQUIRED", "UNDETERMINED"] = "UNDETERMINED"
+    next_actions: list[str] = Field(default_factory=list)

@@ -1,4 +1,28 @@
-# PyQuality - Python 代码质量检测平台 (v4.0)
+# PyQuality - Python AI 生成代码验收平台 (v4.3)
+
+## 当前主要入口：需求驱动验收
+
+输入「功能需求 R + 原生成提示词 P + Python 代码 C」，生成或手动填写测试标准，
+检查并确认后执行验收。报告同时提供功能结论、测试输入/期望/实际结果、
+代码质量发现、代码修改建议和提示词改写。修改代码后可复用已确认标准对照结果。
+
+Windows 启动（先启动 Docker Desktop）：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/start.ps1 -Install
+```
+
+打开 `http://127.0.0.1:8000/acceptance.html`。已安装依赖后可以不加 `-Install`。
+需要 AI 生成标准和提示词语义分析时，启动前设置 `DEEPSEEK_API_KEY`，
+或在项目根目录 `.env` 中配置；界面只显示配置状态，不显示密钥。
+
+仅运行本地可信演示时，可以显式使用 `scripts/start.ps1 -LocalDemo`；
+此模式是宿主子进程执行，界面及报告均明确标注。默认模式要求 Docker 隔离。
+
+完整操作、API 与验收标准见 [验收工作流说明](docs/workflow_acceptance.md)。
+终期汇报 PPT、实机演示讲稿、过程作业、评测与复盘材料见[课程交付目录](course-delivery/README.md)。
+
+以下原有聊天与项目质量分析功能继续保留。
 
 一个参照 Codex 风格的**对话式** Python 代码质量检测平台：上传小型 Python 项目，通过自然语言或斜杠命令完成坏味检测、安全检测、依赖分析、死代码检测、可读性评分、AI 测试用例生成、AI 修复建议与 AI 代码修复，支持历史趋势跟踪与预警、阈值可配置与持久化、批量分析与修复、项目对比、全局仪表盘、代码片段直接分析、多格式报告导出。
 

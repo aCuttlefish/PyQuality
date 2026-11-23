@@ -1,0 +1,39 @@
+{
+  "related_regressions": "62 passed",
+  "cases": [
+    {
+      "case": "copilot_cards",
+      "source_snapshot_matches": true,
+      "initial_passed": 3,
+      "total": 7,
+      "repaired_passed": 7,
+      "same_plan": true,
+      "same_adapter": true,
+      "docker": true,
+      "replay_matches": true,
+      "verified_source_line": 3,
+      "model_locations": [
+        "upstream.py:3"
+      ]
+    },
+    {
+      "case": "copilot_zero_terms",
+      "source_snapshot_matches": true,
+      "initial_passed": 6,
+      "total": 9,
+      "repaired_passed": 9,
+      "same_plan": true,
+      "same_adapter": true,
+      "docker": true,
+      "replay_matches": true,
+      "verified_source_line": 16,
+      "model_locations": [
+        "upstream.py:16",
+        "upstream.py:16",
+        "upstream.py:16"
+      ]
+    }
+  ],
+  "prompt_effect": "NOT_EVALUATED",
+  "repair_author": "experiment operator"
+}

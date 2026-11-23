@@ -49,7 +49,7 @@ def request_hash(request: EvaluationRequest) -> str:
 def spec_hash(spec: CanonicalSpec) -> str:
     """覆盖需求、输入域和已确认技术约束（不含身份字段与临时字段）。"""
     payload = {
-        "requirements": [r.model_dump(exclude={"id"}, exclude_none=False) for r in spec.requirements],
+        "requirements": [r.model_dump(exclude_none=False) for r in spec.requirements],
         "input_domain": [d.model_dump() for d in spec.input_domain],
         "technical_constraints": spec.technical_constraints,
     }
@@ -60,28 +60,9 @@ def plan_hash(plan: TestPlan) -> str:
     """覆盖 ContractSpec、oracle 来源与审查记录、固定 expected、案例及计划版本。"""
     payload = {
         "revision": plan.revision,
-        "contracts": [
-            {
-                "contract_id": c.contract_id,
-                "requirement_ids": c.requirement_ids,
-                "relation_to_requirement": c.relation_to_requirement,
-                "oracle_origin": c.oracle_origin,
-                "oracle_review": c.oracle_review,
-                "assertion_template": c.representation,
-            }
-            for c in plan.contracts
-        ],
-        "cases": [
-            {
-                "case_id": case.case_id,
-                "contract_id": case.contract_id,
-                "assertion": case.assertion.model_dump(),
-                "args": case.args,
-                "kwargs": case.kwargs,
-                "input_domain_status": case.input_domain_status,
-            }
-            for case in plan.cases
-        ],
+        "contracts": [c.model_dump(exclude={"spec_hash"}) for c in plan.contracts],
+        "cases": [case.model_dump() for case in plan.cases],
+        "coverage_notes": plan.coverage_notes,
     }
     return digest(payload)
 

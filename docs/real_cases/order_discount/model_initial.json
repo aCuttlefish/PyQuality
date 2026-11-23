@@ -1,0 +1,9 @@
+{
+  "model": "deepseek-chat",
+  "generated_at": "2026-11-15T19:46:24.622816+08:00",
+  "system_prompt": "你是 Python 开发者。根据用户提示词编写实现。只返回 JSON 对象，格式为 {\"code\":\"完整 Python 源码\"}，不要用 Markdown 围栏。",
+  "user_prompt": "帮我写一个 Python 函数 calculate_payable(items)，items 是商品字典列表，price 为金额字符串，quantity 为整数。先将每项 price 转成 float 乘以 quantity，逐项累加后判断是否满 100 元；满 100 减 20 元，每单只减一次。最后把应付金额格式化为两位小数字符串并返回。只用标准库，代码简洁。",
+  "response": {
+    "code": "def calculate_payable(items):\n    total = sum(float(item['price']) * item['quantity'] for item in items)\n    if total >= 100:\n        total -= 20\n    return f\"{total:.2f}\"\n"
+  }
+}

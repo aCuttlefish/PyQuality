@@ -1,0 +1,303 @@
+{
+  "ok": true,
+  "confirmed_spec_id": "STD-f5b835d2b1e54db7a67fda7392d4b3b8",
+  "confirmed_spec_hash": "8ea6e1ff7e58018e09fe30ac7feb4747f9f78a9676479f9178a6b1c691036882",
+  "confirmed_plan_hash": "c2ff3a2217cfb608cb4622d080cd1bac3a49802f5881b2ddc8d977b5415eb6a9",
+  "confirmed_at": 1794746193.3458037,
+  "requirement": "验收原程序声明的目标和组合枚举功能。对非负整数目标和 m 与项数 n，返回全部长度恰好为 n、元素为非负整数且元素之和为 m 的有序列表；无解返回空列表。",
+  "entrypoint": {
+    "module": "solution",
+    "callable": "enumerate_terms"
+  },
+  "scope_note": "本次复现实验操作者独立核对固定输入与完整预期；不是原作者提供的测试记录。九组固定非负整数输入；最大目标和 10，最大项数 3；不验收负数输入、大规模性能或未测试输入。",
+  "spec": {
+    "spec_id": "STD-f5b835d2b1e54db7a67fda7392d4b3b8",
+    "spec_hash": "8ea6e1ff7e58018e09fe30ac7feb4747f9f78a9676479f9178a6b1c691036882",
+    "revision": 1,
+    "interpretation_status": "USER_CONFIRMED",
+    "requirements": [
+      {
+        "id": "R1",
+        "statement": "对非负整数目标和 m 与项数 n，返回全部长度恰好为 n、元素为非负整数且元素之和为 m 的有序列表；无解返回空列表。",
+        "kind": "FUNCTIONAL",
+        "mandatory": true,
+        "origin": "EXPLICIT",
+        "source_quote": "对非负整数目标和 m 与项数 n，返回全部长度恰好为 n、元素为非负整数且元素之和为 m 的有序列表；无解返回空列表。",
+        "source_start": null,
+        "source_end": null,
+        "acceptance_intent": "",
+        "unresolved_questions": [],
+        "derivation_basis": ""
+      }
+    ],
+    "input_domain": [],
+    "technical_constraints": [],
+    "unresolved_questions": [],
+    "limitations": [
+      "本次复现实验操作者独立核对固定输入与完整预期；不是原作者提供的测试记录。九组固定非负整数输入；最大目标和 10，最大项数 3；不验收负数输入、大规模性能或未测试输入。"
+    ],
+    "requirement_text_digest": "验收原程序声明的目标和组合枚举功能。对非负整数目标和 m 与项数 n，返回全部长度恰好为 n、元素为非负整数且元素之和为 m 的有序列表；无解返回空列表。"
+  },
+  "plan": {
+    "plan_id": "PLAN-copilot_zero_terms",
+    "plan_hash": "c2ff3a2217cfb608cb4622d080cd1bac3a49802f5881b2ddc8d977b5415eb6a9",
+    "revision": 1,
+    "contracts": [
+      {
+        "contract_id": "K_R1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "description": "对非负整数目标和 m 与项数 n，返回全部长度恰好为 n、元素为非负整数且元素之和为 m 的有序列表；无解返回空列表。",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "完整预期的充分性仅限本轮列出的固定检查，不覆盖未测输入",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "8ea6e1ff7e58018e09fe30ac7feb4747f9f78a9676479f9178a6b1c691036882",
+        "coverage_note": ""
+      }
+    ],
+    "cases": [
+      {
+        "case_id": "SUM01",
+        "contract_id": "K_R1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          0,
+          0
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": [
+            []
+          ]
+        },
+        "expected_basis": "独立穷举 0..0 的 0 次笛卡尔积，保留总和为 0 的序列",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "SUM02",
+        "contract_id": "K_R1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          1,
+          0
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": []
+        },
+        "expected_basis": "独立穷举 0..1 的 0 次笛卡尔积，保留总和为 1 的序列",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "SUM03",
+        "contract_id": "K_R1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          5,
+          0
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": []
+        },
+        "expected_basis": "独立穷举 0..5 的 0 次笛卡尔积，保留总和为 5 的序列",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "SUM04",
+        "contract_id": "K_R1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          10,
+          0
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": []
+        },
+        "expected_basis": "独立穷举 0..10 的 0 次笛卡尔积，保留总和为 10 的序列",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "SUM05",
+        "contract_id": "K_R1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          0,
+          1
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": [
+            [
+              0
+            ]
+          ]
+        },
+        "expected_basis": "独立穷举 0..0 的 1 次笛卡尔积，保留总和为 0 的序列",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "SUM06",
+        "contract_id": "K_R1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          5,
+          1
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": [
+            [
+              5
+            ]
+          ]
+        },
+        "expected_basis": "独立穷举 0..5 的 1 次笛卡尔积，保留总和为 5 的序列",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "SUM07",
+        "contract_id": "K_R1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          3,
+          2
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              3,
+              0
+            ]
+          ]
+        },
+        "expected_basis": "独立穷举 0..3 的 2 次笛卡尔积，保留总和为 3 的序列",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "SUM08",
+        "contract_id": "K_R1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          2,
+          3
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": [
+            [
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              2,
+              0
+            ],
+            [
+              1,
+              0,
+              1
+            ],
+            [
+              1,
+              1,
+              0
+            ],
+            [
+              2,
+              0,
+              0
+            ]
+          ]
+        },
+        "expected_basis": "独立穷举 0..2 的 3 次笛卡尔积，保留总和为 2 的序列",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "SUM09",
+        "contract_id": "K_R1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          0,
+          3
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": [
+            [
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "expected_basis": "独立穷举 0..0 的 3 次笛卡尔积，保留总和为 0 的序列",
+        "input_domain_status": "IN_SCOPE"
+      }
+    ],
+    "coverage_notes": []
+  },
+  "case_scope_confirmed": true
+}

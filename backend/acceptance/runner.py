@@ -23,6 +23,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import uuid
 from pathlib import Path
 from typing import Any, Optional
 
@@ -124,6 +125,10 @@ def main():
         t0 = time.monotonic()
         try:
             ret = fn(*args, **kwargs)
+            import inspect
+            if inspect.isawaitable(ret):
+                import asyncio
+                ret = asyncio.run(ret)
         except BaseException as e:
             record["duration_ms"] = (time.monotonic() - t0) * 1000.0
             record["status"] = "TARGET_EXCEPTION"
@@ -276,6 +281,7 @@ def run_cases(
     logs: list[str] = [f"backend={backend.name}"]
     evidence: list[Evidence] = []
     fingerprint = runtime_fingerprint(backend.name)
+    container_name = "pyq-accept-" + uuid.uuid4().hex if backend.name == "DOCKER" else ""
     try:
         (tmp / "solution.py").write_text(code, encoding="utf-8")
         for rel, content in supporting_files:
@@ -301,8 +307,13 @@ def run_cases(
 
         try:
             if backend.name == "DOCKER":
+                tmp.chmod(0o755)
+                for path in tmp.rglob("*"):
+                    path.chmod(0o755 if path.is_dir() else 0o644)
+                results_dir.chmod(0o777)
                 cmd = [
-                    "docker", "run", "--rm",
+                    "docker", "run", "--rm", "--name", container_name,
+                    "--user", "65534:65534",
                     "--network", "none",
                     "--read-only",
                     "--tmpfs", "/tmp:rw,nosuid,size=64m",
@@ -319,7 +330,7 @@ def run_cases(
                     _docker_bootstrap(),
                 ]
                 proc = subprocess.run(
-                    cmd, capture_output=True, text=True,
+                    cmd, capture_output=True, text=True, encoding="utf-8", errors="replace",
                     timeout=total_timeout_s + DOCKER_TIMEOUT_EXTRA_S,
                 )
             else:
@@ -381,6 +392,7 @@ def run_cases(
             if not isinstance(raw_results, list):
                 logs.append("results.json is not a list")
                 protocol_error = True
+                raw_results = None
 
         # 协议校验：case_id 唯一 + 集合与计划一一对应 + 状态白名单（P0-6）
         by_case: dict[str, dict[str, Any]] = {}
@@ -463,6 +475,13 @@ def run_cases(
             ))
         return evidence, logs
     finally:
+        if container_name:
+            # 杀掉 docker CLI 并不会终止容器；按本次生成的唯一名称清理。
+            try:
+                subprocess.run(["docker", "rm", "-f", container_name],
+                               capture_output=True, timeout=10)
+            except (OSError, subprocess.TimeoutExpired):
+                logs.append("container cleanup failed: " + container_name)
         shutil.rmtree(tmp, ignore_errors=True)
         shutil.rmtree(results_dir, ignore_errors=True)
 

@@ -23,7 +23,10 @@ from backend.acceptance import (
     runner,
     spec_extractor,
     verdict as verdict_mod,
+    standards,
 )
+from backend.acceptance.quality import inspect_quality
+from backend.config import BASE_DIR
 from backend.acceptance.fixtures import (
     max_even_plan,
     max_even_spec,
@@ -33,6 +36,7 @@ from backend.acceptance.fixtures import (
 from backend.acceptance.models import (
     CanonicalSpec,
     CodeVerdict,
+    CodeSuggestion,
     CoverageSummary,
     Entrypoint,
     EvaluationReport,
@@ -51,7 +55,7 @@ logger = get_logger("acceptance_service")
 TECH_RULE_VERSION = "tech-rules/1.1"
 
 # 稳定证据工件目录（P1：报告引用的文件必须真实存在）
-ARTIFACTS_ROOT = Path("data") / "acceptance_artifacts"
+ARTIFACTS_ROOT = BASE_DIR / "data" / "acceptance_artifacts"
 
 
 def _norm_text(s: str) -> str:
@@ -68,7 +72,7 @@ def _entry_location(entrypoint: Entrypoint | None) -> str:
 def _uncovered_scope_for(r, status: str, plan: TestPlan, cases_by_req: dict) -> str:
     """未覆盖范围说明（阶段 G）。"""
     if status == "PASS_WITHIN_SCOPE":
-        return f"本轮已验证「{r.statement[:60]}」声明范围内行为；未验证输入域外的行为"
+        return f"本轮通过 {len(cases_by_req.get(r.id, []))} 个认可案例；未穷尽输入域，不保证未测试输入"
     if status == "FAIL":
         return ""  # 已确认违反，无需未覆盖说明
     if not cases_by_req.get(r.id):
@@ -181,10 +185,15 @@ def evaluate(request: EvaluationRequest) -> EvaluationReport:
             spec, plan = max_even_spec(), max_even_plan()
         elif key == "SPEC-PAYABLE":
             spec, plan = payable_spec(), payable_plan()
+        elif key.startswith("STD-"):
+            try:
+                spec, plan = standards.load(key, request.requirement, entrypoint, materials.confirmed_spec_hash or "")
+            except (ValueError, OSError) as e:
+                blockers.append(f"确认标准不可复用: {e}")
         else:
             blockers.append(f"未知 confirmed_spec_id: {key}，确认记录不存在")
         if spec is not None:
-            spec_mode = "FIXTURE"
+            spec_mode = "USER_STANDARD" if key.startswith("STD-") else "FIXTURE"
             # 确认记录绑定原始需求：请求 R 与登记需求不一致 → 阻断确认路径（P0-3）
             if _norm_text(request.requirement) != _norm_text(spec.requirement_text_digest):
                 blockers.append(
@@ -198,7 +207,7 @@ def evaluate(request: EvaluationRequest) -> EvaluationReport:
                 spec.interpretation_status = "UNRESOLVED"
                 for contract in plan.contracts:
                     contract.oracle_review = "PENDING"
-    if spec is None:
+    if spec is None and not (materials.confirmed_spec_id or "").startswith("STD-"):
         extraction = spec_extractor.extract_spec(request.requirement, entrypoint)
         if extraction.spec is not None:
             spec = extraction.spec
@@ -245,6 +254,9 @@ def evaluate(request: EvaluationRequest) -> EvaluationReport:
             stage="B_spec", status="COMPLETED",
             detail=f"规格模式 {spec_mode}，interpretation={spec.interpretation_status}",
         ))
+        limitations.extend(spec.limitations)
+        if plan is not None and not verdict_mod.spec_is_ready(spec, request.options.oracle_policy, plan):
+            blockers.append("验收标准尚未准备完整；请查看审查意见，修订并确认标准后复评")
     else:
         stages.append(StageResult(stage="B_spec", status="BLOCKED", detail="规格不可用"))
 
@@ -272,6 +284,11 @@ def evaluate(request: EvaluationRequest) -> EvaluationReport:
                 env_errors = sum(
                     1 for e in evidence_exec if e.status == "ENV_ERROR"
                 )
+                inconclusive_errors = {e.status for e in evidence_exec
+                                       if e.status in ("ENV_ERROR", "HARNESS_ERROR", "TIMEOUT")}
+                if inconclusive_errors:
+                    blockers.append("动态检查未完整完成：" + "、".join(sorted(inconclusive_errors))
+                                    + "；请查看案例证据与运行环境后重试")
                 stages.append(StageResult(
                     stage="E_execute", status="COMPLETED",
                     detail=(
@@ -326,6 +343,7 @@ def evaluate(request: EvaluationRequest) -> EvaluationReport:
             )
             requirement_results.append(RequirementResult(
                 requirement_id=r.id, statement=r.statement, status=st,
+                assurance="TESTED" if st == "PASS_WITHIN_SCOPE" else "NONE",
                 evidence_ids=eids, failed_case_ids=fids,
                 explanation="; ".join(notes[:3]),
                 code_location=entry_loc,
@@ -357,6 +375,9 @@ def evaluate(request: EvaluationRequest) -> EvaluationReport:
     prompt_report = PromptReport()
     if spec is not None:
         prompt_report = prompt_auditor.audit_prompt(request, spec)
+        prompt_report.unresolved_questions = list(dict.fromkeys(
+            prompt_report.unresolved_questions + spec.unresolved_questions
+        ))
         prompt_report.prompt_code_relation = prompt_auditor.relate_prompt_to_code(
             spec, prompt_report, requirement_results
         )
@@ -376,8 +397,21 @@ def evaluate(request: EvaluationRequest) -> EvaluationReport:
     suggestions: list = []
     if spec is not None and plan is not None:
         suggestions = recommender.build_suggestions(
-            request, spec, plan, requirement_results, evidence_by_case, verdict
+            request, spec, plan, requirement_results, evidence_by_case, verdict, evidence=evidence
         )
+    if compile_evidence:
+        suggestions.insert(0, CodeSuggestion(
+            suggestion_id="SUG-TECH-COMPILE", finding_id="TECH_COMPILE",
+            evidence_ids=[e.evidence_id for e in compile_evidence],
+            category="CORRECTNESS_FIX", location="solution.py",
+            expected="可编译的 Python 源码", actual=compile_msg,
+            explanation=f"Python 编译器确认语法错误：{compile_msg}",
+            fix="根据编译器给出的行号检查缩进、括号、冒号及语句结构，修正语法后重新验收",
+            regression_check="先通过编译检查，再运行全部已确认案例",
+        ))
+    quality_report, quality_suggestions, quality_evidence = inspect_quality(request, ch)
+    suggestions.extend(quality_suggestions)
+    evidence.extend(quality_evidence)
     stages.append(StageResult(
         stage="F_suggestions",
         status="COMPLETED",
@@ -402,7 +436,7 @@ def evaluate(request: EvaluationRequest) -> EvaluationReport:
         ),
         cases_failed=sum(
             1 for e in evidence
-            if e.kind == "EXECUTED_CASE" and e.status == "ASSERTION_FAILED"
+            if e.kind == "EXECUTED_CASE" and e.status in ("ASSERTION_FAILED", "TARGET_EXCEPTION")
         ),
     )
 
@@ -459,6 +493,31 @@ def evaluate(request: EvaluationRequest) -> EvaluationReport:
         request_hash=hashing.request_hash(request),
     )
     report.isolation_level = backend.name
+    report.acceptance_standard_id = spec.spec_id if spec else ""
+    report.canonical_spec = spec
+    report.test_plan = plan
+    report.quality_report = quality_report
+    report.usability = (
+        "NOT_USABLE" if verdict == "FAIL" else
+        "UNDETERMINED" if verdict == "INCONCLUSIVE" else
+        "REVIEW_REQUIRED" if quality_report.status == "REVIEW_REQUIRED" else
+        "USABLE_WITH_ADVICE" if quality_report.findings else "USABLE_WITHIN_SCOPE"
+    )
+    if verdict == "INCONCLUSIVE":
+        report.next_actions.append("查看未判定需求与阻塞原因；编辑并确认验收标准后，复用标准重新验收")
+    if not backend.available:
+        report.next_actions.append("启动 Docker Desktop，并在页面刷新运行环境；或用 scripts/start.ps1 -LocalDemo 运行可信演示")
+    if verdict == "FAIL":
+        report.next_actions.append("根据失败案例的输入、期望及实际值修改代码，再复用相同标准验收")
+    if quality_report.findings:
+        report.next_actions.append("按代码质量清单修订；高严重度安全风险需人工审查，修改后重跑功能测试")
+    if prompt_report.changes:
+        report.next_actions.append("复制改进提示词生成新代码，再用当前确认标准评估；建议效果尚未验证")
+    if artifact_dir:
+        try:
+            (artifact_dir / "report.json").write_text(report.model_dump_json(indent=2), encoding="utf-8")
+        except OSError:
+            pass
     return report
 
 

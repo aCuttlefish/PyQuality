@@ -160,6 +160,22 @@ def evaluate_assertion(
             )
         return CheckResult("PASSED")
 
+    if kind in ("RETURN_TYPE", "RETURN_MATCHES"):
+        if _exception_or_none(observation):
+            return CheckResult("TARGET_EXCEPTION", f"目标抛出 {observation['exception_type']}")
+        state, value = _return_value_or_error(observation)
+        if state != "ok":
+            return CheckResult("HARNESS_ERROR", "返回值缺失或无法按 JSON 协议序列化")
+        if kind == "RETURN_TYPE":
+            ok = type(value).__name__ == assertion.expected_type
+            detail = f"期望类型 {assertion.expected_type}，实际 {type(value).__name__}"
+        else:
+            try:
+                ok, detail = _predicate_ok(assertion.predicate.model_dump(), value)
+            except (TypeError, ValueError):
+                return CheckResult("HARNESS_ERROR", "谓词与返回类型不兼容")
+        return CheckResult("PASSED" if ok else "ASSERTION_FAILED", "" if ok else detail)
+
     if kind == "INPUT_UNCHANGED":
         if observation.get("exception_type"):
             # 目标异常时仍需检查是否已修改输入（先修改再抛出）
@@ -273,6 +289,10 @@ def validate_plan_structure(spec, plan) -> list[str]:
     errors: list[str] = []
     req_ids = {r.id for r in spec.requirements}
     contract_ids = {c.contract_id for c in plan.contracts}
+    if len(req_ids) != len(spec.requirements) or "" in req_ids:
+        errors.append("需求 ID 必须非空且唯一")
+    if len(contract_ids) != len(plan.contracts) or "" in contract_ids:
+        errors.append("契约 ID 必须非空且唯一")
     for c in plan.contracts:
         for rid in c.requirement_ids:
             if rid not in req_ids:
@@ -286,6 +306,11 @@ def validate_plan_structure(spec, plan) -> list[str]:
         seen_case_ids.add(case.case_id)
         if case.contract_id not in contract_ids:
             errors.append(f"案例 {case.case_id} 引用不存在的契约 {case.contract_id}")
+        contract = next((c for c in plan.contracts if c.contract_id == case.contract_id), None)
+        if not set(case.requirement_ids).issubset(req_ids) or (
+            contract and not set(case.requirement_ids).issubset(contract.requirement_ids)
+        ):
+            errors.append(f"案例 {case.case_id} 的需求归属与契约不一致")
         if case.assertion.kind == "RETURN_EQUALS" and not case.expected_basis:
             errors.append(f"案例 {case.case_id} 缺少 expected_basis（预期独立来源）")
         if case.input_domain_status == "OUT_OF_SCOPE":
