@@ -80,4 +80,4 @@ powershell -ExecutionPolicy Bypass -File scripts/start.ps1 -Install
 - [终期交付总目录](course-delivery/README.md)
 - [终期汇报 PPT](course-delivery/docs/汇报与实机演示/PyQuality_SE4AI终期汇报_参考配色修订版.pptx) · [20 分钟实机答辩稿](course-delivery/docs/汇报与实机演示/PyQuality_20分钟答辩稿_含实机演示.docx)
 - [28 张 draw.io 配图及图片清单](course-delivery/docs/汇报与实机演示/draw.io配图/) · [PPT 大纲](course-delivery/docs/汇报与实机演示/PPT大纲/)
-- [过程作业](course-delivery/docs/过程作业/) · [评测材料](course-delivery/eval/) · [四位组员的复盘核对稿](course-delivery/复盘报告/在线核对/)
+- [过程作业](course-delivery/docs/过程作业/) · [评测材料](course-delivery/eval/) · [四位组员的个人复盘报告](course-delivery/复盘报告/在线核对/)

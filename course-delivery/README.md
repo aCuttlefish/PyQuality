@@ -37,7 +37,7 @@ powershell -ExecutionPolicy Bypass -File scripts/start.ps1 -Install
 | `docs/` | 项目设计、验收记录、人机协作文档、汇报材料和两次过程作业。 |
 | `tests/` | PyQuality 自身的自动化回归用例。 |
 | `eval/` | 被验收代码的案例、预期值、前后报告和原始模型响应。 |
-| `复盘报告/` | 陈宏伟、彭启诚、敖德太、薛奕辰的个人核对稿。 |
+| `复盘报告/` | 陈宏伟、彭启诚、敖德太、薛奕辰的个人复盘报告。 |
 | `demo.mp4` | 录制后由组长放到本目录，内容包括 PPT 讲解和工作台实机操作。 |
 
 ## 汇报材料
@@ -53,4 +53,4 @@ powershell -ExecutionPolicy Bypass -File scripts/start.ps1 -Install
 
 ## GitHub 协作
 
-仓库主分支的终期材料位于 course-delivery/。过程作业和交付说明可直接编辑 Markdown。四份原始 Word 稿保存在复盘报告目录，同时提供[网页可编辑的复盘核对稿](复盘报告/在线核对/README.md)。复盘文字在 Markdown 核对稿中同步，定稿后再输出 Word。组长确认收到的视频可放在交付目录根部。
+仓库主分支的终期材料位于 course-delivery/。过程作业和交付说明可直接编辑 Markdown。四份正式个人复盘提供可下载的 Word 文档和在线阅读版。见[个人复盘报告索引](复盘报告/在线核对/README.md)。组长确认收到的视频可放在交付目录根部。
