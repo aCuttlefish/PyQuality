@@ -1,0 +1,492 @@
+{
+  "schema_version": "1.0",
+  "evaluation_id": "EVAL-7fc8724a0733",
+  "created_at": 1794736444.3272605,
+  "job_status": "COMPLETED",
+  "code_verdict": "PASS_WITHIN_SCOPE",
+  "assurance_level": "TESTED",
+  "spec_interpretation": "USER_CONFIRMED",
+  "summary": "按当前需求解读，本轮检查通过（范围内已认可检查全部执行且通过）。",
+  "requirement_results": [
+    {
+      "requirement_id": "R1",
+      "statement": "实现 count_vowels(text)，输入为字符串，返回其中英文字母元音 a、e、i、o、u 的总个数，不区分大小写；空字符串返回 0；忽略其他字符。",
+      "status": "PASS_WITHIN_SCOPE",
+      "evidence_ids": [
+        "EV-2242f92fa15e",
+        "EV-1befd45fc90d",
+        "EV-45adcd53ab09",
+        "EV-dd3145df1702",
+        "EV-d32fde9aa93b",
+        "EV-3c78aa2aee3c",
+        "EV-05f68a128d0e"
+      ],
+      "failed_case_ids": [],
+      "explanation": "",
+      "assurance": "TESTED",
+      "code_location": "solution.py:count_vowels",
+      "uncovered_scope": "本轮通过 7 个认可案例；未穷尽输入域，不保证未测试输入",
+      "blocked_source": ""
+    }
+  ],
+  "prompt_report": {
+    "mappings": [
+      {
+        "requirement_id": "R1",
+        "status": "CONFLICT",
+        "requirement_quote": "返回其中英文字母元音 a、e、i、o、u 的总个数，不区分大小写；空字符串返回 0；忽略其他字符。",
+        "prompt_quote": "只统计小写 aeiou 的出现次数。",
+        "explanation": "R1 要求不区分大小写，即大写 A、E、I、O、U 也应计入；而 P 明确限定“只统计小写 aeiou”，与 R1 的大小写不敏感要求直接冲突。此外，P 未提及空字符串返回 0，也未提及忽略其他字符，但这两点与“只统计小写 aeiou”并不矛盾，属于可见提示词中未体现的内容。"
+      }
+    ],
+    "extra_requirements": [],
+    "optimized_prompt": "用 Python 实现 count_vowels(text)，输入为字符串，返回其中英文字母元音 a、e、i、o、u 的总个数，不区分大小写（大写 A、E、I、O、U 同样计入）；空字符串返回 0；忽略其他字符。",
+    "changes": [
+      {
+        "before": "只统计小写 aeiou 的出现次数。",
+        "after": "返回其中英文字母元音 a、e、i、o、u 的总个数，不区分大小写（大写 A、E、I、O、U 同样计入）；空字符串返回 0；忽略其他字符。",
+        "requirement_id": "R1",
+        "reason": "原表述“只统计小写 aeiou”与 R1 的“不区分大小写”冲突，改为不区分大小写；同时补入 R1 明确要求的空字符串返回 0 与忽略其他字符。"
+      }
+    ],
+    "unresolved_questions": [
+      "generation_context 中 is_complete 与 requirements_also_visible 均为 null，无法确认原生成上下文是否已包含 R1 的完整要求；若已包含，则 P 中未复述的部分可能不构成真实遗漏。"
+    ],
+    "optimization_validation": "NOT_EVALUATED",
+    "mode": "LLM",
+    "prompt_code_relation": [
+      {
+        "requirement_id": "R1",
+        "prompt_status": "CONFLICT",
+        "code_status": "PASS_WITHIN_SCOPE",
+        "relation": "PROMPT_ISSUE_BUT_CODE_PASSES"
+      }
+    ]
+  },
+  "code_suggestions": [],
+  "repair_candidate": null,
+  "evidence": [
+    {
+      "evidence_id": "EV-2242f92fa15e",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "4b2927da8265f80c5b3d431f18b49bc1b75382a5712df34120181852fd6031c2",
+      "spec_hash": "9f09afbf7392ac7801a7a4f87ec68614dd6f4d453db1f11da89c674bda97f492",
+      "plan_hash": "cd61386d364514c291604634158c8f5d7c75523c1170db1764d9c5c47111f0a7",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T1",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 5,
+        "duration_ms": 26.20002700018631
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-7fc8724a0733\\evidence-results.json"
+      ],
+      "duration_ms": 26.20002700018631,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-1befd45fc90d",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "4b2927da8265f80c5b3d431f18b49bc1b75382a5712df34120181852fd6031c2",
+      "spec_hash": "9f09afbf7392ac7801a7a4f87ec68614dd6f4d453db1f11da89c674bda97f492",
+      "plan_hash": "cd61386d364514c291604634158c8f5d7c75523c1170db1764d9c5c47111f0a7",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T2",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 5,
+        "duration_ms": 0.0034639999739738414
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-7fc8724a0733\\evidence-results.json"
+      ],
+      "duration_ms": 0.0034639999739738414,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-45adcd53ab09",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "4b2927da8265f80c5b3d431f18b49bc1b75382a5712df34120181852fd6031c2",
+      "spec_hash": "9f09afbf7392ac7801a7a4f87ec68614dd6f4d453db1f11da89c674bda97f492",
+      "plan_hash": "cd61386d364514c291604634158c8f5d7c75523c1170db1764d9c5c47111f0a7",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T3",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 3,
+        "duration_ms": 0.0021129999367985874
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-7fc8724a0733\\evidence-results.json"
+      ],
+      "duration_ms": 0.0021129999367985874,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-dd3145df1702",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "4b2927da8265f80c5b3d431f18b49bc1b75382a5712df34120181852fd6031c2",
+      "spec_hash": "9f09afbf7392ac7801a7a4f87ec68614dd6f4d453db1f11da89c674bda97f492",
+      "plan_hash": "cd61386d364514c291604634158c8f5d7c75523c1170db1764d9c5c47111f0a7",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T4",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 0,
+        "duration_ms": 0.002220999931523693
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-7fc8724a0733\\evidence-results.json"
+      ],
+      "duration_ms": 0.002220999931523693,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-d32fde9aa93b",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "4b2927da8265f80c5b3d431f18b49bc1b75382a5712df34120181852fd6031c2",
+      "spec_hash": "9f09afbf7392ac7801a7a4f87ec68614dd6f4d453db1f11da89c674bda97f492",
+      "plan_hash": "cd61386d364514c291604634158c8f5d7c75523c1170db1764d9c5c47111f0a7",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T5",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 0,
+        "duration_ms": 0.0034669999422476394
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-7fc8724a0733\\evidence-results.json"
+      ],
+      "duration_ms": 0.0034669999422476394,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-3c78aa2aee3c",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "4b2927da8265f80c5b3d431f18b49bc1b75382a5712df34120181852fd6031c2",
+      "spec_hash": "9f09afbf7392ac7801a7a4f87ec68614dd6f4d453db1f11da89c674bda97f492",
+      "plan_hash": "cd61386d364514c291604634158c8f5d7c75523c1170db1764d9c5c47111f0a7",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T6",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 4,
+        "duration_ms": 0.002071999915642664
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-7fc8724a0733\\evidence-results.json"
+      ],
+      "duration_ms": 0.002071999915642664,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-05f68a128d0e",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "4b2927da8265f80c5b3d431f18b49bc1b75382a5712df34120181852fd6031c2",
+      "spec_hash": "9f09afbf7392ac7801a7a4f87ec68614dd6f4d453db1f11da89c674bda97f492",
+      "plan_hash": "cd61386d364514c291604634158c8f5d7c75523c1170db1764d9c5c47111f0a7",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T7",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 0,
+        "duration_ms": 0.0016550000054849079
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-7fc8724a0733\\evidence-results.json"
+      ],
+      "duration_ms": 0.0016550000054849079,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    }
+  ],
+  "coverage": {
+    "mandatory_requirements": 1,
+    "requirements_checked": 1,
+    "cases_planned": 7,
+    "cases_executed": 7,
+    "cases_passed": 7,
+    "cases_failed": 0
+  },
+  "blockers": [],
+  "limitations": [
+    "MVP 未对任意 Python 与任意自然语言需求提供普遍正确性证明",
+    "容器隔离（非特权/无网络/只读根/资源限额）：不等于抵御所有恶意代码的完备安全边界",
+    "输入不变检查不检测『先修改再恢复』的瞬时写入",
+    "操作者运行验收脚本，认可仓库样例的固定案例；结论不覆盖未测试输入。"
+  ],
+  "stage_results": [
+    {
+      "stage": "A_input_and_compile",
+      "status": "COMPLETED",
+      "detail": "编译检查通过",
+      "duration_ms": 0.603299995418638
+    },
+    {
+      "stage": "B_spec",
+      "status": "COMPLETED",
+      "detail": "规格模式 USER_STANDARD，interpretation=USER_CONFIRMED",
+      "duration_ms": null
+    },
+    {
+      "stage": "E_execute",
+      "status": "COMPLETED",
+      "detail": "7 条案例证据",
+      "duration_ms": null
+    },
+    {
+      "stage": "F_prompt_audit",
+      "status": "COMPLETED",
+      "detail": "mode=LLM",
+      "duration_ms": null
+    },
+    {
+      "stage": "F_suggestions",
+      "status": "COMPLETED",
+      "detail": "0 条建议",
+      "duration_ms": null
+    }
+  ],
+  "reproducibility": {
+    "code_hash": "4b2927da8265f80c5b3d431f18b49bc1b75382a5712df34120181852fd6031c2",
+    "spec_hash": "9f09afbf7392ac7801a7a4f87ec68614dd6f4d453db1f11da89c674bda97f492",
+    "plan_hash": "cd61386d364514c291604634158c8f5d7c75523c1170db1764d9c5c47111f0a7",
+    "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+    "request_hash": "df944915553e369b065dfe54ac492ece4ec8ec5c3fc17ec34c64e29aaba64bfa"
+  },
+  "isolation_level": "DOCKER",
+  "acceptance_standard_id": "STD-f06737e7eb664801acc0c9f2c0c86424",
+  "canonical_spec": {
+    "spec_id": "STD-f06737e7eb664801acc0c9f2c0c86424",
+    "spec_hash": "9f09afbf7392ac7801a7a4f87ec68614dd6f4d453db1f11da89c674bda97f492",
+    "revision": 1,
+    "interpretation_status": "USER_CONFIRMED",
+    "requirements": [
+      {
+        "id": "R1",
+        "statement": "实现 count_vowels(text)，输入为字符串，返回其中英文字母元音 a、e、i、o、u 的总个数，不区分大小写；空字符串返回 0；忽略其他字符。",
+        "kind": "FUNCTIONAL",
+        "mandatory": true,
+        "origin": "EXPLICIT",
+        "source_quote": "实现 count_vowels(text)，输入为字符串，返回其中英文字母元音 a、e、i、o、u 的总个数，不区分大小写；空字符串返回 0；忽略其他字符。",
+        "source_start": null,
+        "source_end": null,
+        "acceptance_intent": "",
+        "unresolved_questions": [],
+        "derivation_basis": ""
+      }
+    ],
+    "input_domain": [],
+    "technical_constraints": [],
+    "unresolved_questions": [],
+    "limitations": [
+      "操作者运行验收脚本，认可仓库样例的固定案例；结论不覆盖未测试输入。"
+    ],
+    "requirement_text_digest": "实现 count_vowels(text)，输入为字符串，返回其中英文字母元音 a、e、i、o、u 的总个数，不区分大小写；空字符串返回 0；忽略其他字符。"
+  },
+  "test_plan": {
+    "plan_id": "",
+    "plan_hash": "cd61386d364514c291604634158c8f5d7c75523c1170db1764d9c5c47111f0a7",
+    "revision": 1,
+    "contracts": [
+      {
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "description": "固定样例验收",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "人工核对的固定样例",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "9f09afbf7392ac7801a7a4f87ec68614dd6f4d453db1f11da89c674bda97f492",
+        "coverage_note": ""
+      }
+    ],
+    "cases": [
+      {
+        "case_id": "T1",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          "aeiou"
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 5
+        },
+        "expected_basis": "五个小写元音各计一次",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T2",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          "AEIOU"
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 5
+        },
+        "expected_basis": "五个大写元音各计一次",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T3",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          "Hello WORLD"
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 3
+        },
+        "expected_basis": "e、o、O，共三个元音",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T4",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          ""
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 0
+        },
+        "expected_basis": "空字符串返回零",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T5",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          "123!?中文"
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 0
+        },
+        "expected_basis": "其他字符不计入",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T6",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          "aaAA"
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 4
+        },
+        "expected_basis": "重复字符按出现次数计数",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T7",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          "İıéÉ"
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 0
+        },
+        "expected_basis": "仅统计英文字母本身，不将其他字符转换成元音",
+        "input_domain_status": "IN_SCOPE"
+      }
+    ],
+    "coverage_notes": []
+  },
+  "quality_report": {
+    "status": "CLEAN",
+    "readability_score": 100.0,
+    "readability_grade": "A",
+    "findings": [],
+    "criteria": "高严重度安全问题需人工审查；其他静态问题给出改进建议，不替代功能测试。"
+  },
+  "usability": "USABLE_WITHIN_SCOPE",
+  "next_actions": [
+    "复制改进提示词生成新代码，再用当前确认标准评估；建议效果尚未验证"
+  ]
+}

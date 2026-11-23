@@ -1,0 +1,35 @@
+公开项目案例：Copilot 辅助开发的 BMI 计算器拒绝小数输入
+
+原仓库：https://github.com/Sarthak-Sidhant/week
+原文件（固定提交）：https://github.com/Sarthak-Sidhant/week/blob/dd73f1dec21bfc31c7b7a089d240104285470d7c/monday/fitness-calculator.py
+AI 来源说明：https://github.com/Sarthak-Sidhant/week/blob/dd73f1dec21bfc31c7b7a089d240104285470d7c/README.md
+源码提交时间：2022-11-09T14:49:03Z
+Git blob：706880ec447547fde0edb862a1a603b9fca9670e
+SHA-256：daf310deeba587e900a2e7a37c4eb9bd993df0d74e574b64648310e081da8944
+
+真实性边界：作者说明项目借助 GitHub Copilot 开发；没有逐行生成日志或原始提示词。本案例可称为公开 AI 辅助项目的真实功能缺陷，不能称为已证实全部由 AI 生成的生产事故。研究数据集用于核对来源，本文的功能缺陷和测试结果由本次实验独立获得。
+
+需求来自原程序声明的单位和公式：千克 / 米²。小数身高为正常使用输入。验收标准和六个案例由本次实验操作者编写，预期使用有理数独立核算。上游源码未改动，以辅助文件原样执行；adapter.py 只模拟 input 并提取 print 的数值，既不拦截原程序的 ValueError，也不替代原始计算。
+
+运行环境：DOCKER，隔离容器中执行；固定测试计划相同：True
+计划哈希：da104558e1a8103a66fe0a91ec46b72bc609e23e43cb76b047f11817cf708754
+
+案例 | 体重 | 身高 | 预期数值 | 原程序 | 修复后
+BMI01 | 100 kg | 2 m | 25.0 | PASSED | PASSED
+BMI02 | 80 kg | 2 m | 20.0 | PASSED | PASSED
+BMI03 | 70 kg | 1.75 m | 22.857142857142858 | TARGET_EXCEPTION | PASSED
+BMI04 | 72 kg | 1.5 m | 32.0 | TARGET_EXCEPTION | PASSED
+BMI05 | 50 kg | 1.25 m | 32.0 | TARGET_EXCEPTION | PASSED
+BMI06 | 72.5 kg | 1 m | 72.5 | TARGET_EXCEPTION | PASSED
+
+原程序：FAIL，通过 2/6，失败 4/6。四项失败均是原程序解析小数时抛出 ValueError。
+本次留存的 LLM 报告将缺陷定位到 upstream_fitness.py:35-36，建议输入转换使用 float。--replay 时建议模块降级为规则模式；请在 docs/public_case/initial_report.json 查看原始模型建议。修改由本次实验操作者实施，仅改 BMI 分支两处转换。
+修复后：PASS_WITHIN_SCOPE，通过 6/6。适配器和标准未变，其他菜单尚未验收，静态质量仍有改进建议。
+
+提示词：上游原始提示词未知，不能推断缺陷由提示词遗漏造成。recommended_prompt.txt 留存本次 PyQuality 的新提示词建议；未据此重新生成代码，因此本案例不声称已验证提示词对重新生成成功率的提升。
+
+答辩表述：我们选择一个公开的 Copilot 辅助项目，保留原代码。程序在整数样例下能运行，但面对常见的小数身高就崩溃。PyQuality 用独立标准发现失败，给出带执行证据的修改建议；人工按建议修改两行后，复用同一组测试，通过数从 2/6 提升为 6/6。
+
+复现命令（在仓库根目录运行，需要 Docker）：
+.\.venv\Scripts\python.exe scripts\run_public_case.py --replay
+--replay 关闭模型调用，结果写入 data/public_case_replay，保留 docs 中本次真实模型报告。首次没有源码缓存时会下载固定提交的原文件并核验 Git blob；有缓存后可断网复现。

@@ -1,0 +1,547 @@
+{
+  "schema_version": "1.0",
+  "evaluation_id": "EVAL-739c30c76924",
+  "created_at": 1795343171.4277103,
+  "job_status": "PARTIAL",
+  "code_verdict": "PASS_WITHIN_SCOPE",
+  "assurance_level": "TESTED",
+  "spec_interpretation": "USER_CONFIRMED",
+  "summary": "按当前需求解读，本轮检查通过（范围内已认可检查全部执行且通过）。",
+  "requirement_results": [
+    {
+      "requirement_id": "R1",
+      "statement": "实现 clamp(value, lower, upper)。输入均为整数；lower 大于 upper 时抛出 ValueError；否则将 value 限制在闭区间 [lower, upper] 内，区间内保持原值。",
+      "status": "PASS_WITHIN_SCOPE",
+      "evidence_ids": [
+        "EV-3e9b3b57c326",
+        "EV-5fa375b2f9e8",
+        "EV-21d503f0b3c3",
+        "EV-ab905ae43224",
+        "EV-1d0366a76492",
+        "EV-e3aae2a2a7d8",
+        "EV-c5ea1964f26f",
+        "EV-e85f2567a06f"
+      ],
+      "failed_case_ids": [],
+      "explanation": "",
+      "assurance": "TESTED",
+      "code_location": "solution.py:clamp",
+      "uncovered_scope": "本轮通过 8 个认可案例；未穷尽输入域，不保证未测试输入",
+      "blocked_source": ""
+    }
+  ],
+  "prompt_report": {
+    "mappings": [
+      {
+        "requirement_id": "R1",
+        "status": "MISSING_FROM_VISIBLE_PROMPT",
+        "requirement_quote": "实现 clamp(value, lower, upper)。输入均为整数；lower 大于 upper 时抛出 ValueError；否则将 value 限制在闭区间 [lower, upper] 内，区间内保持原值。",
+        "prompt_quote": "",
+        "explanation": "可见提示词中未体现该要求；生成上下文未知，不能断言模型没收到要求"
+      }
+    ],
+    "extra_requirements": [],
+    "optimized_prompt": "实现 clamp(value, lower, upper)，超过上界时返回上界，其他情况直接返回 value。",
+    "changes": [],
+    "unresolved_questions": [
+      "离线规则模式：CONFLICT/AMBIGUOUS 判定与提示词改写需要模型或人工确认"
+    ],
+    "optimization_validation": "NOT_EVALUATED",
+    "mode": "RULE_FALLBACK",
+    "prompt_code_relation": [
+      {
+        "requirement_id": "R1",
+        "prompt_status": "MISSING_FROM_VISIBLE_PROMPT",
+        "code_status": "PASS_WITHIN_SCOPE",
+        "relation": "PROMPT_ISSUE_BUT_CODE_PASSES"
+      }
+    ]
+  },
+  "code_suggestions": [],
+  "repair_candidate": null,
+  "evidence": [
+    {
+      "evidence_id": "EV-3e9b3b57c326",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "37894ee642c79d83dce90934a7a0f1e0e172f02f73069c2897fd894dd5444927",
+      "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+      "plan_hash": "cff49acf6da5197dd222456c0317b6957935a191afbd68f6e114e487f3901aca",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T1",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 5,
+        "duration_ms": 27.61896400000019
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-739c30c76924\\evidence-results.json"
+      ],
+      "duration_ms": 27.61896400000019,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-5fa375b2f9e8",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "37894ee642c79d83dce90934a7a0f1e0e172f02f73069c2897fd894dd5444927",
+      "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+      "plan_hash": "cff49acf6da5197dd222456c0317b6957935a191afbd68f6e114e487f3901aca",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T2",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 0,
+        "duration_ms": 0.00272300000059289
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-739c30c76924\\evidence-results.json"
+      ],
+      "duration_ms": 0.00272300000059289,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-21d503f0b3c3",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "37894ee642c79d83dce90934a7a0f1e0e172f02f73069c2897fd894dd5444927",
+      "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+      "plan_hash": "cff49acf6da5197dd222456c0317b6957935a191afbd68f6e114e487f3901aca",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T3",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 10,
+        "duration_ms": 0.0013839999999376573
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-739c30c76924\\evidence-results.json"
+      ],
+      "duration_ms": 0.0013839999999376573,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-ab905ae43224",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "37894ee642c79d83dce90934a7a0f1e0e172f02f73069c2897fd894dd5444927",
+      "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+      "plan_hash": "cff49acf6da5197dd222456c0317b6957935a191afbd68f6e114e487f3901aca",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T4",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 0,
+        "duration_ms": 0.0011209999994932218
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-739c30c76924\\evidence-results.json"
+      ],
+      "duration_ms": 0.0011209999994932218,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-1d0366a76492",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "37894ee642c79d83dce90934a7a0f1e0e172f02f73069c2897fd894dd5444927",
+      "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+      "plan_hash": "cff49acf6da5197dd222456c0317b6957935a191afbd68f6e114e487f3901aca",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T5",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 10,
+        "duration_ms": 0.001172000000160267
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-739c30c76924\\evidence-results.json"
+      ],
+      "duration_ms": 0.001172000000160267,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-e3aae2a2a7d8",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "37894ee642c79d83dce90934a7a0f1e0e172f02f73069c2897fd894dd5444927",
+      "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+      "plan_hash": "cff49acf6da5197dd222456c0317b6957935a191afbd68f6e114e487f3901aca",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T6",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": -5,
+        "duration_ms": 0.0011620000002210418
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-739c30c76924\\evidence-results.json"
+      ],
+      "duration_ms": 0.0011620000002210418,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-c5ea1964f26f",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "37894ee642c79d83dce90934a7a0f1e0e172f02f73069c2897fd894dd5444927",
+      "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+      "plan_hash": "cff49acf6da5197dd222456c0317b6957935a191afbd68f6e114e487f3901aca",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T7",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 2,
+        "duration_ms": 0.0010299999999574538
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-739c30c76924\\evidence-results.json"
+      ],
+      "duration_ms": 0.0010299999999574538,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-e85f2567a06f",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "37894ee642c79d83dce90934a7a0f1e0e172f02f73069c2897fd894dd5444927",
+      "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+      "plan_hash": "cff49acf6da5197dd222456c0317b6957935a191afbd68f6e114e487f3901aca",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T8",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "exception_type": "ValueError",
+        "exception_message": "lower must not exceed upper",
+        "duration_ms": 0.00190999999993835
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-739c30c76924\\evidence-results.json"
+      ],
+      "duration_ms": 0.00190999999993835,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    }
+  ],
+  "coverage": {
+    "mandatory_requirements": 1,
+    "requirements_checked": 1,
+    "cases_planned": 8,
+    "cases_executed": 8,
+    "cases_passed": 8,
+    "cases_failed": 0
+  },
+  "blockers": [
+    "模型服务不可用：需求提取/语义审查/LLM 建议走确定降级路径"
+  ],
+  "limitations": [
+    "MVP 未对任意 Python 与任意自然语言需求提供普遍正确性证明",
+    "容器隔离（非特权/无网络/只读根/资源限额）：不等于抵御所有恶意代码的完备安全边界",
+    "输入不变检查不检测『先修改再恢复』的瞬时写入",
+    "操作者运行验收脚本，认可仓库样例的固定案例；结论不覆盖未测试输入。"
+  ],
+  "stage_results": [
+    {
+      "stage": "A_input_and_compile",
+      "status": "COMPLETED",
+      "detail": "编译检查通过",
+      "duration_ms": 1.0015000589191914
+    },
+    {
+      "stage": "B_spec",
+      "status": "COMPLETED",
+      "detail": "规格模式 USER_STANDARD，interpretation=USER_CONFIRMED",
+      "duration_ms": null
+    },
+    {
+      "stage": "E_execute",
+      "status": "COMPLETED",
+      "detail": "8 条案例证据",
+      "duration_ms": null
+    },
+    {
+      "stage": "F_prompt_audit",
+      "status": "COMPLETED",
+      "detail": "mode=RULE_FALLBACK",
+      "duration_ms": null
+    },
+    {
+      "stage": "F_suggestions",
+      "status": "COMPLETED",
+      "detail": "0 条建议",
+      "duration_ms": null
+    }
+  ],
+  "reproducibility": {
+    "code_hash": "37894ee642c79d83dce90934a7a0f1e0e172f02f73069c2897fd894dd5444927",
+    "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+    "plan_hash": "cff49acf6da5197dd222456c0317b6957935a191afbd68f6e114e487f3901aca",
+    "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+    "request_hash": "e1efe8e56c72d897e8b0f12f2477acfe0d3db7b7e825e7098f8c3f672240cba5"
+  },
+  "isolation_level": "DOCKER",
+  "acceptance_standard_id": "STD-1d8e13b6ad1843a28e945b65b2680d40",
+  "canonical_spec": {
+    "spec_id": "STD-1d8e13b6ad1843a28e945b65b2680d40",
+    "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+    "revision": 1,
+    "interpretation_status": "USER_CONFIRMED",
+    "requirements": [
+      {
+        "id": "R1",
+        "statement": "实现 clamp(value, lower, upper)。输入均为整数；lower 大于 upper 时抛出 ValueError；否则将 value 限制在闭区间 [lower, upper] 内，区间内保持原值。",
+        "kind": "FUNCTIONAL",
+        "mandatory": true,
+        "origin": "EXPLICIT",
+        "source_quote": "实现 clamp(value, lower, upper)。输入均为整数；lower 大于 upper 时抛出 ValueError；否则将 value 限制在闭区间 [lower, upper] 内，区间内保持原值。",
+        "source_start": null,
+        "source_end": null,
+        "acceptance_intent": "",
+        "unresolved_questions": [],
+        "derivation_basis": ""
+      }
+    ],
+    "input_domain": [],
+    "technical_constraints": [],
+    "unresolved_questions": [],
+    "limitations": [
+      "操作者运行验收脚本，认可仓库样例的固定案例；结论不覆盖未测试输入。"
+    ],
+    "requirement_text_digest": "实现 clamp(value, lower, upper)。输入均为整数；lower 大于 upper 时抛出 ValueError；否则将 value 限制在闭区间 [lower, upper] 内，区间内保持原值。"
+  },
+  "test_plan": {
+    "plan_id": "",
+    "plan_hash": "cff49acf6da5197dd222456c0317b6957935a191afbd68f6e114e487f3901aca",
+    "revision": 1,
+    "contracts": [
+      {
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "description": "固定样例验收",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "人工核对的固定样例",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+        "coverage_note": ""
+      }
+    ],
+    "cases": [
+      {
+        "case_id": "T1",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          5,
+          0,
+          10
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 5
+        },
+        "expected_basis": "区间内保持原值",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T2",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          -1,
+          0,
+          10
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 0
+        },
+        "expected_basis": "低于下界时返回下界",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T3",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          11,
+          0,
+          10
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 10
+        },
+        "expected_basis": "高于上界时返回上界",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T4",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          0,
+          0,
+          10
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 0
+        },
+        "expected_basis": "等于下界时保持",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T5",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          10,
+          0,
+          10
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 10
+        },
+        "expected_basis": "等于上界时保持",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T6",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          -8,
+          -5,
+          -1
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": -5
+        },
+        "expected_basis": "负数区间的下界",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T7",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          3,
+          2,
+          2
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 2
+        },
+        "expected_basis": "上下界相等",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T8",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          5,
+          10,
+          0
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RAISES",
+          "exception_type": "ValueError",
+          "message_contains": ""
+        },
+        "expected_basis": "倒置的范围必须抛出异常",
+        "input_domain_status": "IN_SCOPE"
+      }
+    ],
+    "coverage_notes": []
+  },
+  "quality_report": {
+    "status": "CLEAN",
+    "readability_score": 97.0,
+    "readability_grade": "A",
+    "findings": [],
+    "criteria": "高严重度安全问题需人工审查；其他静态问题给出改进建议，不替代功能测试。"
+  },
+  "usability": "USABLE_WITHIN_SCOPE",
+  "next_actions": []
+}

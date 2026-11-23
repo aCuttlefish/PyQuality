@@ -1,0 +1,29 @@
+{
+  "requirement": "实现 calculate_payable(items)。items 是商品字典列表，price 是最多两位小数的非负十进制金额字符串，quantity 是非负整数。按精确十进制金额计算总价，不能因二进制浮点误差改变优惠判断。总价达到或超过 100.00 元时减 20.00 元，每单只减一次；不足 100.00 元不优惠。返回恰好两位小数的金额字符串；空购物车返回 '0.00'。不得修改输入列表及商品字典。",
+  "generation_prompt": "帮我写一个 Python 函数 calculate_payable(items)，items 是商品字典列表，price 为金额字符串，quantity 为整数。请使用精确十进制金额计算（例如 decimal.Decimal），不得使用二进制浮点数进行金额转换或累加，确保总价计算及优惠判断不受浮点误差影响。逐项计算 price 乘以 quantity 并累加得到总价；当总价达到或超过 100.00 元时减 20.00 元，每单只减一次；不足 100.00 元不优惠。最后将应付金额格式化为恰好两位小数的字符串并返回；空购物车返回 '0.00'。不得修改输入列表及商品字典。只用标准库，代码简洁。",
+  "code": "from decimal import Decimal, ROUND_HALF_UP\n\n\ndef calculate_payable(items):\n    total = Decimal('0.00')\n    for item in items:\n        price = Decimal(str(item['price']))\n        quantity = int(item['quantity'])\n        total += price * quantity\n    if total >= Decimal('100.00'):\n        total -= Decimal('20.00')\n    return str(total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))\n",
+  "supporting_files": [],
+  "entrypoint": {
+    "module": "solution",
+    "callable": "calculate_payable"
+  },
+  "generation_context": {
+    "is_complete": true,
+    "requirements_also_visible": false,
+    "additional_messages": []
+  },
+  "acceptance_materials": {
+    "trusted_examples": [],
+    "confirmed_spec_id": "STD-d82f1c9e27e44d0b9e2b904118b22c9f",
+    "confirmed_spec_hash": "f1172b43303e040ce04e8a48321cfd94f4aa551a2ad7d1fd38eb5b0e367eae7f",
+    "approved_reference_id": null
+  },
+  "options": {
+    "oracle_policy": "confirmed_only",
+    "generate_repair_candidate": false,
+    "enable_property_testing": false,
+    "enable_crosshair": false,
+    "max_requirements": 20,
+    "max_cases": 40
+  }
+}
