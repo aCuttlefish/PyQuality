@@ -40,10 +40,17 @@ powershell -ExecutionPolicy Bypass -File scripts/start.ps1 -Install
 | `复盘报告/` | 陈宏伟、彭启诚、敖德太、薛奕辰的个人核对稿。 |
 | `demo.mp4` | 录制后由组长放到本目录，内容包括 PPT 讲解和工作台实机操作。 |
 
+## 汇报材料
+
+- [终期汇报 PPT（参考配色修订版）](docs/汇报与实机演示/PyQuality_SE4AI终期汇报_参考配色修订版.pptx)和[含实机演示的 20 分钟答辩稿](docs/汇报与实机演示/PyQuality_20分钟答辩稿_含实机演示.docx)
+- [28 张汇报配图的 draw.io 总源文件](docs/汇报与实机演示/draw.io配图/PyQuality_28张汇报配图.drawio)、[图片清单](docs/汇报与实机演示/draw.io配图/图片清单.txt)和 [PNG 导出图](docs/汇报与实机演示/draw.io配图/png/)
+- [PPT 大纲与参考脉络](docs/汇报与实机演示/PPT大纲/PyQuality_PPT大纲与参考脉络.txt)和[工作台演示截图](docs/汇报与实机演示/备用截图/)
+- [早期 PPT 与讲稿](docs/汇报与实机演示/早期汇报版本/)和[早期配图](docs/汇报与实机演示/早期配图/)
+
 ## 结果范围
 
 判定分为 `FAIL`、`PASS_WITHIN_SCOPE` 和 `INCONCLUSIVE`。范围内通过对应已确认、已执行的固定案例。功能结论与静态安全或质量问题分别报告。两组提示词改写实验表明留存的两份再生成代码在同一最终计划上改善，不能据此推断总体成功率。完整应用的可靠性需要单独的集成验收。
 
 ## GitHub 协作
 
-本分支的终期材料位于 course-delivery/。过程作业和交付说明可直接编辑 Markdown。四份原始 Word 稿保存在复盘报告目录，同时提供[网页可编辑的复盘核对稿](复盘报告/在线核对/README.md)。复盘文字在 Markdown 核对稿中同步，定稿后再输出 Word。组长确认收到的视频可放在交付目录根部。
+仓库主分支的终期材料位于 course-delivery/。过程作业和交付说明可直接编辑 Markdown。四份原始 Word 稿保存在复盘报告目录，同时提供[网页可编辑的复盘核对稿](复盘报告/在线核对/README.md)。复盘文字在 Markdown 核对稿中同步，定稿后再输出 Word。组长确认收到的视频可放在交付目录根部。

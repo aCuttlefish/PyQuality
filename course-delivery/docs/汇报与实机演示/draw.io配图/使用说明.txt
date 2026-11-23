@@ -1,0 +1,33 @@
+PyQuality draw.io 原生汇报配图使用说明
+
+交付内容
+  PyQuality_28张汇报配图.drawio   28 页总工程，由 draw.io 桌面版读写保存
+  drawio/                       28 个独立原生工程
+  png/                          28 张由 draw.io 导出的高清 PNG
+  svg/                          28 张由 draw.io 导出的 SVG
+  图片清单.html / 图片清单.txt    图片预览、列表与用途说明
+  preview/                      缩略总览
+  data/                         原生对象清单、实测快照、导出软件版本
+  source/                       原生工程生成及 draw.io 批量导出脚本
+
+如何编辑
+  使用 draw.io 桌面版，或在 https://app.diagrams.net/ 中选择从本地打开。
+  打开总工程后，通过底部图页标签切换 28 张图。
+  双击节点标题或文字可编辑。节点中的说明文字保留为子对象，可分别选择和修改。
+  节点和分组保留父子关系，已绑定连接线保留 source / target 锚点。
+  图层面板包含“版式、标题与图注”和“工程图形与连接线”，可分别控制显示。
+  保存源文件使用 .drawio；插入 PowerPoint / WPS 时选择 png 中的图片。
+
+导出来源
+  使用 draw.io Desktop 32.6.10 的原生导出功能。
+  PNG 与 SVG 已勾选嵌入工程数据，也可以再用 draw.io 打开。
+  所有页面由原生矩形、椭圆、判断菱形、UML Actor、文本和连接线组成。
+  原生工程不包含贴图型图形单元。数据和能力边界沿用上一版核对结果。
+  Windows 导出的 PNG 约为 3200 × 1800；精确尺寸见 data/manifest.json。
+
+重新生成与导出
+  node source/build_drawio.js
+  python source/export_with_drawio.py --exe "你的 draw.io.exe 完整路径"
+  python source/build_catalog.py
+  Node 生成步骤只使用标准库；图片渲染与工程保存由 draw.io 桌面版负责。
+  本包不捆绑 draw.io 软件，绘图源文件可直接在现有桌面版或网页版中打开。
