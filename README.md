@@ -1,85 +1,64 @@
-# PyQuality v4.3 · Python AI 生成代码验收平台
+# PyQuality 终期交付
 
-PyQuality 帮你用可复核的测试回答一个问题：**AI 生成的 Python 代码满足功能需求吗？** 提交功能需求、原始提示词和候选代码，确认测试标准后运行验收。系统报告失败案例的输入、期望和实际结果，给出代码修改建议，并在模型可用时诊断提示词中的遗漏、歧义和冲突。修改代码或重新生成后，可以按同一标准复测。
+> **《软件理论与工程》课程终期交付 · 优秀项目归档（明年教学工具候选）**
 
-[快速开始](#快速开始) · [验收规则](#验收规则) · [实测案例](#实测案例) · [课程交付](#课程交付)
+PyQuality 验收 AI 生成的 Python 函数。用户先提出需求或提示词，由 AI 多轮追问澄清边界后生成固定测试用例；人工核对并锁定标准后，把待测代码送进 Docker 容器实跑判定，支持基于失败反例生成修复候选并沿用同一锁定标准复测。
 
-## 快速开始
+## 课程材料
 
-在 Windows 上准备 Python 并启动 Docker Desktop。首次运行时，在用于存放项目的目录执行以下命令。
+[终期汇报 PPT](docs/汇报与实机演示/PyQuality_终期汇报.pptx) · [精简口播稿](docs/汇报与实机演示/PyQuality_终期汇报口播稿.md) · [实机演示视频 demo.mp4](demo.mp4) · [团队 AI 协作记录](复盘报告/协作记录索引.md) · [AI 协作与核查记录](docs/AI协作与核查记录.md)
+
+| 成员 | 学号 | 作业 1 · 可验证规格 | 作业 2 · 评测集与 AI 使用日志 | 个人复盘 |
+| --- | --- | --- | --- | --- |
+| 陈宏伟 | 3220261335 | [可验证规格](docs/过程作业/个人作业/陈宏伟_3220261335/作业1/requirements.md) | [评测集与日志](docs/过程作业/个人作业/陈宏伟_3220261335/作业2/评测集与AI使用日志.md) | [Word](复盘报告/陈宏伟_3220261335_个人复盘报告.docx) · [在线阅读](复盘报告/在线版/chen-hongwei.md) |
+| 彭启诚 | 3220261380 | [可验证规格](docs/过程作业/个人作业/彭启诚_3220261380/作业1/requirements.md) | [评测集与日志](docs/过程作业/个人作业/彭启诚_3220261380/作业2/评测集与AI使用日志.md) | [Word](复盘报告/彭启诚_3220261380_个人复盘报告.docx) · [在线阅读](复盘报告/在线版/peng-qicheng.md) |
+| 敖德太 | 3220261332 | [可验证规格](docs/过程作业/个人作业/敖德太_3220261332/作业1/requirements.md) | [评测集与日志](docs/过程作业/个人作业/敖德太_3220261332/作业2/评测集与AI使用日志.md) | [Word](复盘报告/敖德太_3220261332_个人复盘报告.docx) · [在线阅读](复盘报告/在线版/ao-detai.md) |
+| 薛奕辰 | 3220261418 | [可验证规格](docs/过程作业/个人作业/薛奕辰_3220261418/作业1/requirements.md) | [评测集与日志](docs/过程作业/个人作业/薛奕辰_3220261418/作业2/评测集与AI使用日志.md) | [Word](复盘报告/薛奕辰_3220261418_个人复盘报告.docx) · [在线阅读](复盘报告/在线版/xue-yichen.md) |
+
+## 启动和实机复现
+
+环境为 Windows PowerShell、Python 和正在运行的 Docker Desktop。首次启动会安装 `code/backend/requirements.txt` 的依赖，并在缺少执行镜像时准备 `python:3.10-slim`。在本交付目录执行以下命令：
 
 ```powershell
-git clone https://github.com/aCuttlefish/PyQuality.git
-Set-Location PyQuality
+Set-Location .\code
 powershell -ExecutionPolicy Bypass -File scripts/start.ps1 -Install
 ```
 
-脚本创建 Python 虚拟环境、安装依赖，并准备执行镜像 `python:3.10-slim`。依赖装好后，后续启动可省略 `-Install`。打开 [验收工作台](http://127.0.0.1:8000/acceptance.html)。
+打开首页 `http://127.0.0.1:8000/`，点击顶部 **「🧾 发起代码验收」**（或在对话框输入 `/accept`），即可走完统一对话流验收：**步骤 1 提需求或提示词并由 AI 多轮追问澄清 → 步骤 2 生成卡片化测试用例并人工锁定标准 → 步骤 3 贴入代码进 Docker 隔离验收 → 步骤 4 手动修改或一键 AI 按失败反例修复并沿用原标准复测**（原独立验收页 `/acceptance.html` 保持兼容）。完整实机口播与复现数据见 [终期口播稿](docs/汇报与实机演示/PyQuality_终期汇报口播稿.md)，录制视频见 [demo.mp4](demo.mp4)。
 
-### 用元音统计示例体验
+默认的固定样例验收可以在无模型密钥时运行。要验证实时提示词诊断，需自行在启动进程中配置 `DEEPSEEK_API_KEY`。报告的模型配置状态和真实调用证据分别核对。交付中的历史模型记录保存在 `eval/`。
 
-1. 在「加载演示」选择「元音统计」并点击「填入」。页面会加载需求、原始提示词、错误实现和预先核对的测试。
-2. 核对输入与期望，勾选确认框，依次点击「确认标准」和「开始验收」。原实现通过 **4/7**。例如，输入 `AEIOU` 时期望 `5`，实际返回 `0`。
-3. 点击「换入示例正确实现」，再次点击「开始验收」。同一标准下通过 **7/7**。两轮报告都可下载为 JSON，供复核和对照。
+## 测试与评测
 
-### 验收自己的代码
-
-填写功能需求、原始提示词、候选代码和待测函数名。使用「手动填写测试」输入每个案例的参数与期望，再确认并执行。位置参数按 JSON 数组填写，例如给函数传入一个字符串时填 `["AEIOU"]`。
-
-如需「生成验收标准」和提示词语义诊断，在项目根目录的 `.env` 中配置 `DEEPSEEK_API_KEY`，再启动服务。内置演示和手工测试可在未配置模型时运行。完整操作、接口和运行环境见 [验收工作流](docs/workflow_acceptance.md)。
-
-## 验收规则
-
-先由人确认需求和测试预期，再由程序在 Docker 中执行候选代码，并将实际结果与固定预期比较。修改需求或函数入口时重新确认标准。代码或原始提示词变更时可以复用标准。
-
-| 功能结论 | 判定依据 |
-| --- | --- |
-| 失败 `FAIL` | 必要需求出现有效失败证据，例如实际返回值与已确认的期望不符。 |
-| 范围内通过 `PASS_WITHIN_SCOPE` | 满足标准确认条件，并通过本轮已确认的充分检查。结论覆盖已确认的验收范围。 |
-| 无法判定 `INCONCLUSIVE` | 规格未确认、关键检查不足、执行超时或环境阻断。 |
-
-报告分别展示功能结论、静态质量发现与改进建议。功能反例附带输入、期望、实际与证据编号。当前验收入口支持以 JSON 传参的 Python 函数。完整 Web、GUI 或数据库应用需要相应的集成测试。
-
-## 实测案例
-
-以下业务场景由课设设计。两组初始代码和改进后的代码均由 DeepSeek 实际生成。每组在 Docker 中复用同一份最终确认计划比较结果。
-
-| 案例 | 原代码 | 使用改写后的提示词重新生成 | 发现的问题 |
-| --- | ---: | ---: | --- |
-| 电商满减金额计算 | 10/11 | 11/11 | 浮点误差导致恰好满 100 元的购物车未减免。 |
-| 通讯录邮箱去重 | 5/9 | 9/9 | 比较邮箱时未去除首尾空格和统一大小写，导致重复联系人残留。 |
-
-可复查生成提示词、模型原始输出、代码和两轮报告。[真实模型案例与证据](docs/real_cases/README.md)
-
-## 测试与复现
-
-最终交付版的回归验证通过了 **457 项自动化测试**和 **5 个 Docker 验收场景**（并新增首页统一对话入口 `/accept`、多轮需求追问 `/clarify`、基于失败反例的 AI 修复候选 `/repair` 及终期演示视频 `course-delivery/demo.mp4`）。完成首次安装后，在仓库根目录执行：
+在另一个 PowerShell 窗口进入交付目录的 `code/`，确认虚拟环境已安装依赖：
 
 ```powershell
-.\.venv\Scripts\python.exe -m pytest tests -q
-.\.venv\Scripts\python.exe scripts/verify_workflow.py
-.\.venv\Scripts\python.exe scripts/run_real_cases.py --replay
+.\.venv\Scripts\python.exe -m pytest ..\tests -q
+.\.venv\Scripts\python.exe scripts\verify_workflow.py
+.\.venv\Scripts\python.exe scripts\run_real_cases.py --replay
 ```
 
-第二条命令在 Docker 中验证错误实现、修正实现、证据引用及标准复用。第三条以留存的模型代码重跑两组业务案例。[交付验证记录](course-delivery/tests/交付验证记录.md) · [评测材料](course-delivery/eval/README.md)
+第一条运行项目回归测试。第二条用 Docker 执行五个固定样例的原实现及修正版，输出默认写到 `code/data/workflow_verification/`。第三条用留存的真实模型代码复跑两组业务实验，输出写到 `code/data/real_cases_replay/`。复跑环节不调用模型，模型行为请对照原始报告。参见 [测试说明](tests/README.md) 和 [评测说明](eval/README.md)。
 
-## 项目结构
+本次交付副本的回归结果为 **457 项通过**（0 失败，新增统一对话 `/accept`、需求多轮追问 `/clarify`、无代码 `/prepare`、嵌套列表 `ORDERED`、排序自动补齐与 `/repair` 测试）。工作台验收接口已用真实 Docker 验证元音统计 **4/7 → 7/7** 以及 GitHub Copilot 公开案例 `possibilities(m, n)` 修复复测 **11/11**，标准 ID 与计划摘要一致。两组业务实验的留存代码也已复跑，结果与原报告一致。见[交付验证记录](tests/交付验证记录.md)。
 
-| 目录 | 用途 |
+## 交付目录
+
+| 位置 | 内容 |
 | --- | --- |
-| [backend/acceptance](backend/acceptance/) | 验收标准、隔离执行、证据判定和建议生成。 |
-| [backend/routers](backend/routers/) | FastAPI 接口。验收接口路径以 `/api/acceptance` 开头。 |
-| [backend/analyzers](backend/analyzers/) | AST 静态分析，包括复杂度、代码坏味、依赖和可读性。 |
-| [frontend](frontend/) | 原生 HTML、CSS 和 JavaScript 界面。 |
-| [samples](samples/) · [tests](tests/) · [scripts](scripts/) | 演示样例、自动化测试、启动及复跑脚本。 |
+| `code/` | 应用源码、运行依赖、启动与复跑脚本、内置演示样例。 |
+| `docs/` | 项目设计、验收记录、人机协作文档、汇报材料和两次过程作业。 |
+| `tests/` | PyQuality 自身的自动化回归用例。 |
+| `eval/` | 被验收代码的案例、预期值、前后报告和原始模型响应。 |
+| `复盘报告/` | 陈宏伟、彭启诚、敖德太、薛奕辰的个人复盘报告（Word 与在线版）及团队协作记录索引。 |
+| `demo.mp4` | 终期汇报与实机演示视频（PPT 讲解 + 统一对话框真机验收全流程）。 |
+| `README.md` | 项目总览、交付目录索引与一键复现说明。 |
 
-服务首页提供项目质量分析，可上传 Python 项目，查看静态分析、历史趋势和修复建议。进入对话后输入 `/help` 查看命令。服务启动后可在 [API 文档](http://127.0.0.1:8000/docs) 浏览接口。[项目分析功能说明](docs/core_features.md)
+## 汇报材料
 
-## 课程交付
+- [终期汇报 PPT](docs/汇报与实机演示/PyQuality_终期汇报.pptx) · [终期口播稿与演示附录](docs/汇报与实机演示/PyQuality_终期汇报口播稿.md) · [实机演示视频 demo.mp4](demo.mp4)
+- [28 张汇报配图的 draw.io 总源文件](docs/汇报与实机演示/draw.io配图/PyQuality_28张汇报配图.drawio)、[图片清单](docs/汇报与实机演示/draw.io配图/图片清单.txt)和 [PNG 导出图](docs/汇报与实机演示/draw.io配图/png/)
 
-- [终期交付总目录](course-delivery/README.md) · [实机演示视频 demo.mp4](course-delivery/demo.mp4)
-- [终期汇报 PPT](course-delivery/docs/汇报与实机演示/PyQuality_终期汇报.pptx) · [精简口播稿](course-delivery/docs/汇报与实机演示/PyQuality_终期汇报口播稿.md) · [AI 协作与核查记录](course-delivery/docs/AI协作与核查记录.md)
-- [28 张 draw.io 配图及图片清单](course-delivery/docs/汇报与实机演示/draw.io配图/) · [PPT 大纲](course-delivery/docs/汇报与实机演示/PPT大纲/)
-- [过程作业](course-delivery/docs/过程作业/) · [评测材料](course-delivery/eval/) · [四位组员的个人复盘报告](course-delivery/复盘报告/)
+## 结果范围
 
-历次汇报版本保存在[汇报材料存档](archive/汇报材料/)。
+判定分为 `FAIL`、`PASS_WITHIN_SCOPE` 和 `INCONCLUSIVE`。范围内通过对应已确认、已执行的固定案例。功能结论与静态安全或质量问题分别报告。两组实验使用各自固定的测试计划。改写提示词后，满减案例从 10/11 提高到 11/11，通讯录案例从 5/9 提高到 9/9。总体成功率还需要更大规模的评测。完整应用的可靠性需要单独的集成验收。

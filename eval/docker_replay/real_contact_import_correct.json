@@ -1,0 +1,846 @@
+{
+  "schema_version": "1.0",
+  "evaluation_id": "EVAL-ee21388a9818",
+  "created_at": 1795343172.5844896,
+  "job_status": "PARTIAL",
+  "code_verdict": "PASS_WITHIN_SCOPE",
+  "assurance_level": "TESTED",
+  "spec_interpretation": "USER_CONFIRMED",
+  "summary": "按当前需求解读，本轮检查通过（范围内已认可检查全部执行且通过）。",
+  "requirement_results": [
+    {
+      "requirement_id": "R1",
+      "statement": "实现 deduplicate_contacts(contacts)，用于通讯录导入去重。contacts 为联系人字典列表，每条均有 name 和 email；email 是非空 ASCII 字符串，可带首尾空格。比较邮箱时须去除首尾空格并忽略字母大小写；去重键的规范化不得改变输出记录原有的 email 内容。重复邮箱保留第一次出现的完整记录，结果按被保留记录在原列表中第一次出现的顺序排列。不得修改输入列表或任一联系人字典；空列表返回空列表。",
+      "status": "PASS_WITHIN_SCOPE",
+      "evidence_ids": [
+        "EV-5bb02a752261",
+        "EV-c836f3d6f1ab",
+        "EV-496816314ad9",
+        "EV-21f85a378f42",
+        "EV-6b6b79e248fa",
+        "EV-80b33c22b804",
+        "EV-86f2733e5f08",
+        "EV-bf5973cc7195",
+        "EV-3a74b47094e7"
+      ],
+      "failed_case_ids": [],
+      "explanation": "",
+      "assurance": "TESTED",
+      "code_location": "solution.py:deduplicate_contacts",
+      "uncovered_scope": "本轮通过 9 个认可案例；未穷尽输入域，不保证未测试输入",
+      "blocked_source": ""
+    }
+  ],
+  "prompt_report": {
+    "mappings": [
+      {
+        "requirement_id": "R1",
+        "status": "MISSING_FROM_VISIBLE_PROMPT",
+        "requirement_quote": "实现 deduplicate_contacts(contacts)，用于通讯录导入去重。contacts 为联系人字典列表，每条均有 name 和 email；email 是非空 ASCII 字符串，可带首尾空格。比较邮箱时须去除首尾空格并忽略字母大小写；去重键的规范化不得改变输出记录原有的 email 内容。重复邮箱保留第一次出现的完整记录，结果按被保留记录在原列表中第一次出现的顺序排列。不得修改输入列表或任一联系人字典；空列表返回空列表。",
+        "prompt_quote": "",
+        "explanation": "可见提示词中未体现该要求；生成上下文未知，不能断言模型没收到要求"
+      }
+    ],
+    "extra_requirements": [],
+    "optimized_prompt": "帮我写一个 Python 函数 deduplicate_contacts(contacts)。contacts 是联系人字典列表，每条有 name 和 email。按 email 字段去重，每个邮箱只保留一条，返回去重后的联系人列表。用字典实现，代码简洁，只用标准库。",
+    "changes": [],
+    "unresolved_questions": [
+      "离线规则模式：CONFLICT/AMBIGUOUS 判定与提示词改写需要模型或人工确认"
+    ],
+    "optimization_validation": "NOT_EVALUATED",
+    "mode": "RULE_FALLBACK",
+    "prompt_code_relation": [
+      {
+        "requirement_id": "R1",
+        "prompt_status": "MISSING_FROM_VISIBLE_PROMPT",
+        "code_status": "PASS_WITHIN_SCOPE",
+        "relation": "PROMPT_ISSUE_BUT_CODE_PASSES"
+      }
+    ]
+  },
+  "code_suggestions": [],
+  "repair_candidate": null,
+  "evidence": [
+    {
+      "evidence_id": "EV-5bb02a752261",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "ebb594f35a7d9ca4f507dcc4e1d625b01dfd998875adbe43fa8fe170c810bc19",
+      "spec_hash": "616b0f2b2eea95ae59502d4f85f672e6670d6170a2b705f911ae2709876838f5",
+      "plan_hash": "fbf03726663730c9cce02d60d4fb521bd18fd0f2957b578210851effded33334",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T1",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": [],
+        "duration_ms": 34.918546000000106
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-ee21388a9818\\evidence-results.json"
+      ],
+      "duration_ms": 34.918546000000106,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-c836f3d6f1ab",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "ebb594f35a7d9ca4f507dcc4e1d625b01dfd998875adbe43fa8fe170c810bc19",
+      "spec_hash": "616b0f2b2eea95ae59502d4f85f672e6670d6170a2b705f911ae2709876838f5",
+      "plan_hash": "fbf03726663730c9cce02d60d4fb521bd18fd0f2957b578210851effded33334",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T2",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": [
+          {
+            "name": "Alice 首次导入",
+            "email": "Alice@Example.com"
+          }
+        ],
+        "duration_ms": 0.0042499999999279225
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-ee21388a9818\\evidence-results.json"
+      ],
+      "duration_ms": 0.0042499999999279225,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-496816314ad9",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "ebb594f35a7d9ca4f507dcc4e1d625b01dfd998875adbe43fa8fe170c810bc19",
+      "spec_hash": "616b0f2b2eea95ae59502d4f85f672e6670d6170a2b705f911ae2709876838f5",
+      "plan_hash": "fbf03726663730c9cce02d60d4fb521bd18fd0f2957b578210851effded33334",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T3",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": [
+          {
+            "name": "Bob 原始记录",
+            "email": " bob@example.com "
+          },
+          {
+            "name": "Alice 首次导入",
+            "email": "Alice@Example.com"
+          },
+          {
+            "name": "Carol",
+            "email": "carol@example.com"
+          }
+        ],
+        "duration_ms": 0.0033759999995552903
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-ee21388a9818\\evidence-results.json"
+      ],
+      "duration_ms": 0.0033759999995552903,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-21f85a378f42",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "ebb594f35a7d9ca4f507dcc4e1d625b01dfd998875adbe43fa8fe170c810bc19",
+      "spec_hash": "616b0f2b2eea95ae59502d4f85f672e6670d6170a2b705f911ae2709876838f5",
+      "plan_hash": "fbf03726663730c9cce02d60d4fb521bd18fd0f2957b578210851effded33334",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T4",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": [
+          {
+            "name": "Alice 首次导入",
+            "email": "Alice@Example.com"
+          }
+        ],
+        "duration_ms": 0.0020950000001462854
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-ee21388a9818\\evidence-results.json"
+      ],
+      "duration_ms": 0.0020950000001462854,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-6b6b79e248fa",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "ebb594f35a7d9ca4f507dcc4e1d625b01dfd998875adbe43fa8fe170c810bc19",
+      "spec_hash": "616b0f2b2eea95ae59502d4f85f672e6670d6170a2b705f911ae2709876838f5",
+      "plan_hash": "fbf03726663730c9cce02d60d4fb521bd18fd0f2957b578210851effded33334",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T5",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": [
+          {
+            "name": "Alice 首次导入",
+            "email": "Alice@Example.com"
+          }
+        ],
+        "duration_ms": 0.0014749999994734253
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-ee21388a9818\\evidence-results.json"
+      ],
+      "duration_ms": 0.0014749999994734253,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-80b33c22b804",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "ebb594f35a7d9ca4f507dcc4e1d625b01dfd998875adbe43fa8fe170c810bc19",
+      "spec_hash": "616b0f2b2eea95ae59502d4f85f672e6670d6170a2b705f911ae2709876838f5",
+      "plan_hash": "fbf03726663730c9cce02d60d4fb521bd18fd0f2957b578210851effded33334",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T6",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": [
+          {
+            "name": "Bob 原始记录",
+            "email": " bob@example.com "
+          }
+        ],
+        "duration_ms": 0.0018740000005124102
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-ee21388a9818\\evidence-results.json"
+      ],
+      "duration_ms": 0.0018740000005124102,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-86f2733e5f08",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "ebb594f35a7d9ca4f507dcc4e1d625b01dfd998875adbe43fa8fe170c810bc19",
+      "spec_hash": "616b0f2b2eea95ae59502d4f85f672e6670d6170a2b705f911ae2709876838f5",
+      "plan_hash": "fbf03726663730c9cce02d60d4fb521bd18fd0f2957b578210851effded33334",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T7",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": [
+          {
+            "name": "Bob 原始记录",
+            "email": " bob@example.com "
+          },
+          {
+            "name": "Alice 首次导入",
+            "email": "Alice@Example.com"
+          },
+          {
+            "name": "Carol",
+            "email": "carol@example.com"
+          }
+        ],
+        "duration_ms": 0.0021409999995114504
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-ee21388a9818\\evidence-results.json"
+      ],
+      "duration_ms": 0.0021409999995114504,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-bf5973cc7195",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "ebb594f35a7d9ca4f507dcc4e1d625b01dfd998875adbe43fa8fe170c810bc19",
+      "spec_hash": "616b0f2b2eea95ae59502d4f85f672e6670d6170a2b705f911ae2709876838f5",
+      "plan_hash": "fbf03726663730c9cce02d60d4fb521bd18fd0f2957b578210851effded33334",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T8",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": [
+          {
+            "name": "Bob 原始记录",
+            "email": " bob@example.com "
+          },
+          {
+            "name": "Alice 首次导入",
+            "email": "Alice@Example.com"
+          },
+          {
+            "name": "Carol",
+            "email": "carol@example.com"
+          }
+        ],
+        "args_before": {
+          "arg:0": [
+            {
+              "name": "Bob 原始记录",
+              "email": " bob@example.com "
+            },
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            },
+            {
+              "name": "Alice 后续导入",
+              "email": "alice@example.com"
+            },
+            {
+              "name": "Bob 重复记录",
+              "email": "bob@example.com"
+            },
+            {
+              "name": "Carol",
+              "email": "carol@example.com"
+            }
+          ]
+        },
+        "args_after": {
+          "arg:0": [
+            {
+              "name": "Bob 原始记录",
+              "email": " bob@example.com "
+            },
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            },
+            {
+              "name": "Alice 后续导入",
+              "email": "alice@example.com"
+            },
+            {
+              "name": "Bob 重复记录",
+              "email": "bob@example.com"
+            },
+            {
+              "name": "Carol",
+              "email": "carol@example.com"
+            }
+          ]
+        },
+        "duration_ms": 0.026539000000269652
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-ee21388a9818\\evidence-results.json"
+      ],
+      "duration_ms": 0.026539000000269652,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-3a74b47094e7",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "ebb594f35a7d9ca4f507dcc4e1d625b01dfd998875adbe43fa8fe170c810bc19",
+      "spec_hash": "616b0f2b2eea95ae59502d4f85f672e6670d6170a2b705f911ae2709876838f5",
+      "plan_hash": "fbf03726663730c9cce02d60d4fb521bd18fd0f2957b578210851effded33334",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T9",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": [
+          {
+            "name": "Alice 首次导入",
+            "email": "Alice@Example.com"
+          },
+          {
+            "name": "Bob 原始记录",
+            "email": " bob@example.com "
+          }
+        ],
+        "duration_ms": 0.003831999999981406
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-ee21388a9818\\evidence-results.json"
+      ],
+      "duration_ms": 0.003831999999981406,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    }
+  ],
+  "coverage": {
+    "mandatory_requirements": 1,
+    "requirements_checked": 1,
+    "cases_planned": 9,
+    "cases_executed": 9,
+    "cases_passed": 9,
+    "cases_failed": 0
+  },
+  "blockers": [
+    "模型服务不可用：需求提取/语义审查/LLM 建议走确定降级路径"
+  ],
+  "limitations": [
+    "MVP 未对任意 Python 与任意自然语言需求提供普遍正确性证明",
+    "容器隔离（非特权/无网络/只读根/资源限额）：不等于抵御所有恶意代码的完备安全边界",
+    "输入不变检查不检测『先修改再恢复』的瞬时写入",
+    "操作者运行验收脚本，认可仓库样例的固定案例；结论不覆盖未测试输入。"
+  ],
+  "stage_results": [
+    {
+      "stage": "A_input_and_compile",
+      "status": "COMPLETED",
+      "detail": "编译检查通过",
+      "duration_ms": 1.144799985922873
+    },
+    {
+      "stage": "B_spec",
+      "status": "COMPLETED",
+      "detail": "规格模式 USER_STANDARD，interpretation=USER_CONFIRMED",
+      "duration_ms": null
+    },
+    {
+      "stage": "E_execute",
+      "status": "COMPLETED",
+      "detail": "9 条案例证据",
+      "duration_ms": null
+    },
+    {
+      "stage": "F_prompt_audit",
+      "status": "COMPLETED",
+      "detail": "mode=RULE_FALLBACK",
+      "duration_ms": null
+    },
+    {
+      "stage": "F_suggestions",
+      "status": "COMPLETED",
+      "detail": "0 条建议",
+      "duration_ms": null
+    }
+  ],
+  "reproducibility": {
+    "code_hash": "ebb594f35a7d9ca4f507dcc4e1d625b01dfd998875adbe43fa8fe170c810bc19",
+    "spec_hash": "616b0f2b2eea95ae59502d4f85f672e6670d6170a2b705f911ae2709876838f5",
+    "plan_hash": "fbf03726663730c9cce02d60d4fb521bd18fd0f2957b578210851effded33334",
+    "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+    "request_hash": "548ed850c7429e28da68b636cbbe6a092c12f81d4bf1635d20daaf9a8cfdb23a"
+  },
+  "isolation_level": "DOCKER",
+  "acceptance_standard_id": "STD-af5933bceadb4209990cc24da6c5e6d8",
+  "canonical_spec": {
+    "spec_id": "STD-af5933bceadb4209990cc24da6c5e6d8",
+    "spec_hash": "616b0f2b2eea95ae59502d4f85f672e6670d6170a2b705f911ae2709876838f5",
+    "revision": 1,
+    "interpretation_status": "USER_CONFIRMED",
+    "requirements": [
+      {
+        "id": "R1",
+        "statement": "实现 deduplicate_contacts(contacts)，用于通讯录导入去重。contacts 为联系人字典列表，每条均有 name 和 email；email 是非空 ASCII 字符串，可带首尾空格。比较邮箱时须去除首尾空格并忽略字母大小写；去重键的规范化不得改变输出记录原有的 email 内容。重复邮箱保留第一次出现的完整记录，结果按被保留记录在原列表中第一次出现的顺序排列。不得修改输入列表或任一联系人字典；空列表返回空列表。",
+        "kind": "FUNCTIONAL",
+        "mandatory": true,
+        "origin": "EXPLICIT",
+        "source_quote": "实现 deduplicate_contacts(contacts)，用于通讯录导入去重。contacts 为联系人字典列表，每条均有 name 和 email；email 是非空 ASCII 字符串，可带首尾空格。比较邮箱时须去除首尾空格并忽略字母大小写；去重键的规范化不得改变输出记录原有的 email 内容。重复邮箱保留第一次出现的完整记录，结果按被保留记录在原列表中第一次出现的顺序排列。不得修改输入列表或任一联系人字典；空列表返回空列表。",
+        "source_start": null,
+        "source_end": null,
+        "acceptance_intent": "",
+        "unresolved_questions": [],
+        "derivation_basis": ""
+      }
+    ],
+    "input_domain": [],
+    "technical_constraints": [],
+    "unresolved_questions": [],
+    "limitations": [
+      "操作者运行验收脚本，认可仓库样例的固定案例；结论不覆盖未测试输入。"
+    ],
+    "requirement_text_digest": "实现 deduplicate_contacts(contacts)，用于通讯录导入去重。contacts 为联系人字典列表，每条均有 name 和 email；email 是非空 ASCII 字符串，可带首尾空格。比较邮箱时须去除首尾空格并忽略字母大小写；去重键的规范化不得改变输出记录原有的 email 内容。重复邮箱保留第一次出现的完整记录，结果按被保留记录在原列表中第一次出现的顺序排列。不得修改输入列表或任一联系人字典；空列表返回空列表。"
+  },
+  "test_plan": {
+    "plan_id": "",
+    "plan_hash": "fbf03726663730c9cce02d60d4fb521bd18fd0f2957b578210851effded33334",
+    "revision": 1,
+    "contracts": [
+      {
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "description": "固定样例验收",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "人工核对的固定样例",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "616b0f2b2eea95ae59502d4f85f672e6670d6170a2b705f911ae2709876838f5",
+        "coverage_note": ""
+      }
+    ],
+    "cases": [
+      {
+        "case_id": "T1",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          []
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": []
+        },
+        "expected_basis": "空列表返回空列表",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T2",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": [
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            }
+          ]
+        },
+        "expected_basis": "保留输出原记录的邮箱大小写",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T3",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "name": "Bob 原始记录",
+              "email": " bob@example.com "
+            },
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            },
+            {
+              "name": "Carol",
+              "email": "carol@example.com"
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": [
+            {
+              "name": "Bob 原始记录",
+              "email": " bob@example.com "
+            },
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            },
+            {
+              "name": "Carol",
+              "email": "carol@example.com"
+            }
+          ]
+        },
+        "expected_basis": "不同邮箱按输入顺序输出",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T4",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            },
+            {
+              "name": "Alice 后续更新",
+              "email": "Alice@Example.com"
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": [
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            }
+          ]
+        },
+        "expected_basis": "相同邮箱不同姓名时保留第一条完整记录",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T5",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            },
+            {
+              "name": "Alice 后续导入",
+              "email": "alice@example.com"
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": [
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            }
+          ]
+        },
+        "expected_basis": "Alice@Example.com 和 alice@example.com 归为同一邮箱",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T6",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "name": "Bob 原始记录",
+              "email": " bob@example.com "
+            },
+            {
+              "name": "Bob 重复记录",
+              "email": "bob@example.com"
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": [
+            {
+              "name": "Bob 原始记录",
+              "email": " bob@example.com "
+            }
+          ]
+        },
+        "expected_basis": "去除首尾空格后相同，保留第一条且不改写原 email",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T7",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "name": "Bob 原始记录",
+              "email": " bob@example.com "
+            },
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            },
+            {
+              "name": "Bob 重复记录",
+              "email": "bob@example.com"
+            },
+            {
+              "name": "Carol",
+              "email": "carol@example.com"
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": [
+            {
+              "name": "Bob 原始记录",
+              "email": " bob@example.com "
+            },
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            },
+            {
+              "name": "Carol",
+              "email": "carol@example.com"
+            }
+          ]
+        },
+        "expected_basis": "去重后仍按原始首次出现顺序排列",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T8",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "name": "Bob 原始记录",
+              "email": " bob@example.com "
+            },
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            },
+            {
+              "name": "Alice 后续导入",
+              "email": "alice@example.com"
+            },
+            {
+              "name": "Bob 重复记录",
+              "email": "bob@example.com"
+            },
+            {
+              "name": "Carol",
+              "email": "carol@example.com"
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "INPUT_UNCHANGED",
+          "targets": [
+            {
+              "kind": "ARG",
+              "index": 0,
+              "name": null
+            }
+          ]
+        },
+        "expected_basis": "独立保存输入快照，验证调用前后列表及嵌套记录完全相同",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T9",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          [
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            },
+            {
+              "name": "重复",
+              "email": "  ALICE@EXAMPLE.COM  "
+            },
+            {
+              "name": "Bob 原始记录",
+              "email": " bob@example.com "
+            }
+          ]
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": [
+            {
+              "name": "Alice 首次导入",
+              "email": "Alice@Example.com"
+            },
+            {
+              "name": "Bob 原始记录",
+              "email": " bob@example.com "
+            }
+          ]
+        },
+        "expected_basis": "同时存在大小写与空格差异，保持第一条和顺序",
+        "input_domain_status": "IN_SCOPE"
+      }
+    ],
+    "coverage_notes": []
+  },
+  "quality_report": {
+    "status": "CLEAN",
+    "readability_score": 100.0,
+    "readability_grade": "A",
+    "findings": [],
+    "criteria": "高严重度安全问题需人工审查；其他静态问题给出改进建议，不替代功能测试。"
+  },
+  "usability": "USABLE_WITHIN_SCOPE",
+  "next_actions": []
+}

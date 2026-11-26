@@ -1,9 +1,0 @@
-{
-  "model": "deepseek-chat",
-  "generated_at": "2026-11-15T19:50:03.287897+08:00",
-  "system_prompt": "你是 Python 开发者。根据用户提示词编写实现。只返回 JSON 对象，格式为 {\"code\":\"完整 Python 源码\"}，不要用 Markdown 围栏。",
-  "user_prompt": "帮我写一个 Python 函数 deduplicate_contacts(contacts)。contacts 是联系人字典列表，每条有 name 和 email。按 email 字段去重，每个邮箱只保留一条，返回去重后的联系人列表。用字典实现，代码简洁，只用标准库。",
-  "response": {
-    "code": "def deduplicate_contacts(contacts):\n    \"\"\"按 email 去重联系人，保留每个邮箱首次出现的联系人。\n\n    :param contacts: 联系人字典列表，每条包含 'name' 和 'email'\n    :return: 去重后的联系人列表\n    \"\"\"\n    seen = {}\n    for contact in contacts:\n        email = contact.get('email')\n        if email not in seen:\n            seen[email] = contact\n    return list(seen.values())\n"
-  }
-}

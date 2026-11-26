@@ -1,0 +1,674 @@
+{
+  "schema_version": "1.0",
+  "evaluation_id": "EVAL-fcad715e591b",
+  "created_at": 1795343166.6374285,
+  "job_status": "PARTIAL",
+  "code_verdict": "FAIL",
+  "assurance_level": "NONE",
+  "spec_interpretation": "USER_CONFIRMED",
+  "summary": "按当前需求解读，需求「实现 clamp(value, lower, upper)。输入均为整数；lower 大于 upper 时抛出 ValueError；否则将 value 限制在闭区间 [lower, upper] 内，区间内保持原值。」违反（T2, T6, T8）。",
+  "requirement_results": [
+    {
+      "requirement_id": "R1",
+      "statement": "实现 clamp(value, lower, upper)。输入均为整数；lower 大于 upper 时抛出 ValueError；否则将 value 限制在闭区间 [lower, upper] 内，区间内保持原值。",
+      "status": "FAIL",
+      "evidence_ids": [
+        "EV-bf35b87eab45",
+        "EV-19577fce6fc2",
+        "EV-cb213ebb2fd7",
+        "EV-fcaa376e79d9",
+        "EV-41c958577062",
+        "EV-5613737ca20f",
+        "EV-ee342259034a",
+        "EV-49654bf702fb"
+      ],
+      "failed_case_ids": [
+        "T2",
+        "T6",
+        "T8"
+      ],
+      "explanation": "",
+      "assurance": "NONE",
+      "code_location": "solution.py:clamp",
+      "uncovered_scope": "",
+      "blocked_source": ""
+    }
+  ],
+  "prompt_report": {
+    "mappings": [
+      {
+        "requirement_id": "R1",
+        "status": "MISSING_FROM_VISIBLE_PROMPT",
+        "requirement_quote": "实现 clamp(value, lower, upper)。输入均为整数；lower 大于 upper 时抛出 ValueError；否则将 value 限制在闭区间 [lower, upper] 内，区间内保持原值。",
+        "prompt_quote": "",
+        "explanation": "可见提示词中未体现该要求；生成上下文未知，不能断言模型没收到要求"
+      }
+    ],
+    "extra_requirements": [],
+    "optimized_prompt": "实现 clamp(value, lower, upper)，超过上界时返回上界，其他情况直接返回 value。",
+    "changes": [],
+    "unresolved_questions": [
+      "离线规则模式：CONFLICT/AMBIGUOUS 判定与提示词改写需要模型或人工确认"
+    ],
+    "optimization_validation": "NOT_EVALUATED",
+    "mode": "RULE_FALLBACK",
+    "prompt_code_relation": [
+      {
+        "requirement_id": "R1",
+        "prompt_status": "MISSING_FROM_VISIBLE_PROMPT",
+        "code_status": "FAIL",
+        "relation": "NO_OBSERVED_RELATION"
+      }
+    ]
+  },
+  "code_suggestions": [
+    {
+      "suggestion_id": "SUG-5a22e75f",
+      "finding_id": "T2",
+      "requirement_ids": [
+        "R1"
+      ],
+      "evidence_ids": [
+        "EV-bf35b87eab45"
+      ],
+      "category": "CORRECTNESS_FIX",
+      "location": "solution.py:R1",
+      "trigger_condition": "{\"args\": [-1, 0, 10], \"kwargs\": {}}",
+      "expected": "0",
+      "actual": "{\"return_value\": -1, \"duration_ms\": 0.002428999999803949, \"check_detail\": \"返回值 -1 不等于期望 0\"}",
+      "explanation": "已确认缺陷：需求「实现 clamp(value, lower, upper)。输入均为整数；lower 大于 upper 时抛出 ValueError；否则将 value 限制在闭区间 [lower, upper] 内，区间内保持原值。」在案例 T2 上失败",
+      "fix": "修改实现使 T2 通过：低于下界时返回下界",
+      "regression_check": "复用已确认标准，重跑 T2 及全部固定案例",
+      "validation_status": "SYSTEM_FILLED",
+      "mode": "RULE_FALLBACK"
+    },
+    {
+      "suggestion_id": "SUG-82a04380",
+      "finding_id": "T6",
+      "requirement_ids": [
+        "R1"
+      ],
+      "evidence_ids": [
+        "EV-19577fce6fc2"
+      ],
+      "category": "CORRECTNESS_FIX",
+      "location": "solution.py:R1",
+      "trigger_condition": "{\"args\": [-8, -5, -1], \"kwargs\": {}}",
+      "expected": "-5",
+      "actual": "{\"return_value\": -8, \"duration_ms\": 0.0009259999997901502, \"check_detail\": \"返回值 -8 不等于期望 -5\"}",
+      "explanation": "已确认缺陷：需求「实现 clamp(value, lower, upper)。输入均为整数；lower 大于 upper 时抛出 ValueError；否则将 value 限制在闭区间 [lower, upper] 内，区间内保持原值。」在案例 T6 上失败",
+      "fix": "修改实现使 T6 通过：负数区间的下界",
+      "regression_check": "复用已确认标准，重跑 T6 及全部固定案例",
+      "validation_status": "SYSTEM_FILLED",
+      "mode": "RULE_FALLBACK"
+    },
+    {
+      "suggestion_id": "SUG-37c7f8e3",
+      "finding_id": "T8",
+      "requirement_ids": [
+        "R1"
+      ],
+      "evidence_ids": [
+        "EV-cb213ebb2fd7"
+      ],
+      "category": "CORRECTNESS_FIX",
+      "location": "solution.py:R1",
+      "trigger_condition": "{\"args\": [5, 10, 0], \"kwargs\": {}}",
+      "expected": "{\"kind\": \"RAISES\", \"exception_type\": \"ValueError\", \"message_contains\": \"\"}",
+      "actual": "{\"return_value\": 0, \"duration_ms\": 0.0009430000003085581, \"check_detail\": \"期望抛出 ValueError，实际正常返回 0\"}",
+      "explanation": "已确认缺陷：需求「实现 clamp(value, lower, upper)。输入均为整数；lower 大于 upper 时抛出 ValueError；否则将 value 限制在闭区间 [lower, upper] 内，区间内保持原值。」在案例 T8 上失败",
+      "fix": "修改实现使 T8 通过：倒置的范围必须抛出异常",
+      "regression_check": "复用已确认标准，重跑 T8 及全部固定案例",
+      "validation_status": "SYSTEM_FILLED",
+      "mode": "RULE_FALLBACK"
+    },
+    {
+      "suggestion_id": "SUG-QUALITY-1",
+      "finding_id": "QUALITY-1",
+      "requirement_ids": [],
+      "evidence_ids": [
+        "EV-22da735d6b80"
+      ],
+      "category": "READABILITY",
+      "location": "solution.py:1",
+      "trigger_condition": "",
+      "expected": "",
+      "actual": "",
+      "explanation": "静态规则 missing_docstring：函数 clamp 缺少 docstring",
+      "fix": "为函数/类添加 docstring 说明用途和参数",
+      "regression_check": "修改后重跑同一标准的全部案例，确认行为保持",
+      "validation_status": "SYSTEM_FILLED",
+      "mode": "RULE_FALLBACK"
+    }
+  ],
+  "repair_candidate": null,
+  "evidence": [
+    {
+      "evidence_id": "EV-fcaa376e79d9",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "930df76294e6188753daebb3ba8bb608c7ffdbd86b2084b6b723cb151dca172f",
+      "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+      "plan_hash": "cff49acf6da5197dd222456c0317b6957935a191afbd68f6e114e487f3901aca",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T1",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 5,
+        "duration_ms": 32.82858399999977
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-fcad715e591b\\evidence-results.json"
+      ],
+      "duration_ms": 32.82858399999977,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-bf35b87eab45",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "930df76294e6188753daebb3ba8bb608c7ffdbd86b2084b6b723cb151dca172f",
+      "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+      "plan_hash": "cff49acf6da5197dd222456c0317b6957935a191afbd68f6e114e487f3901aca",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T2",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": -1,
+        "duration_ms": 0.002428999999803949,
+        "check_detail": "返回值 -1 不等于期望 0"
+      },
+      "status": "ASSERTION_FAILED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-fcad715e591b\\evidence-results.json"
+      ],
+      "duration_ms": 0.002428999999803949,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-41c958577062",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "930df76294e6188753daebb3ba8bb608c7ffdbd86b2084b6b723cb151dca172f",
+      "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+      "plan_hash": "cff49acf6da5197dd222456c0317b6957935a191afbd68f6e114e487f3901aca",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T3",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 10,
+        "duration_ms": 0.001102999999780252
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-fcad715e591b\\evidence-results.json"
+      ],
+      "duration_ms": 0.001102999999780252,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-5613737ca20f",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "930df76294e6188753daebb3ba8bb608c7ffdbd86b2084b6b723cb151dca172f",
+      "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+      "plan_hash": "cff49acf6da5197dd222456c0317b6957935a191afbd68f6e114e487f3901aca",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T4",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 0,
+        "duration_ms": 0.001099000000337469
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-fcad715e591b\\evidence-results.json"
+      ],
+      "duration_ms": 0.001099000000337469,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-ee342259034a",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "930df76294e6188753daebb3ba8bb608c7ffdbd86b2084b6b723cb151dca172f",
+      "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+      "plan_hash": "cff49acf6da5197dd222456c0317b6957935a191afbd68f6e114e487f3901aca",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T5",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 10,
+        "duration_ms": 0.0010040000000266502
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-fcad715e591b\\evidence-results.json"
+      ],
+      "duration_ms": 0.0010040000000266502,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-19577fce6fc2",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "930df76294e6188753daebb3ba8bb608c7ffdbd86b2084b6b723cb151dca172f",
+      "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+      "plan_hash": "cff49acf6da5197dd222456c0317b6957935a191afbd68f6e114e487f3901aca",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T6",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": -8,
+        "duration_ms": 0.0009259999997901502,
+        "check_detail": "返回值 -8 不等于期望 -5"
+      },
+      "status": "ASSERTION_FAILED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-fcad715e591b\\evidence-results.json"
+      ],
+      "duration_ms": 0.0009259999997901502,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-49654bf702fb",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "930df76294e6188753daebb3ba8bb608c7ffdbd86b2084b6b723cb151dca172f",
+      "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+      "plan_hash": "cff49acf6da5197dd222456c0317b6957935a191afbd68f6e114e487f3901aca",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T7",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 2,
+        "duration_ms": 0.0009369999998121159
+      },
+      "status": "PASSED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-fcad715e591b\\evidence-results.json"
+      ],
+      "duration_ms": 0.0009369999998121159,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-cb213ebb2fd7",
+      "kind": "EXECUTED_CASE",
+      "producer": "acceptance-runner/1.1",
+      "code_hash": "930df76294e6188753daebb3ba8bb608c7ffdbd86b2084b6b723cb151dca172f",
+      "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+      "plan_hash": "cff49acf6da5197dd222456c0317b6957935a191afbd68f6e114e487f3901aca",
+      "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+      "case_id": "T8",
+      "requirement_ids": [
+        "R1"
+      ],
+      "phase": "ASSERT",
+      "observation": {
+        "return_value": 0,
+        "duration_ms": 0.0009430000003085581,
+        "check_detail": "期望抛出 ValueError，实际正常返回 0"
+      },
+      "status": "ASSERTION_FAILED",
+      "artifact_refs": [
+        "C:\\Users\\BITSE\\Desktop\\作业\\PyQuality\\data\\acceptance_artifacts\\EVAL-fcad715e591b\\evidence-results.json"
+      ],
+      "duration_ms": 0.0009430000003085581,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    },
+    {
+      "evidence_id": "EV-22da735d6b80",
+      "kind": "STATIC_FACT",
+      "producer": "static-quality/1.0",
+      "code_hash": "930df76294e6188753daebb3ba8bb608c7ffdbd86b2084b6b723cb151dca172f",
+      "spec_hash": "",
+      "plan_hash": "",
+      "runtime_fingerprint": "",
+      "case_id": "",
+      "requirement_ids": [],
+      "phase": "ASSERT",
+      "observation": {
+        "type": "missing_docstring",
+        "severity": "low",
+        "file": "solution.py",
+        "line": 1,
+        "message": "函数 clamp 缺少 docstring",
+        "suggestion": "为函数/类添加 docstring 说明用途和参数",
+        "category": "READABILITY",
+        "finding_id": "QUALITY-1"
+      },
+      "status": "PASSED",
+      "artifact_refs": [],
+      "duration_ms": null,
+      "output_truncated": false,
+      "technical_rule_version": ""
+    }
+  ],
+  "coverage": {
+    "mandatory_requirements": 1,
+    "requirements_checked": 1,
+    "cases_planned": 8,
+    "cases_executed": 8,
+    "cases_passed": 5,
+    "cases_failed": 3
+  },
+  "blockers": [
+    "模型服务不可用：需求提取/语义审查/LLM 建议走确定降级路径"
+  ],
+  "limitations": [
+    "MVP 未对任意 Python 与任意自然语言需求提供普遍正确性证明",
+    "容器隔离（非特权/无网络/只读根/资源限额）：不等于抵御所有恶意代码的完备安全边界",
+    "输入不变检查不检测『先修改再恢复』的瞬时写入",
+    "操作者运行验收脚本，认可仓库样例的固定案例；结论不覆盖未测试输入。"
+  ],
+  "stage_results": [
+    {
+      "stage": "A_input_and_compile",
+      "status": "COMPLETED",
+      "detail": "编译检查通过",
+      "duration_ms": 0.8035000646486878
+    },
+    {
+      "stage": "B_spec",
+      "status": "COMPLETED",
+      "detail": "规格模式 USER_STANDARD，interpretation=USER_CONFIRMED",
+      "duration_ms": null
+    },
+    {
+      "stage": "E_execute",
+      "status": "COMPLETED",
+      "detail": "8 条案例证据",
+      "duration_ms": null
+    },
+    {
+      "stage": "F_prompt_audit",
+      "status": "COMPLETED",
+      "detail": "mode=RULE_FALLBACK",
+      "duration_ms": null
+    },
+    {
+      "stage": "F_suggestions",
+      "status": "COMPLETED",
+      "detail": "4 条建议",
+      "duration_ms": null
+    }
+  ],
+  "reproducibility": {
+    "code_hash": "930df76294e6188753daebb3ba8bb608c7ffdbd86b2084b6b723cb151dca172f",
+    "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+    "plan_hash": "cff49acf6da5197dd222456c0317b6957935a191afbd68f6e114e487f3901aca",
+    "runtime_fingerprint": "acceptance-runner/1.1 python=3.13.15 platform=Windows-11-10.0.26200-SP0 isolation=DOCKER",
+    "request_hash": "e1efe8e56c72d897e8b0f12f2477acfe0d3db7b7e825e7098f8c3f672240cba5"
+  },
+  "isolation_level": "DOCKER",
+  "acceptance_standard_id": "STD-1d8e13b6ad1843a28e945b65b2680d40",
+  "canonical_spec": {
+    "spec_id": "STD-1d8e13b6ad1843a28e945b65b2680d40",
+    "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+    "revision": 1,
+    "interpretation_status": "USER_CONFIRMED",
+    "requirements": [
+      {
+        "id": "R1",
+        "statement": "实现 clamp(value, lower, upper)。输入均为整数；lower 大于 upper 时抛出 ValueError；否则将 value 限制在闭区间 [lower, upper] 内，区间内保持原值。",
+        "kind": "FUNCTIONAL",
+        "mandatory": true,
+        "origin": "EXPLICIT",
+        "source_quote": "实现 clamp(value, lower, upper)。输入均为整数；lower 大于 upper 时抛出 ValueError；否则将 value 限制在闭区间 [lower, upper] 内，区间内保持原值。",
+        "source_start": null,
+        "source_end": null,
+        "acceptance_intent": "",
+        "unresolved_questions": [],
+        "derivation_basis": ""
+      }
+    ],
+    "input_domain": [],
+    "technical_constraints": [],
+    "unresolved_questions": [],
+    "limitations": [
+      "操作者运行验收脚本，认可仓库样例的固定案例；结论不覆盖未测试输入。"
+    ],
+    "requirement_text_digest": "实现 clamp(value, lower, upper)。输入均为整数；lower 大于 upper 时抛出 ValueError；否则将 value 限制在闭区间 [lower, upper] 内，区间内保持原值。"
+  },
+  "test_plan": {
+    "plan_id": "",
+    "plan_hash": "cff49acf6da5197dd222456c0317b6957935a191afbd68f6e114e487f3901aca",
+    "revision": 1,
+    "contracts": [
+      {
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "description": "固定样例验收",
+        "input_domain_ref": "",
+        "representation": "",
+        "relation_to_requirement": "EQUIVALENT",
+        "relation_basis": "人工核对的固定样例",
+        "oracle_origin": "USER_CONFIRMED_RULE",
+        "oracle_review": "ACCEPTED_FOR_TESTING",
+        "interpretation_status": "USER_CONFIRMED",
+        "spec_hash": "ba0e3404d6989436c5b19ab26e708cb8fcd293d221ac0007071a4e6a956e9061",
+        "coverage_note": ""
+      }
+    ],
+    "cases": [
+      {
+        "case_id": "T1",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          5,
+          0,
+          10
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 5
+        },
+        "expected_basis": "区间内保持原值",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T2",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          -1,
+          0,
+          10
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 0
+        },
+        "expected_basis": "低于下界时返回下界",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T3",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          11,
+          0,
+          10
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 10
+        },
+        "expected_basis": "高于上界时返回上界",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T4",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          0,
+          0,
+          10
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 0
+        },
+        "expected_basis": "等于下界时保持",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T5",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          10,
+          0,
+          10
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 10
+        },
+        "expected_basis": "等于上界时保持",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T6",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          -8,
+          -5,
+          -1
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": -5
+        },
+        "expected_basis": "负数区间的下界",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T7",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          3,
+          2,
+          2
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RETURN_EQUALS",
+          "expected": 2
+        },
+        "expected_basis": "上下界相等",
+        "input_domain_status": "IN_SCOPE"
+      },
+      {
+        "case_id": "T8",
+        "contract_id": "K1",
+        "requirement_ids": [
+          "R1"
+        ],
+        "category": "",
+        "args": [
+          5,
+          10,
+          0
+        ],
+        "kwargs": {},
+        "assertion": {
+          "kind": "RAISES",
+          "exception_type": "ValueError",
+          "message_contains": ""
+        },
+        "expected_basis": "倒置的范围必须抛出异常",
+        "input_domain_status": "IN_SCOPE"
+      }
+    ],
+    "coverage_notes": []
+  },
+  "quality_report": {
+    "status": "NEEDS_IMPROVEMENT",
+    "readability_score": 70.0,
+    "readability_grade": "B",
+    "findings": [
+      {
+        "type": "missing_docstring",
+        "severity": "low",
+        "file": "solution.py",
+        "line": 1,
+        "message": "函数 clamp 缺少 docstring",
+        "suggestion": "为函数/类添加 docstring 说明用途和参数",
+        "category": "READABILITY",
+        "finding_id": "QUALITY-1",
+        "evidence_id": "EV-22da735d6b80"
+      }
+    ],
+    "criteria": "高严重度安全问题需人工审查；其他静态问题给出改进建议，不替代功能测试。"
+  },
+  "usability": "NOT_USABLE",
+  "next_actions": [
+    "根据失败案例的输入、期望及实际值修改代码，再复用相同标准验收",
+    "按代码质量清单修订；高严重度安全风险需人工审查，修改后重跑功能测试"
+  ]
+}

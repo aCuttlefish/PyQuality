@@ -1,9 +1,0 @@
-{
-  "model": "deepseek-chat",
-  "generated_at": "2026-11-15T19:49:55.813011+08:00",
-  "system_prompt": "你是 Python 开发者。根据用户提示词编写实现。只返回 JSON 对象，格式为 {\"code\":\"完整 Python 源码\"}，不要用 Markdown 围栏。",
-  "user_prompt": "帮我写一个 Python 函数 calculate_payable(items)，items 是商品字典列表，price 为金额字符串，quantity 为整数。请使用精确十进制金额计算（例如 decimal.Decimal），不得使用二进制浮点数进行金额转换或累加，确保总价计算及优惠判断不受浮点误差影响。逐项计算 price 乘以 quantity 并累加得到总价；当总价达到或超过 100.00 元时减 20.00 元，每单只减一次；不足 100.00 元不优惠。最后将应付金额格式化为恰好两位小数的字符串并返回；空购物车返回 '0.00'。不得修改输入列表及商品字典。只用标准库，代码简洁。",
-  "response": {
-    "code": "from decimal import Decimal, ROUND_HALF_UP\n\n\ndef calculate_payable(items):\n    total = Decimal('0.00')\n    for item in items:\n        price = Decimal(str(item['price']))\n        quantity = int(item['quantity'])\n        total += price * quantity\n    if total >= Decimal('100.00'):\n        total -= Decimal('20.00')\n    return str(total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))\n"
-  }
-}

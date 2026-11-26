@@ -10,3 +10,5 @@ logs/
 *.db
 *.db-shm
 *.db-wal
+
+presentation_redesign/
