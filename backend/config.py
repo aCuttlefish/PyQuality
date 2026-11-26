@@ -9,7 +9,7 @@ FRONTEND_DIR = BASE_DIR / "frontend"
 
 DEEPSEEK_BASE_URL = "https://api.deepseek.com"
 DEEPSEEK_MODEL = "deepseek-chat"
-DEEPSEEK_TIMEOUT = 15
+DEEPSEEK_TIMEOUT = 45
 
 
 def load_dotenv() -> dict:

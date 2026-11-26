@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PyQuality — Python 代码质量助手</title>
-<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/style.css?v=20261127d">
 </head>
 <body>
 <header class="topbar">
@@ -15,7 +15,7 @@
   <div class="top-right">
     <select id="projectSelect"><option value="">选择项目...</option></select>
     <button class="btn ghost sm" id="uploadBtn">📁 上传</button>
-    <a class="btn ghost sm" href="/acceptance.html" style="text-decoration:none">🧾 代码验收</a>
+    <button class="btn primary sm" id="startAcceptBtn">🧾 发起代码验收</button>
     <div class="ai-status" id="aiStatus"><span class="dot"></span>检测中...</div>
     <button class="btn ghost sm icon-btn" id="themeBtn" title="切换主题">🌙</button>
   </div>
@@ -50,6 +50,7 @@
   <div id="chat" class="chat-stream"></div>
   <div class="composer">
     <div class="quick-cmds" id="quickCmds">
+      <button class="chip chip-accent" data-cmd="/accept">/accept 验收代码</button>
       <button class="chip" data-cmd="/help">/help</button>
       <button class="chip" data-cmd="/sample">/sample</button>
       <button class="chip" data-cmd="/analyze">/analyze</button>
@@ -64,13 +65,14 @@
       <button class="chip" data-cmd="/export">/export</button>
     </div>
     <div class="input-row">
-      <input type="text" id="msgInput" placeholder="输入命令或消息…（/help 查看帮助）" autocomplete="off">
+      <input type="text" id="msgInput" placeholder="输入 /accept 验收 AI 代码，或输入项目分析命令…（/help 查看帮助）" autocomplete="off">
       <button class="btn primary" id="sendBtn">发送 ➤</button>
     </div>
   </div>
 </main>
 </div>
 
-<script src="/static/app.js"></script>
+<script src="/static/chat_acceptance.js?v=20261127e"></script>
+<script src="/static/app.js?v=20261127e"></script>
 </body>
 </html>

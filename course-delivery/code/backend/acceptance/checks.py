@@ -226,15 +226,28 @@ def evaluate_assertion(
             return CheckResult("HARNESS_ERROR", "观察数据缺少 return_value 字段（协议损坏）")
         if not isinstance(ret, list):
             return CheckResult("ASSERTION_FAILED", f"返回值不是列表: {ret!r}")
-        if any(not isinstance(x, (int, float, str)) or isinstance(x, bool) for x in ret):
+
+        def _comparable(item) -> bool:
+            if isinstance(item, bool):
+                return False
+            if isinstance(item, (int, float, str)):
+                return True
+            if isinstance(item, (list, tuple)):
+                return all(_comparable(sub) for sub in item)
+            return False
+
+        if any(not _comparable(x) for x in ret):
             return CheckResult("ASSERTION_FAILED", "列表含不可比较标量")
         asc = assertion.direction == "ASC"
         for i in range(len(ret) - 1):
             a, b = ret[i], ret[i + 1]
-            if asc and (a > b or (assertion.strict and a == b)):
-                return CheckResult("ASSERTION_FAILED", f"索引 {i}->{i+1}: {a!r} 与 {b!r} 非严格升序破坏")
-            if not asc and (a < b or (assertion.strict and a == b)):
-                return CheckResult("ASSERTION_FAILED", f"索引 {i}->{i+1}: {a!r} 与 {b!r} 非降序破坏")
+            try:
+                if asc and (a > b or (assertion.strict and a == b)):
+                    return CheckResult("ASSERTION_FAILED", f"索引 {i}->{i+1}: {a!r} 与 {b!r} 非严格升序破坏")
+                if not asc and (a < b or (assertion.strict and a == b)):
+                    return CheckResult("ASSERTION_FAILED", f"索引 {i}->{i+1}: {a!r} 与 {b!r} 非降序破坏")
+            except TypeError:
+                return CheckResult("ASSERTION_FAILED", f"索引 {i}->{i+1}: {a!r} 与 {b!r} 类型不可比较")
         return CheckResult("PASSED")
 
     if kind == "SAME_MULTISET":

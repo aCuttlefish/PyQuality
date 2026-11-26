@@ -4,7 +4,7 @@ PyQuality 验收 AI 生成的 Python 函数。用户提交需求、原提示词�
 
 ## 课程材料
 
-[终期汇报 PPT](docs/汇报与实机演示/PyQuality_终期汇报.pptx) · [20 分钟答辩稿](docs/汇报与实机演示/PyQuality_20分钟答辩稿_含实机演示.docx) · [团队 AI 协作记录](复盘报告/协作记录索引.md)
+[终期汇报 PPT](docs/汇报与实机演示/PyQuality_终期汇报.pptx) · [精简口播稿](docs/汇报与实机演示/PyQuality_终期汇报口播稿.md) · [实机演示视频 demo.mp4](demo.mp4) · [团队 AI 协作记录](复盘报告/协作记录索引.md) · [AI 协作与核查记录](docs/AI协作与核查记录.md)
 
 | 成员 | 学号 | 作业 1 · 可验证规格 | 作业 2 · 评测集与 AI 使用日志 | 个人复盘 |
 | --- | --- | --- | --- | --- |
@@ -22,7 +22,7 @@ Set-Location .\code
 powershell -ExecutionPolicy Bypass -File scripts/start.ps1 -Install
 ```
 
-打开 `http://127.0.0.1:8000/acceptance.html`。选择「元音统计」示例，核对固定标准，确认并开始验收。预期原实现 **4/7，失败**。大写 `AEIOU` 应返回 `5`，实际返回 `0`。点击「换入示例正确实现」，保持已确认标准再次运行，预期为 **7/7，范围内通过**。下载两轮 JSON 报告可复查实际值、证据编号和计划摘要。完整实机台词见 [录制稿](docs/汇报与实机演示/PyQuality_20分钟答辩稿_含实机演示.docx)。
+打开首页 `http://127.0.0.1:8000/`，点击顶部 **「🧾 发起代码验收」**（或在对话框输入 `/accept`），即可走完统一对话流验收：**步骤 1 提需求或提示词并由 AI 多轮追问澄清 → 步骤 2 生成卡片化测试用例并人工锁定标准 → 步骤 3 贴入代码进 Docker 隔离验收 → 步骤 4 手动修改或一键 AI 按失败反例修复并沿用原标准复测**（原独立验收页 `/acceptance.html` 保持兼容）。完整实机口播与复现数据见 [终期口播稿](docs/汇报与实机演示/PyQuality_终期汇报口播稿.md)，录制视频见 [demo.mp4](demo.mp4)。
 
 默认的固定样例验收可以在无模型密钥时运行。要验证实时提示词诊断，需自行在启动进程中配置 `DEEPSEEK_API_KEY`。报告的模型配置状态和真实调用证据分别核对。交付中的历史模型记录保存在 `eval/`。
 
@@ -38,7 +38,7 @@ powershell -ExecutionPolicy Bypass -File scripts/start.ps1 -Install
 
 第一条运行项目回归测试。第二条用 Docker 执行五个固定样例的原实现及修正版，输出默认写到 `code/data/workflow_verification/`。第三条用留存的真实模型代码复跑两组业务实验，输出写到 `code/data/real_cases_replay/`。复跑环节不调用模型，模型行为请对照原始报告。参见 [测试说明](tests/README.md) 和 [评测说明](eval/README.md)。
 
-本次交付副本的回归结果为 **449 项通过**。工作台验收接口已用真实 Docker 验证元音统计 **4/7 → 7/7**，标准 ID 与计划摘要一致。两组业务实验的留存代码也已复跑，结果与原报告一致。见[交付验证记录](tests/交付验证记录.md)。
+本次交付副本的回归结果为 **457 项通过**（0 失败，新增统一对话 `/accept`、需求多轮追问 `/clarify`、无代码 `/prepare`、嵌套列表 `ORDERED`、排序自动补齐与 `/repair` 测试）。工作台验收接口已用真实 Docker 验证元音统计 **4/7 → 7/7** 以及 GitHub Copilot 公开案例 `possibilities(m, n)` 修复复测 **11/11**，标准 ID 与计划摘要一致。两组业务实验的留存代码也已复跑，结果与原报告一致。见[交付验证记录](tests/交付验证记录.md)。
 
 ## 交付目录
 

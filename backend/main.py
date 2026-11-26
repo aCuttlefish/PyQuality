@@ -46,6 +46,8 @@ async def request_logger(request: Request, call_next):
         log_request(request.method, request.url.path, 500, duration)
         raise
     duration = (time.perf_counter() - start) * 1000
+    if request.url.path == "/" or request.url.path.startswith("/static/") or request.url.path.endswith(".html"):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
     log_request(request.method, request.url.path, response.status_code, duration)
     return response
 

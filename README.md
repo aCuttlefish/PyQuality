@@ -53,7 +53,7 @@ powershell -ExecutionPolicy Bypass -File scripts/start.ps1 -Install
 
 ## 测试与复现
 
-最终交付版的回归验证通过了 **449 项自动化测试**和 **5 个 Docker 验收场景**。完成首次安装后，在仓库根目录执行：
+最终交付版的回归验证通过了 **457 项自动化测试**和 **5 个 Docker 验收场景**（并新增首页统一对话入口 `/accept`、多轮需求追问 `/clarify`、基于失败反例的 AI 修复候选 `/repair` 及终期演示视频 `course-delivery/demo.mp4`）。完成首次安装后，在仓库根目录执行：
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest tests -q
@@ -77,8 +77,8 @@ powershell -ExecutionPolicy Bypass -File scripts/start.ps1 -Install
 
 ## 课程交付
 
-- [终期交付总目录](course-delivery/README.md)
-- [终期汇报 PPT](course-delivery/docs/汇报与实机演示/PyQuality_终期汇报.pptx) · [20 分钟实机答辩稿](course-delivery/docs/汇报与实机演示/PyQuality_20分钟答辩稿_含实机演示.docx)
+- [终期交付总目录](course-delivery/README.md) · [实机演示视频 demo.mp4](course-delivery/demo.mp4)
+- [终期汇报 PPT](course-delivery/docs/汇报与实机演示/PyQuality_终期汇报.pptx) · [精简口播稿](course-delivery/docs/汇报与实机演示/PyQuality_终期汇报口播稿.md) · [AI 协作与核查记录](course-delivery/docs/AI协作与核查记录.md)
 - [28 张 draw.io 配图及图片清单](course-delivery/docs/汇报与实机演示/draw.io配图/) · [PPT 大纲](course-delivery/docs/汇报与实机演示/PPT大纲/)
 - [过程作业](course-delivery/docs/过程作业/) · [评测材料](course-delivery/eval/) · [四位组员的个人复盘报告](course-delivery/复盘报告/)
 

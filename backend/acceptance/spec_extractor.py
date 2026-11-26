@@ -26,6 +26,8 @@ EXTRACT_TASK = """仅根据 requirements_text 和明确提供的技术要求提�
 输入类型/格式声明写入 input_domain 字段，接口名与参数签名写入
 technical_constraints，不要把纯输入域或接口声明重复生成为必要需求
 （除非需求对该输入规定了明确行为，如类型非法时抛异常）。
+如果需求已经声明“调用方保证输入合法 / 不要求校验非法输入 / 仅考虑合法输入域”，
+则不要为此添加 unresolved_questions，也不要为非法输入拆分必要需求。
 每条区分 EXPLICIT、DERIVED、UNCLEAR，并保留原文与推导依据。
 不参考当前实现来补全业务规则。
 需求没有要求的防御性处理只可列为可选建议（mandatory=false）。

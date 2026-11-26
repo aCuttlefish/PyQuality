@@ -193,6 +193,157 @@ def test_prepare_without_model_remains_editable_without_fake_cases():
     assert result["issues"]
 
 
+def test_prepare_api_accepts_requirement_without_code():
+    with TestClient(app) as client:
+        resp = client.post("/api/acceptance/prepare", json={
+            "requirement": "实现 add(a, b)，返回两个整数之和。",
+            "entrypoint": {"module": "solution", "callable": "add"},
+        })
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["ok"] is True
+        assert data["entrypoint"] == {"module": "solution", "callable": "add"}
+        assert data["spec"]["requirements"]
+
+
+def test_ordered_check_supports_lexicographic_nested_lists():
+    from backend.acceptance.checks import evaluate_assertion
+    from backend.acceptance.models import OrderedAssertion
+
+    ok = evaluate_assertion(
+        OrderedAssertion(kind="ORDERED", direction="ASC", strict=False),
+        {"return_value": [[0, 2], [1, 1], [2, 0]]},
+    )
+    assert ok.status == "PASSED"
+    bad = evaluate_assertion(
+        OrderedAssertion(kind="ORDERED", direction="ASC", strict=False),
+        {"return_value": [[2, 0], [1, 1], [0, 2]]},
+    )
+    assert bad.status == "ASSERTION_FAILED"
+
+
+def test_clarify_api_offline_fallback():
+    with TestClient(app) as client:
+        resp = client.post("/api/acceptance/clarify", json={
+            "initial_input": "写一个 possibilities(m, n) 函数",
+            "input_type": "prompt",
+            "entrypoint": "possibilities",
+        })
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["ok"] is True
+        assert data["mode"] == "UNAVAILABLE"
+        assert data["ready"] is True
+        assert data["suggested_entrypoint"] == "possibilities"
+
+
+def test_clarify_api_multi_turn_with_mock_llm(monkeypatch):
+    from backend.acceptance import llm_provider
+
+    calls = []
+
+    def fake_structured(task, payload, **kwargs):
+        calls.append(payload)
+        if not payload["qa_history"]:
+            return {
+                "ready": False,
+                "summary": "还需要确认 n=0 的边界行为。",
+                "suggested_entrypoint": "possibilities",
+                "questions": [
+                    {"id": "Q1", "question": "当 n=0 且 m>0 时应该返回什么？", "options": ["返回空列表 []", "抛出 ValueError"]},
+                ],
+                "refined_requirement": "实现 possibilities(m, n)...",
+            }
+        return {
+            "ready": True,
+            "summary": "需求与边界已经完全清楚。",
+            "suggested_entrypoint": "possibilities",
+            "questions": [],
+            "refined_requirement": "实现 possibilities(m, n)，n=0 且 m>0 返回 []，调用方保证输入为非负整数。",
+        }
+
+    monkeypatch.setattr(llm_provider, "generate_structured", fake_structured)
+    with TestClient(app) as client:
+        r1 = client.post("/api/acceptance/clarify", json={
+            "initial_input": "写一个 possibilities(m, n) 找所有和为 m 的 n 项组合",
+            "input_type": "requirement",
+        }).json()
+        assert r1["ready"] is False
+        assert len(r1["questions"]) == 1
+
+        r2 = client.post("/api/acceptance/clarify", json={
+            "initial_input": "写一个 possibilities(m, n) 找所有和为 m 的 n 项组合",
+            "input_type": "requirement",
+            "qa_history": [{"question": r1["questions"][0]["question"], "answer": "返回空列表 []"}],
+        }).json()
+        assert r2["ready"] is True
+        assert r2["questions"] == []
+        assert "返回 []" in r2["refined_requirement"]
+
+
+def test_prepare_auto_augments_partial_only_mandatory_requirement():
+    from backend.acceptance.models import (
+        CanonicalSpec, CheckCase, ContractSpec, OrderedAssertion,
+        RequirementItem, ReturnEqualsAssertion, TestPlan,
+    )
+
+    spec = CanonicalSpec(
+        spec_id="SPEC-DRAFT",
+        requirement_text_digest="返回所有组合并按字典序升序排列。",
+        requirements=[
+            RequirementItem(id="R1", statement="返回所有组合", origin="EXPLICIT", source_quote="返回所有组合"),
+            RequirementItem(id="R2", statement="按字典序升序排列", origin="EXPLICIT", source_quote="按字典序升序排列"),
+        ],
+    )
+    plan = TestPlan(
+        contracts=[
+            ContractSpec(contract_id="K_R1", requirement_ids=["R1"], description="组合", relation_to_requirement="EQUIVALENT", relation_basis="直接计算", oracle_origin="RULE_DERIVATION"),
+            ContractSpec(contract_id="K_R2", requirement_ids=["R2"], description="升序", relation_to_requirement="NECESSARY", relation_basis="有序", oracle_origin="RULE_DERIVATION"),
+        ],
+        cases=[
+            CheckCase(case_id="T1", contract_id="K_R1", requirement_ids=["R1"], args=[2, 2], assertion=ReturnEqualsAssertion(kind="RETURN_EQUALS", expected=[[0, 2], [1, 1], [2, 0]]), expected_basis="手工计算", input_domain_status="IN_SCOPE"),
+            CheckCase(case_id="T2", contract_id="K_R2", requirement_ids=["R2"], args=[2, 2], assertion=OrderedAssertion(kind="ORDERED", direction="ASC", strict=False), expected_basis="按字典序升序", input_domain_status="IN_SCOPE"),
+        ],
+    )
+    standards._ensure_complete_cases_for_partial_mandatory(spec, plan)
+    body = standards.StandardConfirmation(
+        requirement="返回所有组合并按字典序升序排列。",
+        entrypoint=Entrypoint(callable="possibilities"),
+        spec=spec,
+        plan=plan,
+        scope_note="仅验证已确认的固定案例。",
+        confirmed=True,
+        case_scope_confirmed=True,
+    )
+    record = standards.confirm(body)
+    assert record["ok"] is True
+    assert record["confirmed_spec_id"].startswith("STD-")
+
+
+def test_repair_api_generates_compilable_candidate(monkeypatch):
+    from backend.acceptance import llm_provider
+
+    def fake_structured(task, payload, **kwargs):
+        return {
+            "fixed_code": "def add(a, b):\n    return a + b\n",
+            "change_summary": "将减法改为加法。",
+        }
+
+    monkeypatch.setattr(llm_provider, "generate_structured", fake_structured)
+    with TestClient(app) as client:
+        resp = client.post("/api/acceptance/repair", json={
+            "requirement": "返回两个整数之和",
+            "code": "def add(a, b):\n    return a - b\n",
+            "entrypoint": {"module": "solution", "callable": "add"},
+            "failed_cases": [{"case_id": "T1", "args": [2, 3], "assertion": {"kind": "RETURN_EQUALS", "expected": 5}}],
+        })
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["ok"] is True
+        assert data["validation_status"] == "UNVALIDATED"
+        assert "return a + b" in data["fixed_code"]
+
+
 def test_confirm_and_evaluate_api_end_to_end():
     with TestClient(app) as client:
         response = client.post("/api/acceptance/confirm", json=confirmation().model_dump())

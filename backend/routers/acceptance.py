@@ -12,7 +12,7 @@ from pydantic import BaseModel, ValidationError
 
 from backend.acceptance.models import EvaluationReport, EvaluationRequest
 from backend.acceptance.service import evaluate
-from backend.acceptance import standards
+from backend.acceptance import clarifier, repair, standards
 from backend.acceptance.environment import inspect_environment
 from backend.logger import get_logger
 from backend.config import BASE_DIR
@@ -45,8 +45,21 @@ def demos():
     ]}
 
 
+@router.post("/clarify")
+def clarify_requirement(body: clarifier.ClarifyRequest):
+    return clarifier.clarify(body)
+
+
+@router.post("/repair")
+def repair_code(body: repair.RepairRequest):
+    try:
+        return repair.generate_repair(body)
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+
+
 @router.post("/prepare")
-def prepare_standard(body: EvaluationRequest):
+def prepare_standard(body: standards.PrepareRequest):
     return standards.prepare(body)
 
 

@@ -30,6 +30,12 @@ PLAN_TASK = """根据 candidate_spec、可信样例和入口信息设计候选�
 预期结果必须来自需求、已批准参考或明确推导，不能调用待测代码取得。
 优先使用固定检查模板，记录每个案例的 requirement_id、
 contract_id、合法输入依据、expected_basis 和输入类别。
+结构硬约束：每条 case 的 requirement_ids 必须是其对应 contract.requirement_ids 的子集（禁止写不在对应契约里的 requirement_id）。
+对于可以通过小规模具体输入唯一确定完整返回值的需求（尤其是返回嵌套列表、字典、字符串或数值时），
+优先使用 RETURN_EQUALS 给出确切的小规模输入和完整期望返回值，并将对应契约的 relation_to_requirement 标为 SUFFICIENT 或 EQUIVALENT。
+重要硬约束：每一条 mandatory=true 的需求（包括排序、顺序、格式类需求）都必须至少有一条 RETURN_EQUALS、RETURN_IS_NONE 或 RAISES 案例！严禁让某条必要需求只有 ORDERED / RETURN_TYPE / ALL_ITEMS_MATCH 等部分性质检查（对排序类需求，请直接给一个多元素具体输入的 RETURN_EQUALS 案例来同时验证元素与顺序，必要时再额外附带 ORDERED）。
+注意模板约束：SAME_MULTISET 的 against 只能引用与返回值同结构的列表参数，禁止对标量整数参数使用；
+ALL_ITEMS_MATCH 检查的是返回值最外层元素，禁止对嵌套列表（如 list[list[int]]）使用 value_type="int"。
 检查返回值、必要分支、边界以及需求明确的副作用。
 识别只检查部分性质的情况，不声称样例穷尽了全部输入域。
 无法确定预期时输出待确认项，不生成武断断言。

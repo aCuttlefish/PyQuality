@@ -44,6 +44,22 @@ def test_help_alias_h():
     assert "命令帮助" in r.json()["reply"]
 
 
+def test_accept_command_opens_inline_card():
+    r = _chat("/accept 统计英文元音个数")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["action"] == "open_acceptance"
+    assert body["prefill_requirement"] == "统计英文元音个数"
+    assert "验收" in body["reply"]
+
+
+def test_accept_keyword_without_project():
+    r = _chat("帮我验收代码")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["action"] == "open_acceptance"
+
+
 def test_projects_empty():
     from tests.conftest import _purge_all_projects
     _purge_all_projects()

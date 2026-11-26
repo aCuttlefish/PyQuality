@@ -55,9 +55,11 @@ COMMANDS = {
     "advice": "advice", "suggest": "advice",
     "summary": "summary", "overview": "summary",
     "sessions": "sessions", "session": "session",
+    "accept": "accept", "acceptance": "accept", "verify": "accept",
 }
 
 KEYWORD_MAP = [
+    ("验收", "accept"), ("accept", "accept"),
     ("分析", "analyze"), ("analyze", "analyze"),
     ("坏味", "smells"), ("smell", "smells"),
     ("评分", "score"), ("可读性", "score"), ("readability", "score"),
@@ -100,6 +102,8 @@ def chat(body: ChatBody):
 
     if cmd == "help":
         return _reply(_help_text())
+    if cmd == "accept":
+        return _do_accept(pid, arg, sid)
     if cmd == "projects":
         return _reply(_format_projects(arg))
     if cmd == "use":
@@ -198,6 +202,9 @@ def _parse_intent(msg: str) -> tuple[str, str]:
 
 def _help_text() -> str:
     return """## 🤖 PyQuality 命令帮助
+
+### AI 代码验收（核心主链）
+- `/accept [需求描述或项目文件名]` — 在对话中发起需求驱动 AI 代码验收（支持手动建标/AI 起草、Docker 隔离执行、确定性三态判定与同标准复测）
 
 ### 项目管理
 - `/projects [关键词]` — 列出/搜索项目
@@ -1223,6 +1230,37 @@ def _format_history(pid: str, arg: str = "") -> str:
         if alerts:
             lines.append("\n**趋势预警:**\n" + "\n".join(f"- {a}" for a in alerts))
     return "\n".join(lines)
+
+
+def _do_accept(pid: str, arg: str = "", sid: str = "") -> dict:
+    """在统一对话入口触发交互式需求驱动验收卡片。"""
+    prefill_req = ""
+    prefill_code = ""
+    extra_note = ""
+    if arg:
+        if pid and arg.endswith(".py"):
+            sources = _read_sources(pid)
+            if arg in sources:
+                prefill_code = sources[arg]
+                extra_note = f"\n\n已自动载入当前项目文件 `{arg}` 的源码，请补充功能需求并确认固定测试标准。"
+            else:
+                prefill_req = arg
+        else:
+            prefill_req = arg
+    reply = (
+        "已为你展开 **AI 代码验收卡片**：先输入需求或生成提示词，由 AI 多轮追问把边界问清楚，再生成并锁定测试用例，最后贴入代码进 Docker 按标准验收。"
+        + extra_note
+    )
+    if sid:
+        database.add_message(sid, "ai", reply)
+    return {
+        "reply": reply,
+        "project_id": pid,
+        "session_id": sid,
+        "action": "open_acceptance",
+        "prefill_requirement": prefill_req,
+        "prefill_code": prefill_code,
+    }
 
 
 def _do_snippet(code: str, sid: str = "") -> dict:

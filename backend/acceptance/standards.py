@@ -6,6 +6,7 @@ import re
 import time
 import uuid
 from pathlib import Path
+from typing import Optional
 
 from pydantic import Field, StrictBool, model_validator
 
@@ -13,11 +14,23 @@ from backend.config import BASE_DIR
 from backend.acceptance import hashing, review, spec_extractor, verdict
 from backend.acceptance.checks import validate_plan_structure
 from backend.acceptance.models import (
-    CanonicalSpec, ContractSpec, Entrypoint, EvaluationRequest, RequirementItem,
-    StrictModel, TestPlan,
+    AcceptanceMaterials, CanonicalSpec, ContractSpec, Entrypoint,
+    EvaluateOptions, EvaluationRequest, GenerationContext, RequirementItem,
+    StrictModel, SupportingFile, TestPlan,
 )
 
 STORE_DIR = BASE_DIR / "data" / "acceptance_standards"
+
+
+class PrepareRequest(StrictModel):
+    requirement: str = Field(min_length=1, max_length=20000)
+    generation_prompt: str = Field(default="", max_length=20000)
+    code: str = Field(default="", max_length=262144)
+    supporting_files: list[SupportingFile] = Field(default_factory=list)
+    entrypoint: Optional[Entrypoint] = None
+    generation_context: GenerationContext = Field(default_factory=GenerationContext)
+    acceptance_materials: AcceptanceMaterials = Field(default_factory=AcceptanceMaterials)
+    options: EvaluateOptions = Field(default_factory=EvaluateOptions)
 
 
 class StandardConfirmation(StrictModel):
@@ -40,10 +53,73 @@ def normalize(text: str) -> str:
     return "".join(text.split())
 
 
-def prepare(request: EvaluationRequest) -> dict:
+def _ensure_complete_cases_for_partial_mandatory(spec: CanonicalSpec, plan: TestPlan) -> None:
+    """防 AI 只给某条必要需求（如排序要求）配 ORDERED/RETURN_TYPE 等部分检查导致用户无法直接确认。
+
+    如果计划里已经有针对具体输入的完整 RETURN_EQUALS 列表案例（长度 >= 2），
+    就为只含部分性质检查的排序/顺序类必要需求补充一份等价的完整返回值检查，
+    保证用户在澄清完需求后可以直接勾选确认，同时保留原本的 ORDERED 检查。
+    """
+    full_kinds = {"RETURN_EQUALS", "RETURN_IS_NONE", "RAISES"}
+    list_cases = [
+        c for c in plan.cases
+        if c.assertion.kind == "RETURN_EQUALS"
+        and isinstance(getattr(c.assertion, "expected", None), list)
+        and len(c.assertion.expected) >= 2
+    ]
+    if not list_cases:
+        return
+    sample = list_cases[0]
+    for r in spec.requirements:
+        if not r.mandatory:
+            continue
+        r_cases = [c for c in plan.cases if r.id in c.requirement_ids]
+        has_full = any(
+            c.assertion.kind in full_kinds
+            or (r.kind == "SIDE_EFFECT" and c.assertion.kind == "INPUT_UNCHANGED")
+            for c in r_cases
+        )
+        if has_full:
+            continue
+        has_partial = any(c.assertion.kind in ("ORDERED", "RETURN_TYPE", "ALL_ITEMS_MATCH") for c in r_cases)
+        if not has_partial:
+            continue
+        if len(plan.cases) >= 40 or len(plan.contracts) >= 40:
+            break
+        cid = f"K_{r.id}_FULL"
+        while any(ct.contract_id == cid for ct in plan.contracts):
+            cid += "_1"
+        plan.contracts.append(ContractSpec(
+            contract_id=cid,
+            requirement_ids=[r.id],
+            description=f"具体完整输出检查：{r.statement[:120]}",
+            representation="RETURN_EQUALS",
+            relation_to_requirement="EQUIVALENT",
+            relation_basis="通过具体多元素输入的完整预期输出同时验证结果与顺序/格式要求",
+            oracle_origin="RULE_DERIVATION",
+            oracle_review="ACCEPTED_FOR_TESTING",
+            interpretation_status="AUTO_REVIEWED",
+        ))
+        case_id = f"T_{r.id}_FULL"
+        while any(c.case_id == case_id for c in plan.cases):
+            case_id += "_1"
+        plan.cases.append(sample.model_copy(deep=True, update={
+            "case_id": case_id,
+            "contract_id": cid,
+            "requirement_ids": [r.id],
+            "expected_basis": f"完整输出同时验证 {r.id}（{r.statement[:60]}）",
+        }))
+
+
+def prepare(request: EvaluationRequest | PrepareRequest) -> dict:
     # 导入在函数内，避免服务与标准模块的循环依赖。
     from backend.acceptance.service import _locate_entrypoint
-    entrypoint, entry_note = _locate_entrypoint(request)
+    if request.entrypoint is not None:
+        entrypoint, entry_note = request.entrypoint, ""
+    elif (request.code or "").strip():
+        entrypoint, entry_note = _locate_entrypoint(request)
+    else:
+        entrypoint, entry_note = None, ""
     issues = [entry_note] if entry_note else []
     result = spec_extractor.extract_spec(request.requirement, entrypoint)
     spec = result.spec
@@ -70,6 +146,7 @@ def prepare(request: EvaluationRequest) -> dict:
             extraction_questions = list(spec.unresolved_questions)
             checked = review.review_spec_and_plan(spec, plan, request.requirement)
             review.apply_review(spec, plan, checked)
+            _ensure_complete_cases_for_partial_mandatory(spec, plan)
             # 审查的改进意见单独显示；不把“可补充覆盖”等建议升级为需求歧义。
             # 提取阶段及需求本身的真实未决问题仍然阻止确认。
             spec.unresolved_questions = extraction_questions

@@ -9,7 +9,7 @@ let pickedFiles = [];
 let cmdHistory = [];
 let cmdHistoryIdx = -1;
 
-const ALL_COMMANDS = ["/help", "/projects", "/use", "/files", "/sample", "/analyze", "/summary", "/smells", "/score", "/security", "/deps", "/deadcode", "/funcs", "/tests", "/fix", "/advice", "/config", "/history", "/export", "/compare", "/snippet", "/dashboard", "/rename", "/delete", "/cicd", "/tree", "/ignore", "/search", "/doc", "/type", "/dup", "/perf", "/refactor", "/sessions", "/session"];
+const ALL_COMMANDS = ["/accept", "/help", "/projects", "/use", "/files", "/sample", "/analyze", "/summary", "/smells", "/score", "/security", "/deps", "/deadcode", "/funcs", "/tests", "/fix", "/advice", "/config", "/history", "/export", "/compare", "/snippet", "/dashboard", "/rename", "/delete", "/cicd", "/tree", "/ignore", "/search", "/doc", "/type", "/dup", "/perf", "/refactor", "/sessions", "/session"];
 const CMD_PARAMS = {
   "/analyze": ["all"],
   "/config": ["set", "reset"],
@@ -46,6 +46,10 @@ $("modalOverlay").addEventListener("click", closeModal);
 $("doUploadBtn").addEventListener("click", uploadProject);
 $("themeBtn").addEventListener("click", toggleTheme);
 $("newSessionBtn").addEventListener("click", () => newSession());
+$("startAcceptBtn")?.addEventListener("click", () => {
+  $("msgInput").value = "/accept";
+  sendMessage();
+});
 
 const dz = $("dropzone");
 dz.addEventListener("click", () => $("fileInput").click());
@@ -96,7 +100,7 @@ async function newSession() {
     const r = await api("/sessions", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ project_id: currentPid, title: "" }) });
     currentSid = r.session.id;
     $("chat").innerHTML = "";
-    addMsg("ai", "👋 新会话已创建。输入 `/help` 查看命令，或选择/上传项目后输入 `/analyze` 开始。");
+    addMsg("ai", "👋 欢迎使用 PyQuality。点击顶部「**发起代码验收**」或输入 `/accept` 验收 AI 生成的 Python 函数；也可以上传项目后输入 `/analyze` 做静态分析。");
     await loadSessions();
   } catch (e) { toast(e.message, "err"); }
 }
@@ -212,6 +216,12 @@ async function sendMessage() {
       const r = await api("/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: msg, project_id: currentPid, session_id: currentSid }) });
       thinking.remove();
       addMsg("ai", r.reply);
+      if (r.action === "open_acceptance" && typeof window.openAcceptanceInChat === "function") {
+        window.openAcceptanceInChat({
+          requirement: r.prefill_requirement || "",
+          code: r.prefill_code || "",
+        });
+      }
       if (r.project_id && r.project_id !== currentPid) { currentPid = r.project_id; $("projectSelect").value = currentPid; await loadSessions(); }
       if (r.session_id && r.session_id !== currentSid) { currentSid = r.session_id; await loadSessions(); }
       else { await loadSessions(); }
